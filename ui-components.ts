@@ -7,3 +7,9 @@ export {
     type SelectConfigParams,
     type SelectItem,
 } from "./ui-components/select/select.component";
+export {
+    SpinnerComponent,
+    SpinnerConfig,
+    SpinnerValue,
+    type SpinnerConfigParams,
+} from "./ui-components/spinner/spinner.component";

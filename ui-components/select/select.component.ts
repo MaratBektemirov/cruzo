@@ -1,5 +1,4 @@
-import { AbstractComponent, componentsRegistryService } from "cruzo";
-import styles from "./select.component.module.css";
+import { AbstractComponent, componentsRegistryService } from "../../lib";
 
 export interface SelectItem {
   label: string;
@@ -67,11 +66,13 @@ export class SelectComponent extends AbstractComponent<SelectConfigParams, Recor
   };
 
   toggle() {
-    this.open$.update(!this.open$.value);
+    this.open$.update(!this.open$.actual);
   }
 
   toggleItem(item: SelectItem) {
-    const value = this.config.multi ? Object.assign({}, this.value) : {};
+    const value = this.config.multi 
+      ? Object.assign({}, this.value) 
+      : {[item.value]: this.value[item.value]};
 
     value[item.value] = !value[item.value];
 
@@ -84,31 +85,31 @@ export class SelectComponent extends AbstractComponent<SelectConfigParams, Recor
     let checkbox = this.config.multi ? `<label class="checkbox">
         <input
           type="checkbox"
-          checked="{{root.value$::rx[this.value]}}"
-        />
-     </label>`: '';
+          checked="{{root.value$::rx?.[this.value]}}"
+          />
+      </label>`: '';
 
     return `${checkbox} <span>{{this.label}}</span>`;
   }
 
   getHTML() {
-    return `<div class="${styles.select}">
-    <button type="button" class="${styles.trigger}" onclick="root.toggle()">
-      <span class="${styles.value}">{{root.selectedLabel$::rx}}</span>
-      <span class="${styles.caret} {{root.open$::rx ? '${styles.caretOpen}' : ''}}">▴</span>
-    </button>
-    <div class="${styles.dropdown}" style="{{root.open$::rx ? '' : 'display:none'}}">
-      <div class="${styles.list}" style="{{root.items$::rx && root.items$::rx.length ? '' : 'display:none'}}">
-        <div
-          repeat="root.items$::rx" 
-          class="${styles.option} {{root.value$::rx[this.value] ? '${styles.optionSelected}' : ''}}" 
-          onclick="root.toggleItem(this)">
-          ${this.getItemContent()}
+    return `<div class="cruzo-ui-component_select">
+        <button type="button" class="cruzo-ui-component_trigger" onclick="{{root.toggle()}}">
+          <span class="cruzo-ui-component_value">{{root.selectedLabel$::rx}}</span>
+          <span class="cruzo-ui-component_caret {{root.open$::rx ? 'cruzo-ui-component_caret-open' : ''}}">▴</span>
+        </button>
+        <div class="cruzo-ui-component_dropdown" style="{{root.open$::rx ? '' : 'display:none'}}">
+          <div class="cruzo-ui-component_list" style="{{root.items$::rx && root.items$::rx.length ? '' : 'display:none'}}">
+            <div
+              repeat="{{root.items$::rx}}"
+              class="cruzo-ui-component_option {{root.value$::rx?.[this.value] ? 'cruzo-ui-component_option-selected' : ''}}"
+              onclick="{{root.toggleItem(this)}}">
+              ${this.getItemContent()}
+            </div>
+          </div>
+          <div class="cruzo-ui-component_empty" style="{{root.items$::rx && root.items$::rx.length ? 'display:none' : ''}}">Нет вариантов</div>
         </div>
-      </div>
-      <div class="${styles.empty}" style="{{root.items$::rx && root.items$::rx.length ? 'display:none' : ''}}">Нет вариантов</div>
-    </div>
-  </div>`;
+      </div>`;
   }
 }
 

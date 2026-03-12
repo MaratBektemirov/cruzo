@@ -1,32 +1,26 @@
-function c(e, t) {
-  const r = {};
-  for (const n of e)
-    r[n[t]] = n;
-  return r;
+function r(t, e) {
+  const n = {};
+  for (const o of t) n[o[e]] = o;
+  return n;
 }
-function f(e, t = 2) {
-  return parseFloat((+e).toFixed(t));
-}
-function m(e) {
-  return new Promise((t) => {
+function u(t) {
+  return new Promise((e) => {
     setTimeout(() => {
-      t(!0);
-    }, e);
+      e(!0);
+    }, t);
   });
 }
-function d(e, t) {
-  let r;
-  return (n, u, i, s) => new Promise((a) => {
-    let o = setTimeout(() => {
-      r === o && a(t(n, u, i, s));
-    }, e);
-    r = o;
-  });
+function i(t, e) {
+  let n;
+  return function(...o) {
+    clearTimeout(n), n = setTimeout(() => {
+      e.apply(this, o);
+    }, t);
+  };
 }
 export {
-  c as arrayToHash,
-  d as debounce,
-  m as delay,
-  f as roundValue
+  r as arrayToHash,
+  i as debounce,
+  u as delay
 };
 //# sourceMappingURL=utils.js.map

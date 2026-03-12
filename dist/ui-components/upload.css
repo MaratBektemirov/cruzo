@@ -1,0 +1,31 @@
+.cruzo-ui-component_upload {
+  width: 100%;
+  max-width: 320px;
+  box-sizing: border-box;
+  border: none;
+  background: var(--light, #f5f5f5);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--dark, #1a1a1a);
+  font-family: var(--font, inherit);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.cruzo-ui-component_upload::file-selector-button {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-right: 10px;
+  background: var(--brand, #111);
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.cruzo-ui-component_upload::file-selector-button:hover {
+  background: #222;
+}

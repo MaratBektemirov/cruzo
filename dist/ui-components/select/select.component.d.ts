@@ -1,4 +1,4 @@
-import { AbstractComponent } from "cruzo";
+import { AbstractComponent } from "../../lib";
 export interface SelectItem {
     label: string;
     value: any;
@@ -13,10 +13,10 @@ export declare class SelectComponent extends AbstractComponent<SelectConfigParam
     static selector: string;
     hasConfig: boolean;
     hasOuterScope: boolean;
-    open$: import("../../rx").Rx<boolean>;
-    items$: import("../../rx").Rx<SelectItem[]>;
-    selectedLabel$: import("../../rx").Rx<string>;
-    getItems$: import("../../rx").RxFunc<Promise<void>>;
+    open$: import("../../lib/rx").Rx<boolean, [v: boolean]>;
+    items$: import("../../lib/rx").Rx<SelectItem[], [v: SelectItem[]]>;
+    selectedLabel$: import("../../lib/rx").Rx<string, [v: string]>;
+    getItems$: import("../../lib/rx").RxFunc<Promise<void>>;
     constructor();
     connectedCallback(): void;
     getItems(): Promise<void>;

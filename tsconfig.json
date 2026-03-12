@@ -8,7 +8,6 @@
     "noImplicitAny": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "useDefineForClassFields": true,
@@ -20,12 +19,7 @@
     "strictPropertyInitialization": false,
     "strictNullChecks": false,
     "noEmit": true,
-    "baseUrl": ".",
-    "paths": {
-      "cruzo": ["./index.ts"],
-      "cruzo/*": ["./*"]
-    }
   },
-  "include": ["*.ts", "ui-components/**/*.ts", "env.d.ts"],
-  "exclude": ["dist", "node_modules"]
+  "include": ["lib/**/*.ts", "ui-components/**/*.ts"],
+  "exclude": ["dist", "node_modules", "vite.config.ts"]
 }

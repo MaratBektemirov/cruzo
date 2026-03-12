@@ -1,4 +1,4 @@
-import { AbstractComponent } from "cruzo";
+import { AbstractComponent } from "../../lib";
 interface RouterLinkParams {
     activeCls?: string;
     startsWith?: boolean;

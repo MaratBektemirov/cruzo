@@ -1,0 +1,106 @@
+.cruzo-ui-component_spinner-wrapper {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 99999;
+}
+
+.cruzo-ui-component_spinner {
+  display: flex;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  gap: calc(var(--spinner-size) / 3);
+  width: calc(var(--spinner-size) * 4);
+  height: var(--spinner-size);
+}
+
+.cruzo-ui-component_spinner-dot {
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+  border-radius: 50%;
+  background: var(--spinner-color, var(--accent, currentColor));
+  opacity: 0.4;
+}
+
+.cruzo-ui-component--inactive .cruzo-ui-component_spinner-dot {
+  display: none;
+}
+
+.cruzo-ui-component--active .cruzo-ui-component_spinner-dot {
+  display: block;
+  animation: spinnerBounce 0.6s ease-in-out infinite both;
+}
+
+.cruzo-ui-component--active .cruzo-ui-component_spinner-dot-1 {
+  animation-delay: 0s;
+}
+
+.cruzo-ui-component--active .cruzo-ui-component_spinner-dot-2 {
+  animation-delay: 0.1s;
+}
+
+.cruzo-ui-component--active .cruzo-ui-component_spinner-dot-3 {
+  animation-delay: 0.2s;
+}
+
+.cruzo-ui-component--active .cruzo-ui-component_spinner-dot-2,
+.cruzo-ui-component--active .cruzo-ui-component_spinner-dot-3 {
+  transform: none;
+}
+
+.cruzo-ui-component--active .cruzo-ui-component_spinner-dot-2 {
+  animation-name: spinnerBounce2;
+}
+
+.cruzo-ui-component--active .cruzo-ui-component_spinner-dot-3 {
+  animation-name: spinnerBounce3;
+}
+
+@keyframes spinnerBounce {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes spinnerBounce2 {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes spinnerBounce3 {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

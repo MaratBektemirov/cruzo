@@ -1,18 +1,28 @@
-import { AbstractComponent, componentsRegistryService, Template } from "cruzo";
-import { roundValue } from "cruzo/utils";
-import styles from "./input.component.module.css";
+import { AbstractComponent, componentsRegistryService, Template } from "../../lib";
 
 interface InputConfigParams {
-  label?: string;
-  enableContentWidth?: boolean;
-  roundValue?: number;
+  type?: 'text' | 'password' | 'email' | 'url' | 'tel' | 'search' | 'number';
+  maxlength?: number;
+  placeholder?: string;
+  required?: boolean;
+  autocomplete?: string;
+  inputmode?: string;
 }
 
 export function InputConfig(params: InputConfigParams) {
   return Object.assign({}, params);
 }
 
-export class InputComponent extends AbstractComponent<InputConfigParams> {
+interface InputConfigState {
+  required: boolean;
+  placeholder: string;
+  cls: string;
+  maxlength: number;
+  autocomplete: string;
+  inputmode: string;
+}
+
+export class InputComponent extends AbstractComponent<InputConfigParams, any, InputConfigState> {
   static selector = "input-component";
   hasConfig = true;
   hasOuterScope = true;
@@ -22,32 +32,33 @@ export class InputComponent extends AbstractComponent<InputConfigParams> {
   hasMouseEnter = false;
 
   getHTML() {
-    return `<input 
-      class="input"
-      placeholder="${this.config?.label || ''}"
-      oninput="root.onEvent()"
-      onfocus="root.onFocus()"
-      onblur="root.onBlur()"
-      onmouseenter="root.onMouseEnter()"
-      onmouseleave="root.onMouseLeave()"
-    />`;
-  }
-
-  isCheckbox() {
-    const input = this.getInput();
-    return input?.getAttribute('type') === 'checkbox';
+    return `<input
+        let-state="{{this.state$::rx}}"
+        attached="{{state}}"
+        required="{{state.required}}"
+        inputmode="{{state.inputmode}}"
+        maxlength="{{state.maxlength}}"
+        class="input {{state.cls}}"
+        autocomplete="{{state.autocomplete}}"
+        type="${this.config.type || 'text'}"
+        placeholder="{{state.placeholder}}"
+        oninput="{{root.onEvent()}}"
+        onfocus="{{root.onFocus()}}"
+        onblur="{{root.onBlur()}}"
+        onmouseenter="{{root.onMouseEnter()}}"
+        onmouseleave="{{root.onMouseLeave()}}"
+        />`;
   }
 
   isNumber() {
-    const input = this.getInput();
-    return input?.getAttribute('type') === 'number';
+    return this.getInput()?.getAttribute('type') === 'number';
   }
 
   getInput() {
-    return this.node.querySelector('input') as HTMLInputElement || this.node.firstElementChild as HTMLInputElement;
+    return this.node.firstElementChild as HTMLInputElement;
   }
 
-  showTooltipIfOverflow = () => {
+  recalc() {
     const isActiveInput = this.hasFocus || this.hasMouseEnter;
 
     let addTooltip = false;
@@ -65,7 +76,7 @@ export class InputComponent extends AbstractComponent<InputConfigParams> {
     removeTooltip = (this.tooltipNode && !hasOverflow);
 
     if (addTooltip) {
-      this.tooltipNode = Template.stringToNode(`<div class="${styles.inputTooltip}"></div>`) as HTMLElement;
+      this.tooltipNode = Template.stringToNode(`<div class="cruzo-ui-component_input-tooltip"></div>`) as HTMLElement;
       document.body.appendChild(this.tooltipNode);
       this.updateTooltipCoords();
       window.addEventListener('resize', this.updateTooltipCoords);
@@ -97,59 +108,12 @@ export class InputComponent extends AbstractComponent<InputConfigParams> {
     this.tooltipNode.style.top = (rect.top - 43) + 'px';
   }
 
-  recalc() {
-    if (this.isCheckbox()) {
-      return;
-    }
-
-    const config = this.config || {};
-
-    if (config.enableContentWidth) {
-      const input = this.getInput();
-
-      if (input.value.length) {
-        input.style.minWidth = '100%';
-        input.style.width = (input.value.length + 0.75) + "ch";
-      } else {
-        input.style.minWidth = '';
-        input.style.width = '';
-      }
-    } else {
-      this.showTooltipIfOverflow();
-    }
-  }
-
-  protected setValue(byUser = false) {
-    const config = this.config || {};
-    this.value = this.outerScope.getValue(this.id, this.index);
-    const input = this.getInput();
-
-    if (this.value && typeof config.roundValue === 'number') {
-      this.value = roundValue(this.value, config.roundValue) + '';
-    }
-
-    if (!byUser) {
-      if (this.isCheckbox()) {
-        input.checked = this.value || false;
-      } else if (this.isNumber()) {
-        input.value = this.value === 0 ? '0' : (this.value || '');
-      } else {
-        input.value = this.value || '';
-      }
-    }
-
-    this.value$.update(this.value);
-    this.recalc();
-  }
-
   onEvent() {
     const input = this.getInput();
 
     let value;
 
-    if (this.isCheckbox()) {
-      value = input.checked;
-    } else if (this.isNumber()) {
+    if (this.isNumber()) {
       value = +input.value;
     } else {
       value = input.value;
@@ -189,6 +153,27 @@ export class InputComponent extends AbstractComponent<InputConfigParams> {
       window.removeEventListener('resize', this.updateTooltipCoords);
       window.removeEventListener('scroll', this.updateTooltipCoords);
     }
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+
+    const state: InputConfigState = this.outerScope.getState(this.id, this.index) || {};
+
+    this.outerScope.setState(this.id, {
+      required: state.required || this.config.required || false,
+      placeholder: state.placeholder || this.config.placeholder || '',
+      cls: state.cls || '',
+      maxlength: state.maxlength || this.config.maxlength || '',
+      autocomplete: state.autocomplete || this.config.autocomplete || '',
+      inputmode: state.inputmode || this.config.inputmode || '',
+    }, this.index);
+
+    this.newRxFunc((value) => {
+      const input = this.getInput()
+      if (!input || value === input.value) return
+      input.value = value ?? ''
+    }, this.value$)
   }
 }
 

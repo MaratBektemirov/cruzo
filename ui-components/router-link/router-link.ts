@@ -1,4 +1,4 @@
-import { AbstractComponent, componentsRegistryService, routerService, Template } from "cruzo";
+import { AbstractComponent, componentsRegistryService, routerService, Template } from "../../lib";
 
 const listenedAttrs = new Set(['href']);
 
@@ -46,7 +46,7 @@ export class RouterLinkComponent extends AbstractComponent<RouterLinkParams, boo
     let activeCls = this.config.activeCls;
 
     const isActive = this.isActive();
-    this.outerScope.emitEvent(this.id, this.index, 'routerLinkStateChanged', {data: {isActive}});
+    this.outerScope.emitEvent(this.id, 'routerLinkStateChanged', {data: {isActive}}, this.index);
 
     if (isActive) {
       this.node.classList.add(activeCls);

@@ -1,0 +1,38 @@
+.cruzo-ui-component_button-group {
+  display: flex;
+  gap: 2px;
+  background: var(--surface-2);
+  border-radius: var(--m);
+  padding: 3px;
+  width: fit-content;
+}
+
+.cruzo-ui-component_button-group-item {
+  padding: var(--s) var(--m);
+  background: var(--surface);
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-radius: calc(var(--m) - 2px);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.cruzo-ui-component_button-group-item:hover {
+  background: var(--surface-2);
+}
+
+.cruzo-ui-component_button-group-item-active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 500;
+}
+
+.cruzo-ui-component_button-group-item-active:hover {
+  background: rgba(17, 24, 39, 0.9);
+}

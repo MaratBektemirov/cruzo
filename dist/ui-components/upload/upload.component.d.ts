@@ -1,4 +1,4 @@
-import { AbstractComponent, type Rx } from "cruzo";
+import { AbstractComponent } from "../../lib";
 interface UploadConfigParams {
     accept: string;
 }
@@ -7,7 +7,6 @@ export declare class UploadComponent extends AbstractComponent<UploadConfigParam
     static selector: string;
     hasOuterScope: boolean;
     hasConfig: boolean;
-    reset$: Rx<any>;
     constructor();
     connectedCallback(): Promise<void>;
     disconnectedCallback(): void;

@@ -1,5 +1,4 @@
-import { AbstractComponent, componentsRegistryService } from "cruzo";
-import styles from "./button-group.component.module.css";
+import { AbstractComponent, componentsRegistryService } from "../../lib";
 
 interface ButtonGroupConfigParams {
   items: Array<{ label: string; value: string }>;
@@ -15,15 +14,15 @@ export class ButtonGroupComponent extends AbstractComponent<ButtonGroupConfigPar
   hasOuterScope = true;
 
   getHTML() {
-    return `<div class="${styles.buttonGroup}">
-      <button
-        repeat="root.config?.items"
-        class="${styles.buttonGroupItem} {{this.value === root.value$::rx ? '${styles.buttonGroupItemActive}' : ''}}"
-        onclick="root.select(this.value)"
-      >
-        {{this.label}}
-      </button>
-    </div>`;
+    return `<div class="cruzo-ui-component_button-group">
+        <button
+          repeat="{{root.config?.items}}"
+          class="cruzo-ui-component_button-group-item {{this.value === root.value$::rx ? 'cruzo-ui-component_button-group-item-active' : ''}}"
+          onclick="{{root.select(this.value)}}"
+          >
+          {{this.label}}
+        </button>
+      </div>`;
   }
 
   select(value: string) {

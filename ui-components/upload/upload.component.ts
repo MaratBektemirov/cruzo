@@ -1,4 +1,4 @@
-import { AbstractComponent, componentsRegistryService, type Rx } from "cruzo";
+import { AbstractComponent, componentsRegistryService } from "../../lib";
 
 interface UploadConfigParams {
   accept: string
@@ -12,7 +12,6 @@ export class UploadComponent extends AbstractComponent<UploadConfigParams> {
   static selector = "upload-component";
   hasOuterScope = true;
   hasConfig = true;
-  reset$: Rx<any>;
 
   constructor() {
     super();
@@ -20,22 +19,14 @@ export class UploadComponent extends AbstractComponent<UploadConfigParams> {
 
   async connectedCallback() {
     super.connectedCallback();
-
-    this.reset$ = this.outerScope.newRxValue(this.id, (value) => {
-      if (!value) {
-        if (this.template) this.template.fullDestroy();
-        this.initTemplate();
-      }
-    }, this.rxList);
   }
 
   disconnectedCallback(): void {
-    this.reset$.unsubscribe();
     super.disconnectedCallback();
   }
 
   getHTML() {
-    return `<input accept="${this.config.accept}" type="file" onchange="this.upload(event)"/>`
+    return `<input class="cruzo-ui-component_upload" accept="${this.config.accept}" type="file" onchange="{{this.upload(event)}}"/>`
   }
 
   upload = (event: Event) => {
