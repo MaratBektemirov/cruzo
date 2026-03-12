@@ -30,6 +30,8 @@ If you want full control over DOM and a small runtime footprint, this is your la
 ```bash
 npm i cruzo
 ```
+- Starter repo: [cruzo-starter](https://maratbektemirov.github.io/cruzo-starter/)
+- VSCode extension (syntax): [cruzo-syntax](https://marketplace.visualstudio.com/items?itemName=cruzo.cruzo-syntax)
 
 ---
 
