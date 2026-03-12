@@ -129,16 +129,23 @@ class RouterService extends AbstractService {
 
   private scrollToHashElementIsBlocked = false;
 
+  private normalizePathname(pathname: string) {
+    if (pathname === "/") return pathname;
+    return pathname.replace(/\/+$/, "");
+  }
+
   public hrefIsActive(href: string, mode: {
     startsWith?: boolean,
     ignoreSearch?: boolean,
     ignoreHash?: boolean,
   } = null) {
     const linkUrl = new URL(href, window.location.origin);
+    const currentPathname = this.normalizePathname(window.location.pathname);
+    const linkPathname = this.normalizePathname(linkUrl.pathname);
 
     let a = mode?.startsWith
-      ? window.location.pathname.startsWith(linkUrl.pathname)
-      : linkUrl.pathname === window.location.pathname;
+      ? currentPathname.startsWith(linkPathname)
+      : linkPathname === currentPathname;
 
     let b = true;
     let c = true;
@@ -156,7 +163,7 @@ class RouterService extends AbstractService {
 
   private getCompletedRedirectRules(rules: Rule[]) {
     const rulesCompleted: RuleCompleted[] = [];
-    const currentPath = window.location.pathname;
+    const currentPath = this.normalizePathname(window.location.pathname);
 
     for (const rule of rules) {
       const params = rule.url.matcher.parse(currentPath);
@@ -175,7 +182,7 @@ class RouterService extends AbstractService {
   private getCompletedComponentRules(prevCompletedRules: RuleCompleted[], rules: Rule[]) {
     const prevUrls = new Set(prevCompletedRules.map((r) => r.url));
     const rulesCompleted: RuleCompleted[] = [];
-    const currentPath = window.location.pathname;
+    const currentPath = this.normalizePathname(window.location.pathname);
 
     for (const rule of rules) {
       const params = rule.url.matcher.parse(currentPath);
@@ -208,8 +215,9 @@ class RouterService extends AbstractService {
 
   public update(ignoreRedirectRules = false) {
     const url = new URL(window.location.href);
+    const pathname = this.normalizePathname(url.pathname);
 
-    if (this.pathname$.actual !== url.pathname) {
+    if (this.pathname$.actual !== pathname) {
       const { redirectRules, componentRules } = this.separateRules();
 
       if (!ignoreRedirectRules && this.applyRedirectRulesForUrl(redirectRules)) {
@@ -218,7 +226,7 @@ class RouterService extends AbstractService {
       }
 
       this.applyComponentRulesForUrl(componentRules);
-      this.pathname$.update(url.pathname);
+      this.pathname$.update(pathname);
     }
 
     if (this.hash$.actual !== url.hash) {
@@ -250,10 +258,12 @@ class RouterService extends AbstractService {
 
   public pushHistory(href: string) {
     const url = new URL(href, window.location.origin);
+    const pathname = this.normalizePathname(url.pathname);
+    const hrefNormalized = pathname + url.search + url.hash;
 
-    if (this.pathname$.actual === url.pathname && this.hash$.actual === url.hash && this.search$.actual === url.search) return;
+    if (this.pathname$.actual === pathname && this.hash$.actual === url.hash && this.search$.actual === url.search) return;
 
-    history.pushState("", "", href);
+    history.pushState("", "", hrefNormalized);
 
     this.update();
   }

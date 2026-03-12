@@ -49,6 +49,7 @@ declare class RouterService extends AbstractService {
     hash$: Rx<string, [v: string]>;
     search$: Rx<string, [v: string]>;
     private scrollToHashElementIsBlocked;
+    private normalizePathname;
     hrefIsActive(href: string, mode?: {
         startsWith?: boolean;
         ignoreSearch?: boolean;
