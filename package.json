@@ -1,0 +1,69 @@
+{
+  "name": "cruzo",
+  "version": "0.9.0",
+  "description": "Zero-dependency reactive framework with an expression VM",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./ui-components": {
+      "types": "./dist/ui-components.d.ts",
+      "import": "./dist/ui-components.js"
+    },
+    "./ui-components/input": {
+      "types": "./dist/ui-components/input/input.component.d.ts",
+      "import": "./dist/input.js"
+    },
+    "./ui-components/button-group": {
+      "types": "./dist/ui-components/button-group/button-group.component.d.ts",
+      "import": "./dist/button-group.js"
+    },
+    "./ui-components/select": {
+      "types": "./dist/ui-components/select/select.component.d.ts",
+      "import": "./dist/select.js"
+    },
+    "./ui-components/upload": {
+      "types": "./dist/ui-components/upload/upload.component.d.ts",
+      "import": "./dist/upload.js"
+    },
+    "./ui-components/router-link": {
+      "types": "./dist/ui-components/router-link/router-link.d.ts",
+      "import": "./dist/router-link.js"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.js"
+    },
+    "./ui-components/select.css": {
+      "import": "./dist/select.css",
+      "style": "./dist/select.css"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "build:lib": "vite build && node scripts/generate-ui-components-barrel.mjs",
+    "build:types": "tsc -p tsconfig.build.json && cp env.d.ts dist/",
+    "generate:css-types": "tcm ui-components -c -p \"**/*.module.css\"",
+    "build": "npm run generate:css-types && npm run build:lib && npm run build:types",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typed-css-modules": "^0.9.0",
+    "typescript": "^5.0.0",
+    "vite": "^6.0.0"
+  }
+}

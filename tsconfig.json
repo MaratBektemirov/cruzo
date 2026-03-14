@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["node"],
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "useDefineForClassFields": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": false,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "strictPropertyInitialization": false,
+    "strictNullChecks": false,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "cruzo": ["./index.ts"],
+      "cruzo/*": ["./*"]
+    }
+  },
+  "include": ["*.ts", "ui-components/**/*.ts", "env.d.ts"],
+  "exclude": ["dist", "node_modules"]
+}

@@ -1,0 +1,13 @@
+.inputTooltip {
+  position: fixed;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: var(--font);
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 300px;
+}
