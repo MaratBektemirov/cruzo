@@ -39,6 +39,12 @@ type InterceptorError = (
   response: Response | null
 ) => Promise<void>;
 
+export interface Interceptors {
+  params?: InterceptorParams;
+  success?: InterceptorSuccess;
+  error?: InterceptorError;
+}
+
 export class HttpClient {
   static REFUSED = "net::ERR_CONNECTION_REFUSED";
 
@@ -46,14 +52,10 @@ export class HttpClient {
 
   constructor(
     public rootUrl: string,
-    public interceptors: {
-      params?: InterceptorParams;
-      success?: InterceptorSuccess;
-      error?: InterceptorError;
-    } = {},
+    public interceptors: Interceptors = {},
     public withCredentials: boolean = false,
     public cacheTime: number = 0
-  ) {}
+  ) { }
 
   static getQueryString(params?: HttpClientParams): string {
     if (!params) return "";

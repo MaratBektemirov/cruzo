@@ -15,22 +15,19 @@ export interface HttpRequestOptions {
 type InterceptorParams = (method: HttpMethod, url: string, options: HttpRequestOptions) => Promise<void>;
 type InterceptorSuccess = (method: HttpMethod, url: string, options: HttpRequestOptions, data: any, response: Response) => Promise<void>;
 type InterceptorError = (method: HttpMethod, url: string, options: HttpRequestOptions, status: number, data: any, response: Response | null) => Promise<void>;
+export interface Interceptors {
+    params?: InterceptorParams;
+    success?: InterceptorSuccess;
+    error?: InterceptorError;
+}
 export declare class HttpClient {
     rootUrl: string;
-    interceptors: {
-        params?: InterceptorParams;
-        success?: InterceptorSuccess;
-        error?: InterceptorError;
-    };
+    interceptors: Interceptors;
     withCredentials: boolean;
     cacheTime: number;
     static REFUSED: string;
     private cache;
-    constructor(rootUrl: string, interceptors?: {
-        params?: InterceptorParams;
-        success?: InterceptorSuccess;
-        error?: InterceptorError;
-    }, withCredentials?: boolean, cacheTime?: number);
+    constructor(rootUrl: string, interceptors?: Interceptors, withCredentials?: boolean, cacheTime?: number);
     static getQueryString(params?: HttpClientParams): string;
     private getKeyForCache;
     clearCache(method: HttpMethod, path: string, options?: HttpRequestOptions): Promise<void>;

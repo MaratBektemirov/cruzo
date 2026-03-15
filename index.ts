@@ -10,7 +10,7 @@ export { componentsRegistryService } from "./components-registry.service";
 export { routerService, RouteUrlBucket } from "./router.service";
 
 export { HttpClient } from "./http";
-export type { HttpRequestOptions } from "./http";
+export type { HttpRequestOptions, Interceptors } from "./http";
 
 export type {
   AbstractComponentConstructor,
