@@ -9,7 +9,7 @@ export declare function ButtonGroupConfig(params: ButtonGroupConfigParams): Butt
 export declare class ButtonGroupComponent extends AbstractComponent<ButtonGroupConfigParams> {
     static selector: string;
     hasConfig: boolean;
-    hasOuterScope: boolean;
+    hasOuterBucket: boolean;
     getHTML(): string;
     select(value: string): void;
 }

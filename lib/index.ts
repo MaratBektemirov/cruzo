@@ -3,7 +3,7 @@ export { Template } from "./template";
 export { AbstractComponent } from "./component";
 export { AbstractService } from "./service";
 
-export { RxScope } from "./rx-scope";
+export { RxBucket } from "./rx-bucket";
 
 export { componentsRegistryService } from "./components-registry.service";
 export { routerService, RouteUrlBucket } from "./router.service";
@@ -15,7 +15,7 @@ export type {
   AbstractComponentConstructor,
   ComponentDescriptor,
   ComponentConnectedParams,
-  ScopeEvent,
+  BucketEvent,
 } from "./interfaces";
 
 export { Rx, RxFunc } from './rx';

@@ -14,7 +14,7 @@ export function RouterLinkConfig(params: RouterLinkParams) {
 }
 
 declare global {
-  interface ScopeEventMap {
+  interface BucketEventMap {
     routerLinkStateChanged: {
       isActive: boolean
     }
@@ -24,7 +24,7 @@ declare global {
 export class RouterLinkComponent extends AbstractComponent<RouterLinkParams, boolean> {
   static selector = "[router-link]";
 
-  public hasOuterScope = true;
+  public hasOuterBucket = true;
   public hasConfig = true;
   public isDirective = true;
 
@@ -46,7 +46,7 @@ export class RouterLinkComponent extends AbstractComponent<RouterLinkParams, boo
     let activeCls = this.config.activeCls;
 
     const isActive = this.isActive();
-    this.outerScope.emitEvent(this.id, 'routerLinkStateChanged', {data: {isActive}}, this.index);
+    this.outerBucket.emitEvent(this.id, 'routerLinkStateChanged', {data: {isActive}}, this.index);
 
     if (isActive) {
       this.node.classList.add(activeCls);

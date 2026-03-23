@@ -109,7 +109,7 @@ const A = {
   } catch {
     return Object.prototype.toString.call(n);
   }
-}, B = {}, j = 255, J = 8;
+}, w = {}, j = 255, J = 8;
 var G = /* @__PURE__ */ ((n) => (n[n.PUSH_CONST = 1] = "PUSH_CONST", n[n.LOAD_ID = 2] = "LOAD_ID", n[n.LOAD_THIS = 3] = "LOAD_THIS", n[n.GET_PROP = 4] = "GET_PROP", n[n.GET_PROP_KEEP = 5] = "GET_PROP_KEEP", n[n.GET_INDEX = 6] = "GET_INDEX", n[n.GET_INDEX_KEEP = 7] = "GET_INDEX_KEEP", n[n.POP = 8] = "POP", n[n.POP_BELOW = 9] = "POP_BELOW", n[n.UNARY_NOT = 10] = "UNARY_NOT", n[n.UNARY_POS = 11] = "UNARY_POS", n[n.UNARY_NEG = 12] = "UNARY_NEG", n[n.BIN_ADD = 13] = "BIN_ADD", n[n.BIN_SUB = 14] = "BIN_SUB", n[n.BIN_MUL = 15] = "BIN_MUL", n[n.BIN_DIV = 16] = "BIN_DIV", n[n.BIN_MOD = 17] = "BIN_MOD", n[n.BIN_EQ = 18] = "BIN_EQ", n[n.BIN_NEQ = 19] = "BIN_NEQ", n[n.BIN_SEQ = 20] = "BIN_SEQ", n[n.BIN_SNEQ = 21] = "BIN_SNEQ", n[n.BIN_LT = 22] = "BIN_LT", n[n.BIN_LTE = 23] = "BIN_LTE", n[n.BIN_GT = 24] = "BIN_GT", n[n.BIN_GTE = 25] = "BIN_GTE", n[n.CALL_FN = 26] = "CALL_FN", n[n.CALL_METHOD = 27] = "CALL_METHOD", n[n.RX_UI = 28] = "RX_UI", n[n.JMP = 29] = "JMP", n[n.JMP_IF_FALSE = 30] = "JMP_IF_FALSE", n[n.JMP_IF_FALSE_KEEP = 31] = "JMP_IF_FALSE_KEEP", n[n.JMP_IF_TRUE_KEEP = 32] = "JMP_IF_TRUE_KEEP", n[n.JMP_IF_NULLISH = 33] = "JMP_IF_NULLISH", n[n.MAKE_ARRAY = 34] = "MAKE_ARRAY", n[n.MAKE_OBJECT = 35] = "MAKE_OBJECT", n[n.ONCE_ENTER = 36] = "ONCE_ENTER", n[n.ONCE_STORE = 37] = "ONCE_STORE", n))(G || {});
 function it(n) {
   return n === 29 || n === 30 || n === 31 || n === 32 || n === 33 || n === 36;
@@ -189,14 +189,14 @@ class K {
       return;
     }
     let i = t.onceMap.get(this);
-    for (i || (i = [], t.onceMap.set(this, i)); i.length <= e; ) i.push(B);
+    for (i || (i = [], t.onceMap.set(this, i)); i.length <= e; ) i.push(w);
     i[e] = s;
   }
   getOnceSlotValue(t, e) {
     if (t.onceMap ?? (t.onceMap = /* @__PURE__ */ new Map()), this.onlyOnce())
-      return t.onceMap.has(this) ? t.onceMap.get(this) : (t.onceMap.set(this, B), B);
+      return t.onceMap.has(this) ? t.onceMap.get(this) : (t.onceMap.set(this, w), w);
     let s = t.onceMap.get(this);
-    for (s || (s = [], t.onceMap.set(this, s)); s.length <= e; ) s.push(B);
+    for (s || (s = [], t.onceMap.set(this, s)); s.length <= e; ) s.push(w);
     return s[e];
   }
   getSafeErrorMsg(t, e) {
@@ -207,17 +207,17 @@ class K {
     let f, p;
     const r = [];
     let h = 0, v = 0, E = 0;
-    const C = (N, w, y) => {
+    const C = (N, k, y) => {
       const l = r[N];
       if (typeof l != "function")
         throw new Error(`Cannot call undefined or non-function value: ${l}`);
-      if (!y) return l.call(w);
+      if (!y) return l.call(k);
       const x = r.slice(h - y, h);
-      return l.apply(w, x);
+      return l.apply(k, x);
     };
     for (; v < d.length; ) {
-      const N = d[v++], w = R(N), y = $(N);
-      switch (w) {
+      const N = d[v++], k = R(N), y = $(N);
+      switch (k) {
         case 1:
           r[h++] = u[y];
           break;
@@ -360,7 +360,7 @@ class K {
           break;
         }
         case 27: {
-          const l = y, x = h - l - 1, g = h - l - 2, k = r[g], T = C(x, k, l);
+          const l = y, x = h - l - 1, g = h - l - 2, S = r[g], T = C(x, S, l);
           h = g, r[h++] = T;
           break;
         }
@@ -378,7 +378,7 @@ class K {
         }
         case 36: {
           const l = y, x = d[v++] >>> 0, g = this.getOnceSlotValue(t, l);
-          g !== B ? (r[h++] = g, v = x) : E++;
+          g !== w ? (r[h++] = g, v = x) : E++;
           break;
         }
         case 37: {
@@ -414,14 +414,14 @@ class K {
         case 35: {
           const l = y, x = {};
           for (let g = 0; g < l; g++) {
-            const k = r[--h], T = r[--h];
-            x[T] = k;
+            const S = r[--h], T = r[--h];
+            x[T] = S;
           }
           r[h++] = x;
           break;
         }
         default:
-          throw new Error(`Unknown op ${w} at ip=${v - 1}`);
+          throw new Error(`Unknown op ${k} at ip=${v - 1}`);
       }
     }
     return h ? r[h - 1] : void 0;
@@ -912,7 +912,7 @@ const V = new z(5e3), H = new z(5e3), ht = {
   readonly: "readOnly",
   required: "required",
   open: "open"
-}, at = /* @__PURE__ */ new Set(["component-id", "scope-id"]);
+}, at = /* @__PURE__ */ new Set(["component-id", "bucket-id"]);
 let I = null;
 const ct = { bubbles: !1 }, b = class b {
   constructor(t) {
@@ -1578,13 +1578,13 @@ class lt {
   constructor() {
     a(this, "instancesBySelector", {});
     a(this, "componentsRoot", []);
-    a(this, "scopes", {});
+    a(this, "buckets", {});
     a(this, "listBySelector", /* @__PURE__ */ new Map());
   }
   removeComponents(t, e = !1) {
     for (; t.length; ) {
       const s = t.pop();
-      s.disconnectedCallback(e), S.instancesBySelector[s.selector].delete(
+      s.disconnectedCallback(e), B.instancesBySelector[s.selector].delete(
         s.node
       );
     }
@@ -1621,14 +1621,14 @@ class lt {
     for (const t of this.listBySelector.keys())
       this.connectBySelector(t, this.componentsRoot);
   }
-  connectScope(t) {
-    this.scopes[t.id] = t;
+  connectBucket(t) {
+    this.buckets[t.id] = t;
   }
-  disconnectScope(t) {
-    delete this.scopes[t.id];
+  disconnectBucket(t) {
+    delete this.buckets[t.id];
   }
 }
-const S = new lt();
+const B = new lt();
 class Q {
   constructor(t, e = null) {
     a(this, "actual", null);
@@ -1677,13 +1677,13 @@ class pt {
     a(this, "node", null);
     a(this, "http", null);
     a(this, "config", null);
-    a(this, "outerScope", null);
-    a(this, "innerScope", null);
+    a(this, "outerBucket", null);
+    a(this, "innerBucket", null);
     a(this, "destroyed", !1);
     a(this, "ac", null);
     a(this, "dependencies", null);
     a(this, "connectedDependencies", null);
-    a(this, "hasOuterScope", !1);
+    a(this, "hasOuterBucket", !1);
     a(this, "hasConfig", !1);
     a(this, "isDirective", !1);
     a(this, "template", null);
@@ -1701,38 +1701,38 @@ class pt {
     });
   }
   disconnectedCallback(t = !1) {
-    if (this.destroyed = !0, this.ac && this.ac.abort(), this.template && this.template.fullDestroy(), t && this.node && !this.isDirective && this.node.remove(), this.value$ && this.value$.unsubscribe(), this.state$ && this.state$.unsubscribe(), this.connectedDependencies && S.removeComponents(this.connectedDependencies), this.rxList) for (; this.rxList.length; ) this.rxList.pop().unsubscribe();
-    this.innerScope && S.disconnectScope(this.innerScope);
+    if (this.destroyed = !0, this.ac && this.ac.abort(), this.template && this.template.fullDestroy(), t && this.node && !this.isDirective && this.node.remove(), this.value$ && this.value$.unsubscribe(), this.state$ && this.state$.unsubscribe(), this.connectedDependencies && B.removeComponents(this.connectedDependencies), this.rxList) for (; this.rxList.length; ) this.rxList.pop().unsubscribe();
+    this.innerBucket && B.disconnectBucket(this.innerBucket);
   }
-  getScope() {
-    const t = this.getScopeId(), e = S.scopes[t];
+  getBucket() {
+    const t = this.getBucketId(), e = B.buckets[t];
     if (t && !e)
       throw new Error(
-        `Scope "${t}" not found for selector "${this.selector}" (component-id="${this.getId()}")`
+        `Bucket "${t}" not found for selector "${this.selector}" (component-id="${this.getId()}")`
       );
     return e;
   }
   connectedCallback(t = null) {
-    if (this.syncId(), this.setIndex(), this.outerScope = this.getScope(), this.outerScope) {
-      const e = this.outerScope.descriptors[this.id];
+    if (this.syncId(), this.setIndex(), this.outerBucket = this.getBucket(), this.outerBucket) {
+      const e = this.outerBucket.descriptors[this.id];
       if (this.hasConfig) {
         if (!e)
           throw new Error(
-            `Descriptor not found for selector "${this.selector}" id "${this.id}" in scope "${this.getScopeId()}"`
+            `Descriptor not found for selector "${this.selector}" id "${this.id}" in bucket "${this.getBucketId()}"`
           );
         this.config = e.config, this.config || (this.config = {});
       }
-      this.hasOuterScope && (this.rxList ?? (this.rxList = []), this.setValue(), this.outerScope.newRxValue(
+      this.hasOuterBucket && (this.rxList ?? (this.rxList = []), this.setValue(), this.outerBucket.newRxValue(
         this.id,
         this.onUpdateValue,
         this.rxList
-      ), this.setState(), this.outerScope.newRxState(
+      ), this.setState(), this.outerBucket.newRxState(
         this.id,
         this.onUpdateState,
         this.rxList
       ));
     }
-    if (this.innerScope && S.connectScope(this.innerScope), !this.isDirective && !(t != null && t.disableTemplate) && this.initTemplate(), t != null && t.httpFactory) {
+    if (this.innerBucket && B.connectBucket(this.innerBucket), !this.isDirective && !(t != null && t.disableTemplate) && this.initTemplate(), t != null && t.httpFactory) {
       this.ac = new AbortController();
       const e = Object.keys(t.httpFactory);
       this.http = /* @__PURE__ */ Object.create(null);
@@ -1740,11 +1740,11 @@ class pt {
         this.http[s] = t.httpFactory[s](this.ac.signal);
     }
   }
-  setScopeId(t) {
-    return this.node.setAttribute("scope-id", t);
+  setBucketId(t) {
+    return this.node.setAttribute("bucket-id", t);
   }
-  getScopeId() {
-    return this.node.getAttribute("scope-id");
+  getBucketId() {
+    return this.node.getAttribute("bucket-id");
   }
   setId(t) {
     this.node.setAttribute("component-id", t), this.syncId();
@@ -1765,10 +1765,10 @@ class pt {
     return "";
   }
   setValue(t = !1) {
-    this.value = this.outerScope.getValue(this.id, this.index), this.value$.update(this.value);
+    this.value = this.outerBucket.getValue(this.id, this.index), this.value$.update(this.value);
   }
   setState(t = !1) {
-    this.state = this.outerScope.getState(this.id, this.index), this.state$.update(this.state);
+    this.state = this.outerBucket.getState(this.id, this.index), this.state$.update(this.state);
   }
   updateDependencies() {
     if (!(!this.dependencies || !this.dependencies.size)) {
@@ -1776,13 +1776,13 @@ class pt {
         let t = null, e = null;
         for (const s of this.connectedDependencies)
           document.contains(s.node) ? (e ?? (e = []), e.push(s)) : (t ?? (t = []), t.push(s));
-        this.connectedDependencies = e, t && S.removeComponents(t);
+        this.connectedDependencies = e, t && B.removeComponents(t);
       }
       for (const t of this.dependencies) this.connectDependency(t);
     }
   }
   connectDependency(t) {
-    return this.connectedDependencies ?? (this.connectedDependencies = []), S.connectBySelector(
+    return this.connectedDependencies ?? (this.connectedDependencies = []), B.connectBySelector(
       t,
       this.connectedDependencies,
       this.node
@@ -1815,26 +1815,26 @@ class pt {
   newRxFunc(t, ...e) {
     return this.rxList ?? (this.rxList = []), new dt(this.rxList, t, { immediate: !0 }, ...e);
   }
-  newRxValueFromScope(t, e) {
+  newRxValueFromBucket(t, e) {
     return this.rxList ?? (this.rxList = []), t.newRxValue(e, (s) => s, this.rxList);
   }
-  newRxStateFromScope(t, e) {
+  newRxStateFromBucket(t, e) {
     return this.rxList ?? (this.rxList = []), t.newRxState(e, (s) => s, this.rxList);
   }
-  newRxEventFromScope(t, e, s) {
+  newRxEventFromBucket(t, e, s) {
     return this.rxList ?? (this.rxList = []), t.newRxEvent(e, s, (i) => i, this.rxList);
   }
-  newRxValueFromScopeByIndex(t, e) {
+  newRxValueFromBucketByIndex(t, e) {
     this.rxList ?? (this.rxList = []);
     const s = {};
     return t.newRxValue(e, (i, o) => (s[o] = i, s), this.rxList);
   }
-  newRxStateFromScopeByIndex(t, e) {
+  newRxStateFromBucketByIndex(t, e) {
     this.rxList ?? (this.rxList = []);
     const s = {};
     return t.newRxState(e, (i, o) => (s[o] = i, s), this.rxList);
   }
-  newRxEventFromScopeByIndex(t, e, s) {
+  newRxEventFromBucketByIndex(t, e, s) {
     this.rxList ?? (this.rxList = []);
     const i = {};
     return t.newRxEvent(e, s, (o, c) => (i[c] = o, i), this.rxList);
@@ -1845,6 +1845,6 @@ export {
   Q as R,
   U as T,
   dt as a,
-  S as c
+  B as c
 };
-//# sourceMappingURL=component-CH-TJ5VF.js.map
+//# sourceMappingURL=component-BplwVDE8.js.map

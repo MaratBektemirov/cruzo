@@ -2,7 +2,7 @@ import { ComponentsList } from "../../lib/interfaces";
 import { AbstractComponent, componentsRegistryService, Template } from "../../lib";
 
 declare global {
-  interface ScopeEventMap {
+  interface BucketEventMap {
     closeModal: { isOK: boolean };
   }
 }
@@ -20,10 +20,10 @@ const modalList: ComponentsList = [];
 
 export class ModalComponent extends AbstractComponent<ModalConfigParams> {
   static selector = "modal-component";
-  hasOuterScope = true;
+  hasOuterBucket = true;
   hasConfig = true;
 
-  getCloseRx = () => this.newRxEventFromScopeByIndex(this.outerScope, this.id, 'closeModal');
+  getCloseRx = () => this.newRxEventFromBucketByIndex(this.outerBucket, this.id, 'closeModal');
   closeEvents$: ReturnType<typeof this.getCloseRx>;
 
   getHTML() {
@@ -36,15 +36,15 @@ export class ModalComponent extends AbstractComponent<ModalConfigParams> {
     super();
   }
 
-  static attach(componentId: string, scopeId: number | string) {
-    const modalNode = Template.stringToNode(`<modal-component component-id="${componentId}" scope-id="${scopeId}"></modal-component>`);
+  static attach(componentId: string, bucketId: number | string) {
+    const modalNode = Template.stringToNode(`<modal-component component-id="${componentId}" bucket-id="${bucketId}"></modal-component>`);
     document.body.appendChild(modalNode);
 
     componentsRegistryService.connectBySelector(ModalComponent.selector, modalList, document.body);
   }
 
   closeModal(isOK: boolean) {
-    this.outerScope.emitEvent(this.id, 'closeModal', { data: { isOK } });
+    this.outerBucket.emitEvent(this.id, 'closeModal', { data: { isOK } });
   }
 
   destroyModal() {

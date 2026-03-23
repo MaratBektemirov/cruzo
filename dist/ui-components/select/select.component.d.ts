@@ -12,7 +12,7 @@ export declare function SelectConfig(params: SelectConfigParams): SelectConfigPa
 export declare class SelectComponent extends AbstractComponent<SelectConfigParams, Record<string, boolean>> {
     static selector: string;
     hasConfig: boolean;
-    hasOuterScope: boolean;
+    hasOuterBucket: boolean;
     open$: import("../../lib").Rx<boolean, [v: boolean]>;
     items$: import("../../lib").Rx<SelectItem[], [v: SelectItem[]]>;
     selectedLabel$: import("../../lib").Rx<string, [v: string]>;

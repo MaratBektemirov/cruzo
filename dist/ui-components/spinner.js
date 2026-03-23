@@ -1,8 +1,8 @@
 var c = Object.defineProperty;
 var r = (e, o, t) => o in e ? c(e, o, { enumerable: !0, configurable: !0, writable: !0, value: t }) : e[o] = t;
 var n = (e, o, t) => r(e, typeof o != "symbol" ? o + "" : o, t);
-import { c as a, A as l, T as d } from "../component-CH-TJ5VF.js";
-var u = /* @__PURE__ */ ((e) => (e.inactive = "inactive", e.active = "active", e))(u || {});
+import { c as a, A as l, T as u } from "../component-BplwVDE8.js";
+var d = /* @__PURE__ */ ((e) => (e.inactive = "inactive", e.active = "active", e))(d || {});
 function m(e) {
   return Object.assign({}, e);
 }
@@ -14,7 +14,7 @@ class s extends l {
   constructor() {
     super(...arguments);
     n(this, "hasConfig", !0);
-    n(this, "hasOuterScope", !0);
+    n(this, "hasOuterBucket", !0);
     n(this, "isDirective", !0);
     n(this, "contentNode", null);
     n(this, "hostPositionWasPatched", !1);
@@ -53,7 +53,7 @@ class s extends l {
     if (this.contentNode) return;
     this.contentNode = document.createElement("div"), this.contentNode.innerHTML = this.getHTML(), this.contentNode.classList.add("cruzo-ui-component_spinner-wrapper");
     const t = getComputedStyle(this.node), i = t.backgroundImage;
-    i.includes("gradient") ? this.contentNode.style.backgroundImage = i : this.contentNode.style.backgroundColor = t.backgroundColor, this.contentNode.style.borderRadius = t.borderRadius, this.ensureHostPositionForOverlay(), this.template = new d({
+    i.includes("gradient") ? this.contentNode.style.backgroundImage = i : this.contentNode.style.backgroundColor = t.backgroundColor, this.contentNode.style.borderRadius = t.borderRadius, this.ensureHostPositionForOverlay(), this.template = new u({
       node: this.contentNode,
       self: () => this,
       selector: this.selector,
@@ -67,7 +67,7 @@ class s extends l {
     this.template && (this.template.fullDestroy(), this.template = null), this.contentNode && (this.contentNode.remove(), this.contentNode = null), this.hostPositionWasPatched && (this.node.style.position = this.hostPrevPosition, this.hostPositionWasPatched = !1, this.hostPrevPosition = "");
   }
   setValue(t = !1) {
-    this.value = this.outerScope.getValue(this.id, this.index) ?? "inactive", this.value$.update(this.value), this.syncContentFromState();
+    this.value = this.outerBucket.getValue(this.id, this.index) ?? "inactive", this.value$.update(this.value), this.syncContentFromState();
   }
   disconnectedCallback() {
     this.destroyContent(), super.disconnectedCallback();
@@ -78,6 +78,6 @@ a.define(s);
 export {
   s as SpinnerComponent,
   m as SpinnerConfig,
-  u as SpinnerValue
+  d as SpinnerValue
 };
 //# sourceMappingURL=spinner.js.map

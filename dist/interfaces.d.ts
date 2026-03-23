@@ -2,7 +2,7 @@ import { AbstractComponent } from "./component";
 import { HttpMethod, HttpRequestOptions } from "./http";
 import { Rx } from "./rx";
 declare global {
-    interface ScopeEventMap {
+    interface BucketEventMap {
     }
 }
 export interface AbstractComponentConstructor {
@@ -16,7 +16,7 @@ export type ComponentsList = AbstractComponent[];
 export interface ComponentDescriptor<A> {
     config?: A;
 }
-export interface ScopeEvent<D> {
+export interface BucketEvent<D> {
     data?: D;
 }
 export interface IHttpClient {

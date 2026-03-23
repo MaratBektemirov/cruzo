@@ -1,9 +1,9 @@
 var O = Object.defineProperty;
 var k = (h, t, r) => t in h ? O(h, t, { enumerable: !0, configurable: !0, writable: !0, value: r }) : h[t] = r;
 var i = (h, t, r) => k(h, typeof t != "symbol" ? t + "" : t, r);
-import { R as x } from "./component-CH-TJ5VF.js";
-import { A as V, a as N, T as b, c as I } from "./component-CH-TJ5VF.js";
-import { A as P, R as z, r as H } from "./router.service-CYzZn3L6.js";
+import { R as x } from "./component-BplwVDE8.js";
+import { A as V, a as N, T as b, c as I } from "./component-BplwVDE8.js";
+import { A as P, R as z, r as H } from "./router.service-C3ehT27a.js";
 import { arrayToHash as J, debounce as Q, delay as _ } from "./utils.js";
 const l = class l {
   constructor(t) {
@@ -40,13 +40,13 @@ const l = class l {
   getValue(t, r = "0") {
     const e = this.values[t];
     if (!e)
-      throw new Error(`Scope value bucket "${String(t)}" not found`);
+      throw new Error(`Bucket value bucket "${String(t)}" not found`);
     return e[r];
   }
   getState(t, r = "0") {
     const e = this.states[t];
     if (!e)
-      throw new Error(`Scope state bucket "${String(t)}" not found`);
+      throw new Error(`Bucket state bucket "${String(t)}" not found`);
     return e[r];
   }
   setValue(t, r, e = "0", s = !1) {
@@ -345,8 +345,8 @@ export {
   g as HttpError,
   z as RouteUrlBucket,
   x as Rx,
+  B as RxBucket,
   N as RxFunc,
-  B as RxScope,
   b as Template,
   J as arrayToHash,
   I as componentsRegistryService,

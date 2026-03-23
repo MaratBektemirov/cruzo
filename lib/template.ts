@@ -86,7 +86,7 @@ type RxAcc = Map<
   Map<Template, [Set<number>, Set<number>, number, number, number, number]>
 >
 
-const FORBIDDEN_REACTIVE_ATTRS = new Set(["component-id", "scope-id"]);
+const FORBIDDEN_REACTIVE_ATTRS = new Set(["component-id", "bucket-id"]);
 
 export type ChangeAttrEvent = CustomEvent<{ name: string, prev: string, next: string }>;
 

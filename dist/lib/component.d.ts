@@ -1,7 +1,7 @@
-import { IHttpClient, ComponentConnectedParams, ComponentsList, ScopeEvent } from "./interfaces";
+import { BucketEvent, ComponentConnectedParams, ComponentsList, IHttpClient } from "./interfaces";
 import { Template } from "./template";
 import { Rx, RxFunc } from "./rx";
-import { RxScope } from "./rx-scope";
+import { RxBucket } from "./rx-bucket";
 export declare abstract class AbstractComponent<Config = any, ValueType = any, StateType = any> {
     id: string;
     index: string;
@@ -11,13 +11,13 @@ export declare abstract class AbstractComponent<Config = any, ValueType = any, S
         [key: string]: IHttpClient;
     };
     config: Config;
-    outerScope: RxScope<any>;
-    innerScope: RxScope<any>;
+    outerBucket: RxBucket<any>;
+    innerBucket: RxBucket<any>;
     destroyed: boolean;
     protected ac: AbortController;
     protected dependencies: Set<string>;
     connectedDependencies: ComponentsList;
-    hasOuterScope: boolean;
+    hasOuterBucket: boolean;
     hasConfig: boolean;
     isDirective: boolean;
     template: Template;
@@ -29,10 +29,10 @@ export declare abstract class AbstractComponent<Config = any, ValueType = any, S
     protected __tplFile: string;
     constructor();
     disconnectedCallback(removeFromDom?: boolean): void;
-    getScope(): RxScope<any>;
+    getBucket(): RxBucket<any>;
     connectedCallback(params?: ComponentConnectedParams): void;
-    setScopeId(id: string): void;
-    getScopeId(): string;
+    setBucketId(id: string): void;
+    getBucketId(): string;
     setId(id: string): void;
     getId(): string;
     getIndex(): string;
@@ -52,11 +52,11 @@ export declare abstract class AbstractComponent<Config = any, ValueType = any, S
     newRxFunc<RR, A extends readonly Rx<any>[]>(cb: (...values: {
         [K in keyof A]: A[K]["actual"];
     }) => RR, ...deps: A): RxFunc<RR>;
-    newRxValueFromScope<A>(scope: RxScope<A>, id: keyof A): Rx<any, any[]>;
-    newRxStateFromScope<A>(scope: RxScope<A>, id: keyof A): Rx<any, any[]>;
-    newRxEventFromScope<A, K extends keyof ScopeEventMap>(scope: RxScope<A>, id: keyof A, name: K): Rx<ScopeEvent<ScopeEventMap[K]>, [event: ScopeEvent<ScopeEventMap[K]>, index?: string]>;
-    newRxValueFromScopeByIndex<A>(scope: RxScope<A>, id: keyof A): Rx<any, any[]>;
-    newRxStateFromScopeByIndex<A>(scope: RxScope<A>, id: keyof A): Rx<any, any[]>;
-    newRxEventFromScopeByIndex<A, K extends keyof ScopeEventMap>(scope: RxScope<A>, id: keyof A, name: K): Rx<Record<string, ScopeEvent<ScopeEventMap[K]>>, [event: ScopeEvent<ScopeEventMap[K]>, index?: string]>;
+    newRxValueFromBucket<A>(bucket: RxBucket<A>, id: keyof A): Rx<any, any[]>;
+    newRxStateFromBucket<A>(bucket: RxBucket<A>, id: keyof A): Rx<any, any[]>;
+    newRxEventFromBucket<A, K extends keyof BucketEventMap>(bucket: RxBucket<A>, id: keyof A, name: K): Rx<BucketEvent<BucketEventMap[K]>, [event: BucketEvent<BucketEventMap[K]>, index?: string]>;
+    newRxValueFromBucketByIndex<A>(bucket: RxBucket<A>, id: keyof A): Rx<any, any[]>;
+    newRxStateFromBucketByIndex<A>(bucket: RxBucket<A>, id: keyof A): Rx<any, any[]>;
+    newRxEventFromBucketByIndex<A, K extends keyof BucketEventMap>(bucket: RxBucket<A>, id: keyof A, name: K): Rx<Record<string, BucketEvent<BucketEventMap[K]>>, [event: BucketEvent<BucketEventMap[K]>, index?: string]>;
 }
 //# sourceMappingURL=component.d.ts.map

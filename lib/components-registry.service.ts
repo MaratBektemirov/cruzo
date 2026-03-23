@@ -1,4 +1,4 @@
-import { RxScope } from "./rx-scope";
+import { RxBucket } from "./rx-bucket";
 import {
   AbstractComponentConstructor,
   ComponentConnectedParams,
@@ -11,7 +11,7 @@ class ComponentsRegistryService {
   private instancesBySelector: ComponentsRegistryState = {};
 
   public componentsRoot: ComponentsList = [];
-  public scopes: { [key: string]: RxScope<any> } = {};
+  public buckets: { [key: string]: RxBucket<any> } = {};
   public listBySelector: Map<string, AbstractComponentConstructor> = new Map();
 
   constructor() { }
@@ -92,12 +92,12 @@ class ComponentsRegistryService {
     }
   }
 
-  connectScope(scope: RxScope<any>) {
-    this.scopes[scope.id] = scope;
+  connectBucket(bucket: RxBucket<any>) {
+    this.buckets[bucket.id] = bucket;
   }
 
-  disconnectScope(scope: RxScope<any>) {
-    delete this.scopes[scope.id];
+  disconnectBucket(bucket: RxBucket<any>) {
+    delete this.buckets[bucket.id];
   }
 }
 

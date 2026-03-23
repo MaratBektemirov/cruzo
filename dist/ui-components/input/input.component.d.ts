@@ -19,7 +19,7 @@ interface InputConfigState {
 export declare class InputComponent extends AbstractComponent<InputConfigParams, any, InputConfigState> {
     static selector: string;
     hasConfig: boolean;
-    hasOuterScope: boolean;
+    hasOuterBucket: boolean;
     tooltipNode: HTMLElement;
     hasFocus: boolean;
     hasMouseEnter: boolean;

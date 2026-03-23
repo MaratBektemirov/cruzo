@@ -1,15 +1,15 @@
 var r = Object.defineProperty;
-var i = (t, o, e) => o in t ? r(t, o, { enumerable: !0, configurable: !0, writable: !0, value: e }) : t[o] = e;
-var n = (t, o, e) => i(t, typeof o != "symbol" ? o + "" : o, e);
-import { c as s, A as c } from "../component-CH-TJ5VF.js";
+var i = (t, e, o) => e in t ? r(t, e, { enumerable: !0, configurable: !0, writable: !0, value: o }) : t[e] = o;
+var u = (t, e, o) => i(t, typeof e != "symbol" ? e + "" : e, o);
+import { c as s, A as c } from "../component-BplwVDE8.js";
 function l(t) {
   return Object.assign({}, t);
 }
-class u extends c {
+class n extends c {
   constructor() {
     super(...arguments);
-    n(this, "hasConfig", !0);
-    n(this, "hasOuterScope", !0);
+    u(this, "hasConfig", !0);
+    u(this, "hasOuterBucket", !0);
   }
   getHTML() {
     return `<div class="cruzo-ui-component_button-group">
@@ -22,14 +22,14 @@ class u extends c {
         </button>
       </div>`;
   }
-  select(e) {
-    this.outerScope.setValue(this.id, e, this.index, !0);
+  select(o) {
+    this.outerBucket.setValue(this.id, o, this.index, !0);
   }
 }
-n(u, "selector", "button-group-component");
-s.define(u);
+u(n, "selector", "button-group-component");
+s.define(n);
 export {
-  u as ButtonGroupComponent,
+  n as ButtonGroupComponent,
   l as ButtonGroupConfig
 };
 //# sourceMappingURL=button-group.js.map

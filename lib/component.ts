@@ -1,9 +1,9 @@
 import { componentsRegistryService } from "./components-registry.service";
-import { IHttpClient, ComponentConnectedParams, ComponentsList, ScopeEvent } from "./interfaces";
+import { BucketEvent, ComponentConnectedParams, ComponentsList, IHttpClient } from "./interfaces";
 import { Template } from "./template";
 
 import { Rx, RxFunc } from "./rx";
-import { RxScope } from "./rx-scope";
+import { RxBucket } from "./rx-bucket";
 
 export abstract class AbstractComponent<Config = any, ValueType = any, StateType = any> {
   public id = '';
@@ -13,15 +13,15 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
   public http: { [key: string]: IHttpClient } = null;
 
   public config: Config = null;
-  public outerScope: RxScope<any> = null;
-  public innerScope: RxScope<any> = null;
+  public outerBucket: RxBucket<any> = null;
+  public innerBucket: RxBucket<any> = null;
 
   public destroyed = false;
   protected ac: AbortController = null;
   protected dependencies: Set<string> = null;
 
   public connectedDependencies: ComponentsList = null;
-  public hasOuterScope = false;
+  public hasOuterBucket = false;
   public hasConfig = false;
   public isDirective = false;
 
@@ -56,37 +56,37 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
 
     if (this.rxList) while (this.rxList.length) this.rxList.pop().unsubscribe()
 
-    if (this.innerScope) componentsRegistryService.disconnectScope(this.innerScope)
+    if (this.innerBucket) componentsRegistryService.disconnectBucket(this.innerBucket)
   }
 
-  getScope() {
-    const scopeId = this.getScopeId();
+  getBucket() {
+    const bucketId = this.getBucketId();
 
-    const scope = componentsRegistryService.scopes[scopeId];
+    const bucket = componentsRegistryService.buckets[bucketId];
 
-    if (scopeId && !scope) {
+    if (bucketId && !bucket) {
       throw new Error(
-        `Scope "${scopeId}" not found for selector "${this.selector
+        `Bucket "${bucketId}" not found for selector "${this.selector
         }" (component-id="${this.getId()}")`
       );
     }
 
-    return scope;
+    return bucket;
   }
 
   public connectedCallback(params: ComponentConnectedParams = null) {
     this.syncId();
     this.setIndex();
-    this.outerScope = this.getScope();
+    this.outerBucket = this.getBucket();
 
-    if (this.outerScope) {
-      const descriptor = this.outerScope.descriptors[this.id];
+    if (this.outerBucket) {
+      const descriptor = this.outerBucket.descriptors[this.id];
 
       if (this.hasConfig) {
         if (!descriptor) {
           throw new Error(
             `Descriptor not found for selector "${this.selector}" id "${this.id
-            }" in scope "${this.getScopeId()}"`
+            }" in bucket "${this.getBucketId()}"`
           );
         }
 
@@ -97,12 +97,12 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
         }
       }
 
-      if (this.hasOuterScope) {
+      if (this.hasOuterBucket) {
         this.rxList ??= [];
 
         this.setValue();
 
-        this.outerScope.newRxValue(
+        this.outerBucket.newRxValue(
           this.id,
           this.onUpdateValue,
           this.rxList,
@@ -110,7 +110,7 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
 
         this.setState();
 
-        this.outerScope.newRxState(
+        this.outerBucket.newRxState(
           this.id,
           this.onUpdateState,
           this.rxList,
@@ -118,7 +118,7 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
       }
     }
 
-    if (this.innerScope) componentsRegistryService.connectScope(this.innerScope)
+    if (this.innerBucket) componentsRegistryService.connectBucket(this.innerBucket)
 
     if (!this.isDirective && !params?.disableTemplate) this.initTemplate()
 
@@ -134,12 +134,12 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
     }
   }
 
-  setScopeId(id: string) {
-    return this.node.setAttribute("scope-id", id);
+  setBucketId(id: string) {
+    return this.node.setAttribute("bucket-id", id);
   }
 
-  getScopeId() {
-    return this.node.getAttribute("scope-id");
+  getBucketId() {
+    return this.node.getAttribute("bucket-id");
   }
 
   public setId(id: string) {
@@ -180,12 +180,12 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
   }
 
   protected setValue(byUser = false) {
-    this.value = this.outerScope.getValue(this.id, this.index);
+    this.value = this.outerBucket.getValue(this.id, this.index);
     this.value$.update(this.value);
   }
 
   protected setState(byUser = false) {
-    this.state = this.outerScope.getState(this.id, this.index);
+    this.state = this.outerBucket.getState(this.id, this.index);
     this.state$.update(this.state);
   }
 
@@ -271,52 +271,52 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
     return new RxFunc(this.rxList, cb, { immediate: true }, ...deps);
   }
 
-  public newRxValueFromScope<A>(scope: RxScope<A>, id: keyof A) {
+  public newRxValueFromBucket<A>(bucket: RxBucket<A>, id: keyof A) {
     this.rxList ??= [];
 
-    return scope.newRxValue(id, (value) => value, this.rxList)
+    return bucket.newRxValue(id, (value) => value, this.rxList)
   }
 
-  public newRxStateFromScope<A>(scope: RxScope<A>, id: keyof A) {
+  public newRxStateFromBucket<A>(bucket: RxBucket<A>, id: keyof A) {
     this.rxList ??= [];
 
-    return scope.newRxState(id, (value) => value, this.rxList)
+    return bucket.newRxState(id, (value) => value, this.rxList)
   }
 
-  public newRxEventFromScope<A, K extends keyof ScopeEventMap>(scope: RxScope<A>, id: keyof A, name: K) {
+  public newRxEventFromBucket<A, K extends keyof BucketEventMap>(bucket: RxBucket<A>, id: keyof A, name: K) {
     this.rxList ??= [];
 
-    return scope.newRxEvent(id, name, (value) => value, this.rxList)
+    return bucket.newRxEvent(id, name, (value) => value, this.rxList)
   }
 
-  public newRxValueFromScopeByIndex<A>(scope: RxScope<A>, id: keyof A) {
+  public newRxValueFromBucketByIndex<A>(bucket: RxBucket<A>, id: keyof A) {
     this.rxList ??= [];
 
     const acc: Record<string, any> = {};
 
-    return scope.newRxValue(id, (value, index) => {
+    return bucket.newRxValue(id, (value, index) => {
       acc[index] = value;
       return acc;
     }, this.rxList)
   }
 
-  public newRxStateFromScopeByIndex<A>(scope: RxScope<A>, id: keyof A) {
+  public newRxStateFromBucketByIndex<A>(bucket: RxBucket<A>, id: keyof A) {
     this.rxList ??= [];
 
     const acc: Record<string, any> = {};
 
-    return scope.newRxState(id, (value, index) => {
+    return bucket.newRxState(id, (value, index) => {
       acc[index] = value;
       return acc;
     }, this.rxList)
   }
 
-  public newRxEventFromScopeByIndex<A, K extends keyof ScopeEventMap>(scope: RxScope<A>, id: keyof A, name: K) {
+  public newRxEventFromBucketByIndex<A, K extends keyof BucketEventMap>(bucket: RxBucket<A>, id: keyof A, name: K) {
     this.rxList ??= [];
 
-    const acc: Record<string, ScopeEvent<ScopeEventMap[K]>> = {};
+    const acc: Record<string, BucketEvent<BucketEventMap[K]>> = {};
 
-    return scope.newRxEvent(id, name, (event, index) => {
+    return bucket.newRxEvent(id, name, (event, index) => {
       acc[index] = event;
       return acc;
     }, this.rxList)

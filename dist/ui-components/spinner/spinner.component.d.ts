@@ -11,7 +11,7 @@ export declare function SpinnerConfig(params: SpinnerConfigParams): SpinnerConfi
 export declare class SpinnerComponent extends AbstractComponent<SpinnerConfigParams, SpinnerValue> {
     static selector: string;
     hasConfig: boolean;
-    hasOuterScope: boolean;
+    hasOuterBucket: boolean;
     isDirective: boolean;
     private contentNode;
     private hostPositionWasPatched;

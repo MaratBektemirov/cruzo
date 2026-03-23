@@ -25,7 +25,7 @@ interface InputConfigState {
 export class InputComponent extends AbstractComponent<InputConfigParams, any, InputConfigState> {
   static selector = "input-component";
   hasConfig = true;
-  hasOuterScope = true;
+  hasOuterBucket = true;
 
   tooltipNode: HTMLElement = null;
   hasFocus = false;
@@ -120,7 +120,7 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
     }
 
     if (this.value !== value) {
-      this.outerScope.setValue(this.id, value, this.index, true);
+      this.outerBucket.setValue(this.id, value, this.index, true);
     }
   }
 
@@ -158,9 +158,9 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
   connectedCallback() {
     super.connectedCallback();
 
-    const state: InputConfigState = this.outerScope.getState(this.id, this.index) || {};
+    const state: InputConfigState = this.outerBucket.getState(this.id, this.index) || {};
 
-    this.outerScope.setState(this.id, {
+    this.outerBucket.setState(this.id, {
       required: state.required || this.config.required || false,
       placeholder: state.placeholder || this.config.placeholder || '',
       cls: state.cls || '',

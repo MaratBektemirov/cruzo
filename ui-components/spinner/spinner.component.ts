@@ -21,7 +21,7 @@ const DESTROY_STATES: SpinnerValue[] = [
 export class SpinnerComponent extends AbstractComponent<SpinnerConfigParams, SpinnerValue> {
   static selector = '[is="spinner"]';
   hasConfig = true;
-  hasOuterScope = true;
+  hasOuterBucket = true;
   isDirective = true;
 
   private contentNode: HTMLElement = null;
@@ -129,7 +129,7 @@ export class SpinnerComponent extends AbstractComponent<SpinnerConfigParams, Spi
   }
 
   protected setValue(byUser = false) {
-    this.value = this.outerScope.getValue(this.id, this.index) ?? SpinnerValue.inactive;
+    this.value = this.outerBucket.getValue(this.id, this.index) ?? SpinnerValue.inactive;
     this.value$.update(this.value);
     this.syncContentFromState();
   }

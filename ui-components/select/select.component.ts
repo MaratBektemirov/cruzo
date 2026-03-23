@@ -18,7 +18,7 @@ export function SelectConfig(params: SelectConfigParams) {
 export class SelectComponent extends AbstractComponent<SelectConfigParams, Record<string, boolean>> {
   static selector = "select-component";
   hasConfig = true;
-  hasOuterScope = true;
+  hasOuterBucket = true;
 
   open$ = this.newRx(false);
 
@@ -77,7 +77,7 @@ export class SelectComponent extends AbstractComponent<SelectConfigParams, Recor
 
     value[item.value] = !value[item.value];
 
-    this.outerScope.setValue(this.id, value, this.index, true);
+    this.outerBucket.setValue(this.id, value, this.index, true);
 
     if (!this.config.multi) this.open$.update(false);
   }

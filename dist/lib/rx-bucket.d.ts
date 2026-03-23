@@ -1,6 +1,6 @@
-import { ComponentDescriptor, ScopeEvent } from "./interfaces";
+import { BucketEvent, ComponentDescriptor } from "./interfaces";
 import { Rx } from "./rx";
-export declare class RxScope<A> {
+export declare class RxBucket<A> {
     descriptors: {
         [K in keyof A]: ComponentDescriptor<A[K]>;
     };
@@ -32,7 +32,7 @@ export declare class RxScope<A> {
     setStatesAtIndex<I extends string>(states: Partial<{
         [id in keyof A]: any;
     }>, index?: I, byUser?: boolean): void;
-    newRxEvent<K extends keyof ScopeEventMap, B>(id: keyof A, name: K, fn: (event: ScopeEvent<ScopeEventMap[K]>, index?: string) => B, rxList: Rx<any>[]): Rx<B, [event: ScopeEvent<ScopeEventMap[K]>, index?: string]>;
+    newRxEvent<K extends keyof BucketEventMap, B>(id: keyof A, name: K, fn: (event: BucketEvent<BucketEventMap[K]>, index?: string) => B, rxList: Rx<any>[]): Rx<B, [event: BucketEvent<BucketEventMap[K]>, index?: string]>;
     newRxAllValues(fn: (values: Record<keyof A, {
         [index: string]: any;
     }>) => Record<keyof A, {
@@ -53,7 +53,7 @@ export declare class RxScope<A> {
     }>]>;
     newRxValue<B>(id: keyof A, fn: (value: any, index?: string, byUser?: boolean) => B, rxList: Rx<any>[]): Rx<any, any[]>;
     newRxState<B>(id: keyof A, fn: (value: any, index?: string, byUser?: boolean) => B, rxList: Rx<any>[]): Rx<any, any[]>;
-    emitEvent<K extends keyof ScopeEventMap>(id: keyof A, name: K, event: ScopeEvent<ScopeEventMap[K]>, index?: string): void;
+    emitEvent<K extends keyof BucketEventMap>(id: keyof A, name: K, event: BucketEvent<BucketEventMap[K]>, index?: string): void;
     private _set;
     private _setStates;
     private updateAllValues;
@@ -73,4 +73,4 @@ export declare class RxScope<A> {
     ids(): { [K in keyof A]: keyof A; };
     idsArr(): (keyof A)[];
 }
-//# sourceMappingURL=rx-scope.d.ts.map
+//# sourceMappingURL=rx-bucket.d.ts.map

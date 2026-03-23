@@ -7,7 +7,7 @@ interface RouterLinkParams {
 }
 export declare function RouterLinkConfig(params: RouterLinkParams): RouterLinkParams;
 declare global {
-    interface ScopeEventMap {
+    interface BucketEventMap {
         routerLinkStateChanged: {
             isActive: boolean;
         };
@@ -15,7 +15,7 @@ declare global {
 }
 export declare class RouterLinkComponent extends AbstractComponent<RouterLinkParams, boolean> {
     static selector: string;
-    hasOuterScope: boolean;
+    hasOuterBucket: boolean;
     hasConfig: boolean;
     isDirective: boolean;
     constructor();

@@ -1,18 +1,18 @@
 var a = Object.defineProperty;
 var i = (e, t, c) => t in e ? a(e, t, { enumerable: !0, configurable: !0, writable: !0, value: c }) : e[t] = c;
 var n = (e, t, c) => i(e, typeof t != "symbol" ? t + "" : t, c);
-import { c as r, A as l } from "../component-CH-TJ5VF.js";
+import { c as r, A as u } from "../component-BplwVDE8.js";
 function d(e) {
   return Object.assign({}, e);
 }
-class o extends l {
+class s extends u {
   constructor() {
     super();
-    n(this, "hasOuterScope", !0);
+    n(this, "hasOuterBucket", !0);
     n(this, "hasConfig", !0);
     n(this, "upload", (c) => {
-      const s = c.target.files;
-      this.outerScope.setValue(this.id, s, this.index, !0);
+      const o = c.target.files;
+      this.outerBucket.setValue(this.id, o, this.index, !0);
     });
   }
   async connectedCallback() {
@@ -25,10 +25,10 @@ class o extends l {
     return `<input class="cruzo-ui-component_upload" accept="${this.config.accept}" type="file" onchange="{{this.upload(event)}}"/>`;
   }
 }
-n(o, "selector", "upload-component");
-r.define(o);
+n(s, "selector", "upload-component");
+r.define(s);
 export {
-  o as UploadComponent,
+  s as UploadComponent,
   d as UploadConfig
 };
 //# sourceMappingURL=upload.js.map

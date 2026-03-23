@@ -5,7 +5,7 @@ interface UploadConfigParams {
 export declare function UploadConfig(params: UploadConfigParams): UploadConfigParams;
 export declare class UploadComponent extends AbstractComponent<UploadConfigParams> {
     static selector: string;
-    hasOuterScope: boolean;
+    hasOuterBucket: boolean;
     hasConfig: boolean;
     constructor();
     connectedCallback(): Promise<void>;

@@ -1,7 +1,7 @@
-import { ComponentDescriptor, ScopeEvent } from "./interfaces";
+import { BucketEvent, ComponentDescriptor } from "./interfaces";
 import { Rx } from "./rx";
 
-export class RxScope<A> {
+export class RxBucket<A> {
   static lastId = 0;
   public id: number;
 
@@ -11,7 +11,7 @@ export class RxScope<A> {
   private rx = {
     eventsByNames: {} as {
       [id in keyof A]: {
-        [index: string]: Rx<ScopeEvent<any>>[];
+        [index: string]: Rx<BucketEvent<any>>[];
       };
     },
     values: {} as Record<keyof A, Rx<any>[]>,
@@ -25,8 +25,8 @@ export class RxScope<A> {
   constructor(
     public descriptors: { [K in keyof A]: ComponentDescriptor<A[K]> }
   ) {
-    this.id = RxScope.lastId++;
-    this._ids = RxScope.idsArr(descriptors);
+    this.id = RxBucket.lastId++;
+    this._ids = RxBucket.idsArr(descriptors);
 
     for (let index = 0; index < this._ids.length; index++) {
       const id = this._ids[index];
@@ -71,7 +71,7 @@ export class RxScope<A> {
     const value = this.values[id];
 
     if (!value) {
-      throw new Error(`Scope value bucket "${String(id)}" not found`);
+      throw new Error(`Bucket value bucket "${String(id)}" not found`);
     }
 
     return value[index];
@@ -81,7 +81,7 @@ export class RxScope<A> {
     const state = this.states[id];
 
     if (!state) {
-      throw new Error(`Scope state bucket "${String(id)}" not found`);
+      throw new Error(`Bucket state bucket "${String(id)}" not found`);
     }
 
     return state[index];
@@ -137,7 +137,7 @@ export class RxScope<A> {
     index: I = "0" as I,
     byUser = false
   ) {
-    return this._set(RxScope.wrapAtIndex(values, index), byUser);
+    return this._set(RxBucket.wrapAtIndex(values, index), byUser);
   }
 
   public setStates(
@@ -152,13 +152,13 @@ export class RxScope<A> {
     index: I = "0" as I,
     byUser = false
   ) {
-    return this._setStates(RxScope.wrapAtIndex(states, index), byUser);
+    return this._setStates(RxBucket.wrapAtIndex(states, index), byUser);
   }
 
-  public newRxEvent<K extends keyof ScopeEventMap, B>(
+  public newRxEvent<K extends keyof BucketEventMap, B>(
     id: keyof A,
     name: K,
-    fn: (event: ScopeEvent<ScopeEventMap[K]>, index?: string) => B,
+    fn: (event: BucketEvent<BucketEventMap[K]>, index?: string) => B,
     rxList: Rx<any>[]
   ) {
     if (!this.values[id]) {
@@ -167,7 +167,7 @@ export class RxScope<A> {
       );
     }
 
-    const eventsById: { [key: string]: Rx<ScopeEvent<ScopeEventMap[K]>>[] } = this.rx.eventsByNames[id];
+    const eventsById: { [key: string]: Rx<BucketEvent<BucketEventMap[K]>>[] } = this.rx.eventsByNames[id];
 
     eventsById[name] = eventsById[name] || [];
 
@@ -226,10 +226,10 @@ export class RxScope<A> {
     return rx;
   }
 
-  public emitEvent<K extends keyof ScopeEventMap>(
+  public emitEvent<K extends keyof BucketEventMap>(
     id: keyof A,
     name: K,
-    event: ScopeEvent<ScopeEventMap[K]>,
+    event: BucketEvent<BucketEventMap[K]>,
     index = '0',
   ) {
     if (!this.values[id]) {
@@ -321,7 +321,7 @@ export class RxScope<A> {
 
   static ids<D>(descriptors: { [K in keyof D]: ComponentDescriptor<D[K]> }) {
     const acc: { [K in keyof D]: keyof D } = Object.create(null);
-    const ids = RxScope.idsArr(descriptors);
+    const ids = RxBucket.idsArr(descriptors);
 
     for (let index = 0; index < ids.length; index++) {
       const id = ids[index];
@@ -347,10 +347,10 @@ export class RxScope<A> {
   }
 
   public ids() {
-    return RxScope.ids(this.descriptors);
+    return RxBucket.ids(this.descriptors);
   }
 
   public idsArr() {
-    return RxScope.idsArr(this.descriptors);
+    return RxBucket.idsArr(this.descriptors);
   }
 }

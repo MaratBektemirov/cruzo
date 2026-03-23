@@ -1,15 +1,15 @@
 var a = Object.defineProperty;
 var u = (o, s, e) => s in o ? a(o, s, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[s] = e;
 var t = (o, s, e) => u(o, typeof s != "symbol" ? s + "" : s, e);
-import { c as r, A as p } from "../component-CH-TJ5VF.js";
+import { c as r, A as d } from "../component-BplwVDE8.js";
 function g(o) {
   return Object.assign({}, o);
 }
-class l extends p {
+class l extends d {
   constructor() {
     super();
     t(this, "hasConfig", !0);
-    t(this, "hasOuterScope", !0);
+    t(this, "hasOuterBucket", !0);
     t(this, "open$", this.newRx(!1));
     t(this, "items$", this.newRx(null));
     t(this, "selectedLabel$", this.newRx(""));
@@ -37,7 +37,7 @@ class l extends p {
   }
   toggleItem(e) {
     const n = this.value || {}, c = this.config.multi ? Object.assign({}, n) : { [e.value]: n[e.value] };
-    c[e.value] = !c[e.value], this.outerScope.setValue(this.id, c, this.index, !0), this.config.multi || this.open$.update(!1);
+    c[e.value] = !c[e.value], this.outerBucket.setValue(this.id, c, this.index, !0), this.config.multi || this.open$.update(!1);
   }
   getItemContent() {
     return `${this.config.multi ? `<label class="checkbox">

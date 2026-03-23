@@ -1,16 +1,16 @@
 var r = Object.defineProperty;
-var p = (t, o, e) => o in t ? r(t, o, { enumerable: !0, configurable: !0, writable: !0, value: e }) : t[o] = e;
-var s = (t, o, e) => p(t, typeof o != "symbol" ? o + "" : o, e);
-import { c as d, A as h, T as m } from "../component-CH-TJ5VF.js";
-function g(t) {
-  return Object.assign({}, t);
+var u = (o, t, e) => t in o ? r(o, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[t] = e;
+var s = (o, t, e) => u(o, typeof t != "symbol" ? t + "" : t, e);
+import { c as d, A as h, T as p } from "../component-BplwVDE8.js";
+function g(o) {
+  return Object.assign({}, o);
 }
 const n = [], c = class c extends h {
   constructor() {
     super();
-    s(this, "hasOuterScope", !0);
+    s(this, "hasOuterBucket", !0);
     s(this, "hasConfig", !0);
-    s(this, "getCloseRx", () => this.newRxEventFromScopeByIndex(this.outerScope, this.id, "closeModal"));
+    s(this, "getCloseRx", () => this.newRxEventFromBucketByIndex(this.outerBucket, this.id, "closeModal"));
     s(this, "closeEvents$");
   }
   getHTML() {
@@ -19,11 +19,11 @@ const n = [], c = class c extends h {
       </div>`;
   }
   static attach(e, a) {
-    const l = m.stringToNode(`<modal-component component-id="${e}" scope-id="${a}"></modal-component>`);
+    const l = p.stringToNode(`<modal-component component-id="${e}" bucket-id="${a}"></modal-component>`);
     document.body.appendChild(l), d.connectBySelector(c.selector, n, document.body);
   }
   closeModal(e) {
-    this.outerScope.emitEvent(this.id, "closeModal", { data: { isOK: e } });
+    this.outerBucket.emitEvent(this.id, "closeModal", { data: { isOK: e } });
   }
   destroyModal() {
     const e = n.indexOf(this);

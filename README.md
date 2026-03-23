@@ -16,7 +16,7 @@
 
 - reactive primitives (`newRx`, `newRxFunc`) inside components
 - template engine with `{{ }}` expressions compiled to bytecode VM
-- scoped data bus via `RxScope`
+- shared data bus via `RxBucket`
 - built-in router (`RouteUrlBucket`, `routerService`)
 - built-in HTTP client (`HttpClient`) with interceptors, cache, abort
 - optional UI components as separate entrypoints
@@ -62,15 +62,15 @@ Place `<counter-component></counter-component>` in HTML and it works.
 
 ---
 
-## // RxScope: shared config/state/value/events
+## // RxBucket: shared config/state/value/events
 
 ```ts
-import { AbstractComponent, RxScope } from "cruzo";
+import { AbstractComponent, RxBucket } from "cruzo";
 
 class SearchPanelComponent extends AbstractComponent {
   static selector = "search-panel-component";
 
-  featureScope = new RxScope({
+  innerBucket = new RxBucket({
     searchInput: { config: { placeholder: "find by title..." } },
     sortSelect: {
       config: {
@@ -82,16 +82,16 @@ class SearchPanelComponent extends AbstractComponent {
     },
   });
 
-  query$ = this.newRxValueFromScope(this.featureScope, "searchInput");
-  sort$ = this.newRxValueFromScope(this.featureScope, "sortSelect");
+  query$ = this.newRxValueFromBucket(this.innerBucket, "searchInput");
+  sort$ = this.newRxValueFromBucket(this.innerBucket, "sortSelect");
 
   getHTML() {
     return `
       <section>
         <!-- `toolbar-layout` is just layout wrapper: no props relay needed -->
         <toolbar-layout>
-          <input-component component-id="searchInput" scope-id="${this.featureScope.id}"></input-component>
-          <select-component component-id="sortSelect" scope-id="${this.featureScope.id}"></select-component>
+          <input-component component-id="searchInput" bucket-id="${this.innerBucket.id}"></input-component>
+          <select-component component-id="sortSelect" bucket-id="${this.innerBucket.id}"></select-component>
         </toolbar-layout>
 
         <pre>query: {{root.query$::rx}}</pre>
@@ -102,16 +102,16 @@ class SearchPanelComponent extends AbstractComponent {
 }
 ```
 
-Use `scope-id` + `component-id` to route descriptor/config/value into components. Even if UI is nested through layout wrappers, components share state via scope directly (no prop drilling through every level).
+Use `bucket-id` + `component-id` to route descriptor/config/value into components. Even if UI is nested through layout wrappers, components share state via bucket directly (no prop drilling through every level).
 
-### Why RxScope
+### Why RxBucket
 
-- avoids prop drilling by passing context through `scope-id`/`component-id` instead of multi-level props relay
+- avoids prop drilling by passing context through `bucket-id`/`component-id` instead of multi-level props relay
 - keeps state local to feature boundaries without forcing a single global store
 - works with existing `newRx`/`newRxFunc` primitives, so no extra architecture layer is required
 - lower boilerplate than `redux`/`flux`/`ngrx` (no action constants, reducers, effects setup for simple shared state)
 - predictable reactive updates without VDOM diffing and without store ceremony for component-level flows
-- easy incremental adoption: use `RxScope` only where cross-component state/config sharing is needed
+- easy incremental adoption: use `RxBucket` only where cross-component state/config sharing is needed
 
 ---
 
@@ -240,7 +240,7 @@ import {
   Template,
   AbstractComponent,
   AbstractService,
-  RxScope,
+  RxBucket,
   componentsRegistryService,
   routerService,
   RouteUrlBucket,
@@ -267,7 +267,7 @@ import type {
   AbstractComponentConstructor,
   ComponentDescriptor,
   ComponentConnectedParams,
-  ScopeEvent,
+  BucketEvent,
   Rx,
   RxFunc,
 } from "cruzo";

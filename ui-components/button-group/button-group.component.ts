@@ -11,7 +11,7 @@ export function ButtonGroupConfig(params: ButtonGroupConfigParams) {
 export class ButtonGroupComponent extends AbstractComponent<ButtonGroupConfigParams> {
   static selector = "button-group-component";
   hasConfig = true;
-  hasOuterScope = true;
+  hasOuterBucket = true;
 
   getHTML() {
     return `<div class="cruzo-ui-component_button-group">
@@ -26,7 +26,7 @@ export class ButtonGroupComponent extends AbstractComponent<ButtonGroupConfigPar
   }
 
   select(value: string) {
-    this.outerScope.setValue(this.id, value, this.index, true);
+    this.outerBucket.setValue(this.id, value, this.index, true);
   }
 }
 

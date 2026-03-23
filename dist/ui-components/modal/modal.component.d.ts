@@ -1,6 +1,6 @@
 import { AbstractComponent } from "../../lib";
 declare global {
-    interface ScopeEventMap {
+    interface BucketEventMap {
         closeModal: {
             isOK: boolean;
         };
@@ -13,17 +13,17 @@ interface ModalConfigParams {
 export declare function ModalConfig(params: ModalConfigParams): ModalConfigParams;
 export declare class ModalComponent extends AbstractComponent<ModalConfigParams> {
     static selector: string;
-    hasOuterScope: boolean;
+    hasOuterBucket: boolean;
     hasConfig: boolean;
-    getCloseRx: () => import("../../lib").Rx<Record<string, import("../../lib").ScopeEvent<{
+    getCloseRx: () => import("../../lib").Rx<Record<string, import("../../lib").BucketEvent<{
         isOK: boolean;
-    }>>, [event: import("../../lib").ScopeEvent<{
+    }>>, [event: import("../../lib").BucketEvent<{
         isOK: boolean;
     }>, index?: string]>;
     closeEvents$: ReturnType<typeof this.getCloseRx>;
     getHTML(): string;
     constructor();
-    static attach(componentId: string, scopeId: number | string): void;
+    static attach(componentId: string, bucketId: number | string): void;
     closeModal(isOK: boolean): void;
     destroyModal(): void;
     connectedCallback(): void;

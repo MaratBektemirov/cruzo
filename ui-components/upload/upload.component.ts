@@ -10,7 +10,7 @@ export function UploadConfig(params: UploadConfigParams) {
 
 export class UploadComponent extends AbstractComponent<UploadConfigParams> {
   static selector = "upload-component";
-  hasOuterScope = true;
+  hasOuterBucket = true;
   hasConfig = true;
 
   constructor() {
@@ -31,7 +31,7 @@ export class UploadComponent extends AbstractComponent<UploadConfigParams> {
 
   upload = (event: Event) => {
     const files = (event.target as HTMLInputElement).files;
-    this.outerScope.setValue(this.id, files, this.index, true);
+    this.outerBucket.setValue(this.id, files, this.index, true);
   }
 }
 
