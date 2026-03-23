@@ -33,7 +33,7 @@ export interface ComponentConnectedParams {
     httpFactory?: {
         [key: string]: HttpFactory;
     };
-    routeParams$?: Rx<(v: any) => any>;
+    routeParams$?: Rx<any>;
     disableTemplate?: boolean;
 }
 //# sourceMappingURL=interfaces.d.ts.map

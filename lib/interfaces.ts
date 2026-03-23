@@ -46,6 +46,6 @@ export type HttpFactory = (signal: AbortSignal) => IHttpClient;
 
 export interface ComponentConnectedParams {
   httpFactory?: { [key: string]: HttpFactory };
-  routeParams$?: Rx<(v: any) => any>;
+  routeParams$?: Rx<any>;
   disableTemplate?: boolean;
 }

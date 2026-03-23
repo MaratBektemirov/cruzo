@@ -15,7 +15,7 @@ export declare class ModalComponent extends AbstractComponent<ModalConfigParams>
     static selector: string;
     hasOuterScope: boolean;
     hasConfig: boolean;
-    getCloseRx: () => import("../../lib/rx").Rx<Record<string, import("../../lib").ScopeEvent<{
+    getCloseRx: () => import("../../lib").Rx<Record<string, import("../../lib").ScopeEvent<{
         isOK: boolean;
     }>>, [event: import("../../lib").ScopeEvent<{
         isOK: boolean;

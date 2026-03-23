@@ -18,9 +18,6 @@ export type {
   ScopeEvent,
 } from "./interfaces";
 
-import { Rx as RxCls, RxFunc as RxFuncCls } from './rx';
-
-export type Rx<A, Args extends any[] = any[]> = RxCls<A, Args>;
-export type RxFunc<A> = RxFuncCls<A>;
+export { Rx, RxFunc } from './rx';
 
 export { delay, debounce, arrayToHash } from "./utils"

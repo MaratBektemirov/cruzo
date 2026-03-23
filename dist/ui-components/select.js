@@ -21,7 +21,6 @@ class l extends p {
     t(this, "handleOutsideClick", (e) => {
       this.node && !this.node.contains(e.target) && this.open$.update(!1);
     });
-    this.value$.update({});
   }
   connectedCallback() {
     super.connectedCallback(), document.addEventListener("click", this.handleOutsideClick), this.getItems();
@@ -37,8 +36,8 @@ class l extends p {
     this.open$.update(!this.open$.actual);
   }
   toggleItem(e) {
-    const n = this.config.multi ? Object.assign({}, this.value) : { [e.value]: this.value[e.value] };
-    n[e.value] = !n[e.value], this.outerScope.setValue(this.id, n, this.index, !0), this.config.multi || this.open$.update(!1);
+    const n = this.value || {}, c = this.config.multi ? Object.assign({}, n) : { [e.value]: n[e.value] };
+    c[e.value] = !c[e.value], this.outerScope.setValue(this.id, c, this.index, !0), this.config.multi || this.open$.update(!1);
   }
   getItemContent() {
     return `${this.config.multi ? `<label class="checkbox">

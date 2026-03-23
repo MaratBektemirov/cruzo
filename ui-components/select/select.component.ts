@@ -40,7 +40,6 @@ export class SelectComponent extends AbstractComponent<SelectConfigParams, Recor
 
   constructor() {
     super();
-    this.value$.update({})
   }
 
   connectedCallback() {
@@ -70,9 +69,11 @@ export class SelectComponent extends AbstractComponent<SelectConfigParams, Recor
   }
 
   toggleItem(item: SelectItem) {
+    const curValue = this.value || {};
+
     const value = this.config.multi 
-      ? Object.assign({}, this.value) 
-      : {[item.value]: this.value[item.value]};
+      ? Object.assign({}, curValue) 
+      : {[item.value]: curValue[item.value]};
 
     value[item.value] = !value[item.value];
 
