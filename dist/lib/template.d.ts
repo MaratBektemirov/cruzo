@@ -35,8 +35,6 @@ declare global {
 export declare class Template {
     private root;
     private debug;
-    private area;
-    private areas;
     private parent;
     private self;
     private lexicalEnv;
@@ -51,11 +49,23 @@ export declare class Template {
     private detecting;
     private repeatBC;
     private attachedBC;
+    private templateNodeForClone;
+    private innerHtmlTemplateBC;
     private nodeByIndex;
     private nodeValueByIndex;
+    private nodeTemplateByIndex;
+    private varNameByIndex;
+    private varBytecodeByIndex;
+    private varAttributes;
+    private attrNameByIndex;
+    private attrTemplateByIndex;
     private attrValueByIndex;
+    private textNodes;
+    private contentAttributes;
+    private eventAttributes;
     private innerHTMLValue;
-    private events;
+    private eventsFns;
+    private eventsBC;
     private onRxUpdate;
     private rxUpdated;
     private rxUpdatedScheduled;
@@ -110,11 +120,8 @@ export declare class Template {
     private getTemplateBytecode;
     private getItem;
     private execBytecode;
-    private childNodeIsDynamic;
     private addClone;
     private addChildren;
-    private areaFactory;
-    private createAreas;
     private hasBindingAttributes;
     private hasTemplateTextChild;
     private handleChildrens;
@@ -127,7 +134,7 @@ export declare class Template {
     getVarFromLexicalEnv(name: string): any;
     private getThisArg;
     private runVMProgramForContext;
-    private handleAttributesFilledArea;
+    private handleDomAttributes;
     private handleAttributes;
     private markDomStructureChanged;
     private getRxUpdate;

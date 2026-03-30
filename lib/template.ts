@@ -64,23 +64,6 @@ const JS_BOOLEAN_ATTRS = {
   "open": "open",
 }
 
-interface TemplateArea {
-  hasBindings: boolean,
-  nodeTemplateByIndex: (BytecodeArr | Bytecode)[];
-  attrNameByIndex: string[];
-  attrTemplateByIndex: (BytecodeArr | Bytecode)[];
-  varNameByIndex: string[];
-  varBytecodeByIndex: Bytecode[];
-  textNodes: number[];
-  contentAttributes: number[];
-  varAttributes: number[];
-  eventAttributes: string[];
-  events: Record<string, Bytecode>;
-  templateNodeForClone: HTMLElement;
-  filled: boolean;
-  innerHtmlTemplateBC: Bytecode;
-}
-
 type RxAcc = Map<
   Rx<any>,
   Map<Template, [Set<number>, Set<number>, number, number, number, number]>
@@ -103,9 +86,6 @@ const changeAttrCustomEvent = { bubbles: false }
 export class Template {
   private root: Template = null;
   private debug: TemplateDebug = null;
-  private area: TemplateArea = null;
-
-  private areas: TemplateArea[] = null;
   private parent: Template = null;
 
   private self: SelfFunction = null;
@@ -126,15 +106,29 @@ export class Template {
 
   private repeatBC: Bytecode = null;
   private attachedBC: Bytecode = null;
+  private templateNodeForClone: HTMLElement = null;
+  private innerHtmlTemplateBC: Bytecode = null;
 
   private nodeByIndex: ChildNode[] = null;
   private nodeValueByIndex: string[] = null;
+  private nodeTemplateByIndex: (BytecodeArr | Bytecode)[] = null;
 
+  private varNameByIndex: string[] = null;
+  private varBytecodeByIndex: Bytecode[] = null;
+  private varAttributes: number[] = null;
+
+  private attrNameByIndex: string[] = null;
+  private attrTemplateByIndex: (BytecodeArr | Bytecode)[] = null;
   private attrValueByIndex: string[] = null;
+
+  private textNodes: number[] = null;
+  private contentAttributes: number[] = null;
+  private eventAttributes: string[] = null;
 
   private innerHTMLValue = '';
 
-  private events: Record<string, (event: Event) => any> = null;
+  private eventsFns: Record<string, (event: Event) => any> = null;
+  private eventsBC: Record<string, Bytecode> = null;
 
   private onRxUpdate: (rx: Rx<any>) => any = null;
   private rxUpdated: Set<Rx<any>> = null;
@@ -397,7 +391,7 @@ export class Template {
       const cloneSelf = (allowRxLink: boolean) => this.execRepeatExpr(allowRxLink);
 
       for (let i = 0; i < diff; i++) {
-        const n = this.area.templateNodeForClone.cloneNode(true) as HTMLElement;
+        const n = this.templateNodeForClone.cloneNode(true) as HTMLElement;
         frag.appendChild(n);
         this.addClone(n, cloneSelf, start + i);
       }
@@ -415,43 +409,41 @@ export class Template {
   }
 
   private updateAttributes(allowRxLink: boolean) {
-    if (!this.area.contentAttributes) return;
+    if (!this.contentAttributes) return;
 
-    for (let i = 0; i < this.area.contentAttributes.length; i++) {
-      this.updateAttr(this.area.contentAttributes[i], allowRxLink);
-    }
+    for (let i = 0; i < this.contentAttributes.length; i++) this.updateAttr(this.contentAttributes[i], allowRxLink)
   }
 
   private updateVars(allowRxLink: boolean) {
-    if (!this.area.varAttributes) return;
+    if (!this.varAttributes) return;
 
-    for (let i = 0; i < this.area.varAttributes.length; i++) {
-      const va = this.area.varAttributes[i];
+    for (let i = 0; i < this.varAttributes.length; i++) {
+      const va = this.varAttributes[i];
       this.updateVar(va, allowRxLink);
     }
   }
 
   private removeEvents() {
-    if (!this.events) return;
+    if (!this.eventsFns) return;
 
-    for (const ev in this.area.events) this.node.removeEventListener(ev, this.events[ev]);
-    this.events = null;
+    for (const ev in this.eventsFns) this.node.removeEventListener(ev, this.eventsFns[ev]);
+    this.eventsFns = null;
   }
 
   private setEvents() {
-    this.events ??= Object.create(null);
+    this.eventsFns ??= Object.create(null);
 
-    for (const ev in this.area.events) {
+    for (const ev in this.eventsBC) {
       const fn = (event: Event) => {
         this.runVMProgramForContext(
           CONTEXT_TYPE.EVENT,
-          this.area.events[ev],
+          this.eventsBC[ev],
           0,
           false,
           event,
         );
       };
-      this.events[ev] = fn;
+      this.eventsFns[ev] = fn;
       this.node.addEventListener(ev, fn);
     }
   }
@@ -507,7 +499,7 @@ export class Template {
 
   private updateTextNode(index: number, allowRxLink: boolean) {
     const textNode = this.nodeByIndex[index];
-    const templateArray = this.area.nodeTemplateByIndex[index];
+    const templateArray = this.nodeTemplateByIndex[index];
     const newContent = this.execBytecode(
       CONTEXT_TYPE.TEXT_NODE,
       templateArray,
@@ -524,12 +516,12 @@ export class Template {
   private updateAttr(index: number, allowRxLink: boolean) {
     const newValue = this.execBytecode(
       CONTEXT_TYPE.ATTRIBUTE,
-      this.area.attrTemplateByIndex[index],
+      this.attrTemplateByIndex[index],
       index,
       allowRxLink
     );
 
-    let attrName = this.area.attrNameByIndex[index];
+    let attrName = this.attrNameByIndex[index];
     if (attrName === "data-src") attrName = "src";
 
     const cur = this.attrValueByIndex[index];
@@ -556,11 +548,11 @@ export class Template {
   }
 
   private updateInnerHtml(allowRxLink: boolean) {
-    if (!this.area.innerHtmlTemplateBC) return;
+    if (!this.innerHtmlTemplateBC) return;
 
     const html = this.runVMProgramForContext(
       CONTEXT_TYPE.INNER_HTML,
-      this.area.innerHtmlTemplateBC,
+      this.innerHtmlTemplateBC,
       0,
       allowRxLink
     )
@@ -572,20 +564,20 @@ export class Template {
   }
 
   private updateVar(index: number, allowRxLink: boolean) {
-    this.lexicalEnv[this.area.varNameByIndex[index]] =
+    this.lexicalEnv[this.varNameByIndex[index]] =
       this.runVMProgramForContext(
         CONTEXT_TYPE.LEXICAL_ENV,
-        this.area.varBytecodeByIndex[index],
+        this.varBytecodeByIndex[index],
         index,
         allowRxLink
       );
   }
 
   private updateAllTextNodes(allowRxLink: boolean) {
-    if (!this.area.textNodes) return;
+    if (!this.textNodes) return;
 
-    for (let i = 0; i < this.area.textNodes.length; i++) {
-      this.updateTextNode(this.area.textNodes[i], allowRxLink)
+    for (let i = 0; i < this.textNodes.length; i++) {
+      this.updateTextNode(this.textNodes[i], allowRxLink)
     }
   }
 
@@ -751,12 +743,6 @@ export class Template {
     return out.join('');
   }
 
-  private childNodeIsDynamic(el: HTMLElement) {
-    if (el.hasAttribute("repeat") || el.hasAttribute("attached")) return true;
-
-    return this.root.areas[+el.getAttribute("area-index")].hasBindings;
-  }
-
   private addClone(node: HTMLElement, self: SelfFunction, cloneIndex: number) {
     const clone = new Template({
       parent: this.parent,
@@ -779,42 +765,6 @@ export class Template {
     });
   }
 
-  private areaFactory(): TemplateArea {
-    return {
-      hasBindings: false,
-      nodeTemplateByIndex: null,
-      attrNameByIndex: null,
-      attrTemplateByIndex: null,
-      varNameByIndex: null,
-      varBytecodeByIndex: null,
-      textNodes: null,
-      contentAttributes: null,
-      varAttributes: null,
-      eventAttributes: null,
-      events: null,
-      templateNodeForClone: null,
-      filled: false,
-      innerHtmlTemplateBC: null,
-    };
-  }
-
-  private createAreas(node: HTMLElement): void {
-    node.setAttribute("area-index", String(this.root.areas.length));
-
-    const area = this.areaFactory();
-    this.root.areas.push(area);
-
-    const hasInnerHtml = node.hasAttribute("inner-html");
-
-    area.hasBindings =
-      this.hasBindingAttributes(node) ||
-      this.hasTemplateTextChild(node);
-
-    if (hasInnerHtml) return;
-
-    for (let child = node.firstElementChild; child; child = child.nextElementSibling) this.createAreas(child as HTMLElement)
-  }
-
   private hasBindingAttributes(node: HTMLElement): boolean {
     for (const attr of Array.from(node.attributes)) if (this.isTemplate(attr.value)) return true;
     return false;
@@ -828,13 +778,13 @@ export class Template {
   private handleChildrens(node: HTMLElement) {
     let childNode: ChildNode = node.firstChild;
 
-    while (childNode) {
+  while (childNode) {
       const next = childNode.nextSibling;
 
       if (childNode.nodeType === 1) {
         const el = childNode as HTMLElement;
 
-        if (this.childNodeIsDynamic(el)) {
+        if (this.hasBindingAttributes(el) || this.hasTemplateTextChild(el)) {
           const t = this.addChildren(el);
           t.parent = this;
           this.children ??= [];
@@ -850,12 +800,10 @@ export class Template {
           this.nodeValueByIndex ??= [];
           const idx = this.nodeByIndex.push(childNode) - 1;
 
-          if (!this.area.filled) {
-            this.area.nodeTemplateByIndex ??= [];
-            this.area.nodeTemplateByIndex.push(this.getTemplateBytecode(template));
-            this.area.textNodes ??= [];
-            this.area.textNodes.push(idx);
-          }
+          this.nodeTemplateByIndex ??= [];
+          this.nodeTemplateByIndex.push(this.getTemplateBytecode(template));
+          this.textNodes ??= [];
+          this.textNodes.push(idx);
         }
       }
 
@@ -930,7 +878,7 @@ export class Template {
 
   private linkRxToTemplate(ctx: CONTEXT_TYPE, rx: Rx<any>, linkIndex: number) {
     if (ctx === CONTEXT_TYPE.ATTRIBUTE) {
-      const attrName = this.area.attrNameByIndex[linkIndex];
+      const attrName = this.attrNameByIndex[linkIndex];
 
       if (attrName && FORBIDDEN_REACTIVE_ATTRS.has(attrName)) {
         throw new Error(
@@ -1027,26 +975,24 @@ export class Template {
     }
   }
 
-  private handleAttributesFilledArea() {
-    const attrs = Array.from(this.node.attributes);
+  private handleDomAttributes() {
+    const repeatExpr = this.node.getAttribute("repeat");
+    const attachedExpr = this.node.getAttribute("attached");
 
-    for (let i = 0; i < attrs.length; i++) {
-      const attr = attrs[i];
+    if (repeatExpr) {
+      this.setPointer();
 
-      if (attr.name === "attached" && !this.repeatBC) {
-        this.setPointer();
-        this.attachedBC = this.getTemplateBytecode(attr.value, true, attr.name) as Bytecode;
-      }
+      this.repeatBC = this.getTemplateBytecode(repeatExpr, true, 'repeat') as Bytecode;
 
-      if (attr.name === "inner-html") {
-        this.node.removeAttribute("inner-html");
-      }
-    }
+      this.templateNodeForClone = this.node.cloneNode(true) as HTMLElement;
+      this.templateNodeForClone.removeAttribute("repeat");
 
-    if (!this.area.eventAttributes) return;
-
-    for (let i = 0; i < this.area.eventAttributes.length; i++) {
-      this.node.removeAttribute(this.area.eventAttributes[i]);
+      this.node.remove();
+      this.clones = [];
+    } else if (attachedExpr) {
+      this.setPointer();
+      this.attachedBC = this.getTemplateBytecode(attachedExpr, true, 'attached') as Bytecode;
+      this.node.removeAttribute('attached');
     }
   }
 
@@ -1055,42 +1001,37 @@ export class Template {
 
     for (let i = 0; i < attrs.length; i++) {
       const attr = attrs[i];
-
-      if (attr.name === "repeat" || !this.isTemplate(attr.value)) continue;
+      if (attr.name === 'attached' || attr.name === 'repeat' || !this.isTemplate(attr.value)) continue;
 
       if (attr.name.indexOf("on") === 0) {
-        this.area.eventAttributes ??= [];
-        this.area.eventAttributes.push(attr.name);
-        this.area.events ??= Object.create(null);
-        this.area.events[attr.name.slice(2)] = this.getTemplateBytecode(attr.value, true, attr.name) as Bytecode;
-      } else if (attr.name === "attached" && !this.repeatBC) {
-        this.setPointer();
-        this.attachedBC = this.getTemplateBytecode(attr.value, true, attr.name) as Bytecode;
+        this.eventAttributes ??= [];
+        this.eventAttributes.push(attr.name);
+        this.eventsBC ??= Object.create(null);
+        this.eventsBC[attr.name.slice(2)] = this.getTemplateBytecode(attr.value, true, attr.name) as Bytecode;
+        this.node.removeAttribute(attr.name);
       } else if (attr.name === "inner-html") {
-        this.area.innerHtmlTemplateBC = this.getTemplateBytecode(attr.value, true, attr.name) as Bytecode;
-        this.node.removeAttribute("inner-html");
+        this.innerHtmlTemplateBC = this.getTemplateBytecode(attr.value, true, attr.name) as Bytecode;
+        this.node.removeAttribute(attr.name);
       } else if (attr.name.indexOf("let-") === 0) {
-        this.area.varNameByIndex ??= [];
-        const idx = this.area.varNameByIndex.push(Template.kebabToCamel(attr.name.slice(4))) - 1;
+        this.varNameByIndex ??= [];
+        this.lexicalEnv ??= Object.create(null);
+        const idx = this.varNameByIndex.push(Template.kebabToCamel(attr.name.slice(4))) - 1;
 
-        this.area.varBytecodeByIndex ??= [];
-        this.area.varBytecodeByIndex.push(this.getTemplateBytecode(attr.value, true, attr.name) as Bytecode);
-        this.area.varAttributes ??= [];
-        this.area.varAttributes.push(idx);
+        this.varBytecodeByIndex ??= [];
+        this.varBytecodeByIndex.push(this.getTemplateBytecode(attr.value, true, attr.name) as Bytecode);
+        this.varAttributes ??= [];
+        this.varAttributes.push(idx);
+        this.node.removeAttribute(attr.name);
       } else {
-        this.area.attrNameByIndex ??= [];
-        const idx = this.area.attrNameByIndex.push(attr.name) - 1;
-        this.area.attrTemplateByIndex ??= [];
-        this.area.attrTemplateByIndex.push(this.getTemplateBytecode(attr.value));
-        this.area.contentAttributes ??= [];
-        this.area.contentAttributes.push(idx);
+        this.attrNameByIndex ??= [];
+        this.attrValueByIndex ??= [];
+        const idx = this.attrNameByIndex.push(attr.name) - 1;
+        this.attrTemplateByIndex ??= [];
+        this.attrTemplateByIndex.push(this.getTemplateBytecode(attr.value, false, attr.name));
+        this.contentAttributes ??= [];
+        this.contentAttributes.push(idx);
+        this.node.removeAttribute(attr.name);
       }
-    }
-
-    if (!this.area.eventAttributes) return;
-
-    for (let i = 0; i < this.area.eventAttributes.length; i++) {
-      this.node.removeAttribute(this.area.eventAttributes[i]);
     }
   }
 
@@ -1178,54 +1119,18 @@ export class Template {
 
     if (!this.root) {
       this.root = this;
-      this.areas = [];
       this.debug = {
         selector: params.selector,
         __tplFile: params.__tplFile,
       };
-      this.createAreas(this.node);
       this.onRxUpdate = this.getRxUpdate();
     }
 
-    const areaIndex = +this.node.getAttribute("area-index");
-    this.area = this.root.areas[areaIndex];
+    this.handleDomAttributes();
+    this.handleAttributes();
 
-    const repeatExpr = this.node.getAttribute("repeat");
-
-    if (repeatExpr) {
-      this.setPointer();
-
-      this.repeatBC = this.getTemplateBytecode(repeatExpr, true, 'repeat') as Bytecode;
-
-      if (!this.area.filled) {
-        this.area.templateNodeForClone = this.node.cloneNode(
-          true,
-        ) as HTMLElement;
-        this.area.templateNodeForClone.removeAttribute("repeat");
-      }
-
-      this.node.remove();
-      this.clones = [];
-    }
-
-    if (this.area.filled) {
-      this.handleAttributesFilledArea();
-    } else {
-      this.handleAttributes();
-    }
-
-    if (!this.area.innerHtmlTemplateBC) this.handleChildrens(this.node);
+    if (!this.innerHtmlTemplateBC) this.handleChildrens(this.node);
     this.setEvents();
-
-    if (this.area.attrNameByIndex) {
-      this.attrValueByIndex = [];
-    }
-
-    if (this.area.varNameByIndex) {
-      this.lexicalEnv = Object.create(null);
-    }
-
-    this.area.filled = true;
   }
 
   private insertFragmentAfter(node: ChildNode, frag: DocumentFragment) {

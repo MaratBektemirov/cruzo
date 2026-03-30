@@ -1,8 +1,8 @@
 var W = Object.defineProperty;
 var P = (n, t, e) => t in n ? W(n, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : n[t] = e;
-var a = (n, t, e) => P(n, typeof t != "symbol" ? t + "" : t, e);
+var c = (n, t, e) => P(n, typeof t != "symbol" ? t + "" : t, e);
 const Z = (n) => n === " " || n === `
-` || n === "	" || n === "\r", _ = (n) => n >= "0" && n <= "9", X = /[A-Za-z_$]/, O = /[A-Za-z0-9_$]/, Y = (n) => X.test(n), tt = (n) => O.test(n), et = [
+` || n === "	" || n === "\r", T = (n) => n >= "0" && n <= "9", X = /[A-Za-z_$]/, O = /[A-Za-z0-9_$]/, Y = (n) => X.test(n), tt = (n) => O.test(n), et = [
   "===",
   "!==",
   "==",
@@ -48,33 +48,33 @@ function nt(n) {
       continue;
     }
     if (s === "'" || s === '"') {
-      const o = s, c = e;
+      const o = s, l = e;
       e++;
-      let d = "", u = !1;
+      let u = "", d = !1;
       for (; e < n.length; ) {
-        const m = n[e++];
-        if (m === "\\") {
+        const x = n[e++];
+        if (x === "\\") {
           if (e >= n.length)
-            throw new Error(`Unterminated escape sequence in string at ${c}`);
-          const f = n[e++];
-          d += f === "n" ? `
-` : f === "t" ? "	" : f;
+            throw new Error(`Unterminated escape sequence in string at ${l}`);
+          const m = n[e++];
+          u += m === "n" ? `
+` : m === "t" ? "	" : m;
           continue;
         }
-        if (m === o) {
-          u = !0;
+        if (x === o) {
+          d = !0;
           break;
         }
-        d += m;
+        u += x;
       }
-      if (!u)
-        throw new Error(`Unterminated string literal at ${c}`);
-      t.push({ t: "str", v: d });
+      if (!d)
+        throw new Error(`Unterminated string literal at ${l}`);
+      t.push({ t: "str", v: u });
       continue;
     }
-    if (_(s) || s === "." && _(n[e + 1] || "")) {
+    if (T(s) || s === "." && T(n[e + 1] || "")) {
       let o = "";
-      for (; e < n.length && (_(n[e]) || n[e] === "."); ) o += n[e++];
+      for (; e < n.length && (T(n[e]) || n[e] === "."); ) o += n[e++];
       t.push({ t: "num", v: Number(o) });
       continue;
     }
@@ -93,7 +93,7 @@ function nt(n) {
   }
   return t.push({ t: "eof" }), t;
 }
-const A = {
+const B = {
   ip: "color:#777",
   hex: "color:#999",
   op: "color:#4fc1ff;font-weight:600",
@@ -124,8 +124,8 @@ function $(n) {
   return n >>> J;
 }
 class K {
-  constructor(t, e, s, i, o, c) {
-    this.code = t, this.consts = e, this.idNames = s, this.exprCount = i, this.onceCount = o, this.expr = c;
+  constructor(t, e, s, i, o, l) {
+    this.code = t, this.consts = e, this.idNames = s, this.exprCount = i, this.onceCount = o, this.expr = l;
   }
   onlyOnce() {
     return this.exprCount === 1 && this.onceCount === 1;
@@ -165,17 +165,17 @@ class K {
       const e = this.code[t] >>> 0, s = R(e), i = $(e);
       let o;
       s === 36 && (o = (this.code[t + 1] ?? 0) >>> 0);
-      const c = G[s] ?? `OP_${s}`, [d, u] = this.fmtArg(s, i, o), m = `%c${String(t).padStart(4)} %c${D(e)}  %c${c.padEnd(18)} %c${d}` + (u ? ` %c; ${u}` : ""), f = [
-        A.ip,
-        A.hex,
-        it(s) ? A.jump : A.op,
-        A.arg,
-        ...u ? [A.com] : []
+      const l = G[s] ?? `OP_${s}`, [u, d] = this.fmtArg(s, i, o), x = `%c${String(t).padStart(4)} %c${D(e)}  %c${l.padEnd(18)} %c${u}` + (d ? ` %c; ${d}` : ""), m = [
+        B.ip,
+        B.hex,
+        it(s) ? B.jump : B.op,
+        B.arg,
+        ...d ? [B.com] : []
       ];
-      if (console.log(m, ...f), s === 36) {
+      if (console.log(x, ...m), s === 36) {
         t++;
         const p = (this.code[t] ?? 0) >>> 0, r = `%c${String(t).padStart(4)} %c${D(p)}  %c${"WIDE".padEnd(18)} %c${`-> ${p}`}`;
-        console.log(r, A.ip, A.hex, A.jump, A.arg);
+        console.log(r, B.ip, B.hex, B.jump, B.arg);
       }
     }
   }
@@ -202,30 +202,30 @@ class K {
   getSafeErrorMsg(t, e) {
     return `TemplateTypeError: Cannot read properties of ${t === null ? "null" : "undefined"} (reading '${e}')`;
   }
-  run(t, e, s, i, o, c) {
-    const d = this.code, u = this.consts, m = this.idNames;
-    let f, p;
+  run(t, e, s, i, o, l) {
+    const u = this.code, d = this.consts, x = this.idNames;
+    let m, p;
     const r = [];
     let h = 0, v = 0, E = 0;
-    const C = (N, k, y) => {
-      const l = r[N];
-      if (typeof l != "function")
-        throw new Error(`Cannot call undefined or non-function value: ${l}`);
-      if (!y) return l.call(k);
-      const x = r.slice(h - y, h);
-      return l.apply(k, x);
+    const A = (N, k, y) => {
+      const a = r[N];
+      if (typeof a != "function")
+        throw new Error(`Cannot call undefined or non-function value: ${a}`);
+      if (!y) return a.call(k);
+      const f = r.slice(h - y, h);
+      return a.apply(k, f);
     };
-    for (; v < d.length; ) {
-      const N = d[v++], k = R(N), y = $(N);
+    for (; v < u.length; ) {
+      const N = u[v++], k = R(N), y = $(N);
       switch (k) {
         case 1:
-          r[h++] = u[y];
+          r[h++] = d[y];
           break;
         case 2: {
-          const l = m[y];
-          switch (l) {
+          const a = x[y];
+          switch (a) {
             case "root":
-              f ?? (f = t.root.self()), r[h++] = f;
+              m ?? (m = t.root.self()), r[h++] = m;
               break;
             case "app":
               r[h++] = i;
@@ -237,10 +237,10 @@ class K {
               r[h++] = t.node;
               break;
             case "event":
-              r[h++] = c;
+              r[h++] = l;
               break;
             default:
-              r[h++] = t.getVarFromLexicalEnv(l);
+              r[h++] = t.getVarFromLexicalEnv(a);
               break;
           }
           break;
@@ -249,33 +249,33 @@ class K {
           p ?? (p = t.getThisArg(o)), r[h++] = p;
           break;
         case 4: {
-          const l = u[y], x = r[--h];
-          x == null ? (t.handleSafeError(this.getSafeErrorMsg(x, l), this.expr), r[h++] = void 0) : r[h++] = x[l];
+          const a = d[y], f = r[--h];
+          f == null ? (t.handleSafeError(this.getSafeErrorMsg(f, a), this.expr), r[h++] = void 0) : r[h++] = f[a];
           break;
         }
         case 5: {
-          const l = u[y], x = r[--h];
+          const a = d[y], f = r[--h];
           let g;
-          x == null ? (t.handleSafeError(this.getSafeErrorMsg(x, l), this.expr), g = void 0) : g = x[l], r[h++] = x, r[h++] = g;
+          f == null ? (t.handleSafeError(this.getSafeErrorMsg(f, a), this.expr), g = void 0) : g = f[a], r[h++] = f, r[h++] = g;
           break;
         }
         case 6: {
-          const l = r[--h], x = r[--h];
-          x == null ? (t.handleSafeError(this.getSafeErrorMsg(x, l + ""), this.expr), r[h++] = void 0) : r[h++] = x[l];
+          const a = r[--h], f = r[--h];
+          f == null ? (t.handleSafeError(this.getSafeErrorMsg(f, a + ""), this.expr), r[h++] = void 0) : r[h++] = f[a];
           break;
         }
         case 7: {
-          const l = r[--h], x = r[--h];
+          const a = r[--h], f = r[--h];
           let g;
-          x == null ? (t.handleSafeError(this.getSafeErrorMsg(x, l + ""), this.expr), g = void 0) : g = x[l], r[h++] = x, r[h++] = g;
+          f == null ? (t.handleSafeError(this.getSafeErrorMsg(f, a + ""), this.expr), g = void 0) : g = f[a], r[h++] = f, r[h++] = g;
           break;
         }
         case 8:
           h--;
           break;
         case 9: {
-          const l = r[--h];
-          h--, r[h++] = l;
+          const a = r[--h];
+          h--, r[h++] = a;
           break;
         }
         case 10:
@@ -288,88 +288,88 @@ class K {
           r[h - 1] = -r[h - 1];
           break;
         case 13: {
-          const l = r[--h];
-          r[h - 1] = r[h - 1] + l;
+          const a = r[--h];
+          r[h - 1] = r[h - 1] + a;
           break;
         }
         case 14: {
-          const l = r[--h];
-          r[h - 1] = r[h - 1] - l;
+          const a = r[--h];
+          r[h - 1] = r[h - 1] - a;
           break;
         }
         case 15: {
-          const l = r[--h];
-          r[h - 1] = r[h - 1] * l;
+          const a = r[--h];
+          r[h - 1] = r[h - 1] * a;
           break;
         }
         case 16: {
-          const l = r[--h];
-          r[h - 1] = r[h - 1] / l;
+          const a = r[--h];
+          r[h - 1] = r[h - 1] / a;
           break;
         }
         case 17: {
-          const l = r[--h];
-          r[h - 1] = r[h - 1] % l;
+          const a = r[--h];
+          r[h - 1] = r[h - 1] % a;
           break;
         }
         case 18: {
-          const l = r[--h];
-          r[h - 1] = r[h - 1] == l;
+          const a = r[--h];
+          r[h - 1] = r[h - 1] == a;
           break;
         }
         case 19: {
-          const l = r[--h];
-          r[h - 1] = r[h - 1] != l;
+          const a = r[--h];
+          r[h - 1] = r[h - 1] != a;
           break;
         }
         case 20: {
-          const l = r[--h];
-          r[h - 1] = r[h - 1] === l;
+          const a = r[--h];
+          r[h - 1] = r[h - 1] === a;
           break;
         }
         case 21: {
-          const l = r[--h];
-          r[h - 1] = r[h - 1] !== l;
+          const a = r[--h];
+          r[h - 1] = r[h - 1] !== a;
           break;
         }
         case 22: {
-          const l = r[--h];
-          r[h - 1] = r[h - 1] < l;
+          const a = r[--h];
+          r[h - 1] = r[h - 1] < a;
           break;
         }
         case 23: {
-          const l = r[--h];
-          r[h - 1] = r[h - 1] <= l;
+          const a = r[--h];
+          r[h - 1] = r[h - 1] <= a;
           break;
         }
         case 24: {
-          const l = r[--h];
-          r[h - 1] = r[h - 1] > l;
+          const a = r[--h];
+          r[h - 1] = r[h - 1] > a;
           break;
         }
         case 25: {
-          const l = r[--h];
-          r[h - 1] = r[h - 1] >= l;
+          const a = r[--h];
+          r[h - 1] = r[h - 1] >= a;
           break;
         }
         case 26: {
-          const l = y, x = h - l - 1;
+          const a = y, f = h - a - 1;
           p ?? (p = t.getThisArg(o));
-          const g = C(x, p, l);
-          h = x, r[h++] = g;
+          const g = A(f, p, a);
+          h = f, r[h++] = g;
           break;
         }
         case 27: {
-          const l = y, x = h - l - 1, g = h - l - 2, S = r[g], T = C(x, S, l);
-          h = g, r[h++] = T;
+          const a = y, f = h - a - 1, g = h - a - 2, S = r[g], _ = A(f, S, a);
+          h = g, r[h++] = _;
           break;
         }
         case 28: {
-          const l = r[--h];
-          if (l == null) throw new Error(`::rx is invalid on ${l}`);
+          const a = r[--h];
+          if (a == null) throw new Error(`::rx is invalid on ${a}`);
           r[h++] = t.getRxValue(
             e,
-            l,
+            a,
             s,
             o,
             E > 0
@@ -377,13 +377,13 @@ class K {
           break;
         }
         case 36: {
-          const l = y, x = d[v++] >>> 0, g = this.getOnceSlotValue(t, l);
-          g !== w ? (r[h++] = g, v = x) : E++;
+          const a = y, f = u[v++] >>> 0, g = this.getOnceSlotValue(t, a);
+          g !== w ? (r[h++] = g, v = f) : E++;
           break;
         }
         case 37: {
-          const l = y;
-          this.setOnceSlotValue(t, l, r[h - 1]), E--;
+          const a = y;
+          this.setOnceSlotValue(t, a, r[h - 1]), E--;
           break;
         }
         case 29:
@@ -406,18 +406,18 @@ class K {
           break;
         }
         case 34: {
-          const l = y, x = new Array(l);
-          for (let g = l - 1; g >= 0; g--) x[g] = r[--h];
-          r[h++] = x;
+          const a = y, f = new Array(a);
+          for (let g = a - 1; g >= 0; g--) f[g] = r[--h];
+          r[h++] = f;
           break;
         }
         case 35: {
-          const l = y, x = {};
-          for (let g = 0; g < l; g++) {
-            const S = r[--h], T = r[--h];
-            x[T] = S;
+          const a = y, f = {};
+          for (let g = 0; g < a; g++) {
+            const S = r[--h], _ = r[--h];
+            f[_] = S;
           }
-          r[h++] = x;
+          r[h++] = f;
           break;
         }
         default:
@@ -429,15 +429,15 @@ class K {
 }
 class rt {
   constructor(t) {
-    a(this, "pos", 0);
-    a(this, "code", []);
-    a(this, "consts", null);
-    a(this, "constMap");
-    a(this, "idNames", null);
-    a(this, "idMap");
-    a(this, "onceSlot", 0);
-    a(this, "exprDepth", 0);
-    a(this, "exprCount", 0);
+    c(this, "pos", 0);
+    c(this, "code", []);
+    c(this, "consts", null);
+    c(this, "constMap");
+    c(this, "idNames", null);
+    c(this, "idMap");
+    c(this, "onceSlot", 0);
+    c(this, "exprDepth", 0);
+    c(this, "exprCount", 0);
     this.tokens = t;
   }
   withNestedExpr(t) {
@@ -505,8 +505,8 @@ class rt {
     if (this.canCount() && i.t === "op" && e.includes(i.v)) {
       let o = 1;
       for (; i.t === "op" && e.includes(i.v); ) {
-        const c = this.next().v;
-        t(), s(c), o++, i = this.peek();
+        const l = this.next().v;
+        t(), s(l), o++, i = this.peek();
       }
       this.exprCount = o;
       return;
@@ -520,13 +520,13 @@ class rt {
     t();
     let i = this.peek();
     const o = this.canCount() && i.t === "op" && i.v === e;
-    let c = 1;
+    let l = 1;
     for (; i.t === "op" && i.v === e; ) {
       this.next();
-      const d = this.emitJump(s);
-      t(), this.patch(d, this.code.length), o && c++, i = this.peek();
+      const u = this.emitJump(s);
+      t(), this.patch(u, this.code.length), o && l++, i = this.peek();
     }
-    o && (this.exprCount = c);
+    o && (this.exprCount = l);
   }
   parseNullishChain(t) {
     t();
@@ -538,14 +538,14 @@ class rt {
       const o = this.emitJump(
         33
         /* JMP_IF_NULLISH */
-      ), c = this.emitJump(
+      ), l = this.emitJump(
         29
         /* JMP */
       );
       this.patch(o, this.code.length), this.emit(
         8
         /* POP */
-      ), t(), this.patch(c, this.code.length), s && i++, e = this.peek();
+      ), t(), this.patch(l, this.code.length), s && i++, e = this.peek();
     }
     s && (this.exprCount = i);
   }
@@ -723,69 +723,69 @@ class rt {
         33
         /* JMP_IF_NULLISH */
       ));
-    }, o = (d) => {
-      const u = this.c(d), m = this.peek(), f = m.t === "punc" && m.v === "(";
-      this.emit(f ? 5 : 4, u), t = f;
-    }, c = () => {
-      const d = this.peek(), u = d.t === "punc" && d.v === "(";
+    }, o = (u) => {
+      const d = this.c(u), x = this.peek(), m = x.t === "punc" && x.v === "(";
+      this.emit(m ? 5 : 4, d), t = m;
+    }, l = () => {
+      const u = this.peek(), d = u.t === "punc" && u.v === "(";
       this.emit(
-        u ? 7 : 6
+        d ? 7 : 6
         /* GET_INDEX */
-      ), t = u;
+      ), t = d;
     };
     for (; ; ) {
-      const d = this.peek();
-      if (d.t === "op" && d.v === ".") {
+      const u = this.peek();
+      if (u.t === "op" && u.v === ".") {
         s(), this.next();
-        const u = this.next();
-        if (u.t !== "id") throw new Error('Expected identifier after "."');
-        o(u.v);
+        const d = this.next();
+        if (d.t !== "id") throw new Error('Expected identifier after "."');
+        o(d.v);
         continue;
       }
-      if (d.t === "op" && d.v === "?.") {
-        const u = this.tokens[this.pos + 1];
-        if ((u == null ? void 0 : u.t) === "punc" && u.v === "(") {
+      if (u.t === "op" && u.v === "?.") {
+        const d = this.tokens[this.pos + 1];
+        if ((d == null ? void 0 : d.t) === "punc" && d.v === "(") {
           s(), this.next(), i();
           continue;
         }
-        if ((u == null ? void 0 : u.t) === "punc" && u.v === "[") {
-          s(), this.next(), this.next(), i(), this.withNestedExpr(() => this.parseExpression()), this.expectPunc("]"), c();
+        if ((d == null ? void 0 : d.t) === "punc" && d.v === "[") {
+          s(), this.next(), this.next(), i(), this.withNestedExpr(() => this.parseExpression()), this.expectPunc("]"), l();
           continue;
         }
         s(), this.next(), i();
-        const m = this.next();
-        if (m.t !== "id") throw new Error('Expected identifier after "?."');
-        o(m.v);
+        const x = this.next();
+        if (x.t !== "id") throw new Error('Expected identifier after "?."');
+        o(x.v);
         continue;
       }
-      if (d.t === "punc" && d.v === "[") {
-        s(), this.next(), this.withNestedExpr(() => this.parseExpression()), this.expectPunc("]"), c();
+      if (u.t === "punc" && u.v === "[") {
+        s(), this.next(), this.withNestedExpr(() => this.parseExpression()), this.expectPunc("]"), l();
         continue;
       }
-      if (d.t === "punc" && d.v === "(") {
+      if (u.t === "punc" && u.v === "(") {
         this.next();
-        const u = this.parseArgsAndCount();
-        this.expectPunc(")"), t ? (this.emit(27, u), t = !1) : this.emit(26, u);
+        const d = this.parseArgsAndCount();
+        this.expectPunc(")"), t ? (this.emit(27, d), t = !1) : this.emit(26, d);
         continue;
       }
-      if (d.t === "op" && d.v === "::") {
+      if (u.t === "op" && u.v === "::") {
         this.next();
-        const u = this.next();
-        if (u.t !== "id") throw new Error('Expected modifier after "::"');
-        if (u.v === "rx") {
+        const d = this.next();
+        if (d.t !== "id") throw new Error('Expected modifier after "::"');
+        if (d.v === "rx") {
           s(), this.emit(
             28
             /* RX_UI */
           );
           continue;
         }
-        throw new Error(`Unknown modifier: ${u.v}`);
+        throw new Error(`Unknown modifier: ${d.v}`);
       }
       break;
     }
     if (s(), e.length) {
-      const d = this.code.length;
-      for (const u of e) this.patch(u, d);
+      const u = this.code.length;
+      for (const d of e) this.patch(d, u);
     }
   }
   parseArgsAndCount() {
@@ -891,7 +891,7 @@ const L = "{{", ot = "}}";
 var q = /* @__PURE__ */ ((n) => (n[n.REPEAT = 1] = "REPEAT", n[n.EVENT = 2] = "EVENT", n[n.TEXT_NODE = 3] = "TEXT_NODE", n[n.ATTRIBUTE = 4] = "ATTRIBUTE", n[n.ATTACHED = 5] = "ATTACHED", n[n.LEXICAL_ENV = 6] = "LEXICAL_ENV", n[n.INNER_HTML = 7] = "INNER_HTML", n))(q || {});
 class z {
   constructor(t = 5e3) {
-    a(this, "map", /* @__PURE__ */ new Map());
+    c(this, "map", /* @__PURE__ */ new Map());
     this.limit = t;
   }
   get(t) {
@@ -912,57 +912,61 @@ const V = new z(5e3), H = new z(5e3), ht = {
   readonly: "readOnly",
   required: "required",
   open: "open"
-}, at = /* @__PURE__ */ new Set(["component-id", "bucket-id"]);
+}, ct = /* @__PURE__ */ new Set(["component-id", "bucket-id"]);
 let I = null;
-const ct = { bubbles: !1 }, b = class b {
+const at = { bubbles: !1 }, b = class b {
   constructor(t) {
-    a(this, "root", null);
-    a(this, "debug", null);
-    a(this, "area", null);
-    a(this, "areas", null);
-    a(this, "parent", null);
-    a(this, "self", null);
-    a(this, "lexicalEnv", null);
-    a(this, "selector", "");
-    a(this, "children", null);
-    a(this, "clones", null);
-    a(this, "rxAcc", null);
-    a(this, "pointer", null);
-    a(this, "cloneIndex", null);
-    a(this, "parentNode", null);
-    a(this, "attached", !0);
-    a(this, "detecting", !1);
-    a(this, "repeatBC", null);
-    a(this, "attachedBC", null);
-    a(this, "nodeByIndex", null);
-    a(this, "nodeValueByIndex", null);
-    a(this, "attrValueByIndex", null);
-    a(this, "innerHTMLValue", "");
-    a(this, "events", null);
-    a(this, "onRxUpdate", null);
-    a(this, "rxUpdated", null);
-    a(this, "rxUpdatedScheduled", !1);
-    a(this, "domStructureChanged", null);
-    a(this, "domChangedScheduled", !1);
-    a(this, "onceMap", null);
-    a(this, "node", null);
+    c(this, "root", null);
+    c(this, "debug", null);
+    c(this, "parent", null);
+    c(this, "self", null);
+    c(this, "lexicalEnv", null);
+    c(this, "selector", "");
+    c(this, "children", null);
+    c(this, "clones", null);
+    c(this, "rxAcc", null);
+    c(this, "pointer", null);
+    c(this, "cloneIndex", null);
+    c(this, "parentNode", null);
+    c(this, "attached", !0);
+    c(this, "detecting", !1);
+    c(this, "repeatBC", null);
+    c(this, "attachedBC", null);
+    c(this, "templateNodeForClone", null);
+    c(this, "innerHtmlTemplateBC", null);
+    c(this, "nodeByIndex", null);
+    c(this, "nodeValueByIndex", null);
+    c(this, "nodeTemplateByIndex", null);
+    c(this, "varNameByIndex", null);
+    c(this, "varBytecodeByIndex", null);
+    c(this, "varAttributes", null);
+    c(this, "attrNameByIndex", null);
+    c(this, "attrTemplateByIndex", null);
+    c(this, "attrValueByIndex", null);
+    c(this, "textNodes", null);
+    c(this, "contentAttributes", null);
+    c(this, "eventAttributes", null);
+    c(this, "innerHTMLValue", "");
+    c(this, "eventsFns", null);
+    c(this, "eventsBC", null);
+    c(this, "onRxUpdate", null);
+    c(this, "rxUpdated", null);
+    c(this, "rxUpdatedScheduled", !1);
+    c(this, "domStructureChanged", null);
+    c(this, "domChangedScheduled", !1);
+    c(this, "onceMap", null);
+    c(this, "node", null);
     if (Object.assign(this, t), typeof this.self != "function")
       throw new Error("Invalid self param");
-    this.root || (this.root = this, this.areas = [], this.debug = {
+    this.root || (this.root = this, this.debug = {
       selector: t.selector,
       __tplFile: t.__tplFile
-    }, this.createAreas(this.node), this.onRxUpdate = this.getRxUpdate());
-    const e = +this.node.getAttribute("area-index");
-    this.area = this.root.areas[e];
-    const s = this.node.getAttribute("repeat");
-    s && (this.setPointer(), this.repeatBC = this.getTemplateBytecode(s, !0, "repeat"), this.area.filled || (this.area.templateNodeForClone = this.node.cloneNode(
-      !0
-    ), this.area.templateNodeForClone.removeAttribute("repeat")), this.node.remove(), this.clones = []), this.area.filled ? this.handleAttributesFilledArea() : this.handleAttributes(), this.area.innerHtmlTemplateBC || this.handleChildrens(this.node), this.setEvents(), this.area.attrNameByIndex && (this.attrValueByIndex = []), this.area.varNameByIndex && (this.lexicalEnv = /* @__PURE__ */ Object.create(null)), this.area.filled = !0;
+    }, this.onRxUpdate = this.getRxUpdate()), this.handleDomAttributes(), this.handleAttributes(), this.innerHtmlTemplateBC || this.handleChildrens(this.node), this.setEvents();
   }
   static getChangeAttrEvent(t, e, s) {
     return new CustomEvent(
       "onchangeattr",
-      Object.assign({ detail: { name: t, prev: e, next: s } }, ct)
+      Object.assign({ detail: { name: t, prev: e, next: s } }, at)
     );
   }
   static allowAttributeEvent(t, e) {
@@ -1094,12 +1098,12 @@ const ct = { bubbles: !1 }, b = class b {
     const e = this.execRepeatExpr(t), s = e.length - this.clones.length;
     if (s !== 0)
       if (s > 0) {
-        const i = this.clones.length, o = i === 0 ? this.getPointer() : this.clones[i - 1].node, c = document.createDocumentFragment(), d = (u) => this.execRepeatExpr(u);
-        for (let u = 0; u < s; u++) {
-          const m = this.area.templateNodeForClone.cloneNode(!0);
-          c.appendChild(m), this.addClone(m, d, i + u);
+        const i = this.clones.length, o = i === 0 ? this.getPointer() : this.clones[i - 1].node, l = document.createDocumentFragment(), u = (d) => this.execRepeatExpr(d);
+        for (let d = 0; d < s; d++) {
+          const x = this.templateNodeForClone.cloneNode(!0);
+          l.appendChild(x), this.addClone(x, u, i + d);
         }
-        this.insertFragmentAfter(o, c), this.markDomStructureChanged();
+        this.insertFragmentAfter(o, l), this.markDomStructureChanged();
       } else {
         for (; this.clones.length > e.length; )
           this.destroyLastClone();
@@ -1107,36 +1111,35 @@ const ct = { bubbles: !1 }, b = class b {
       }
   }
   updateAttributes(t) {
-    if (this.area.contentAttributes)
-      for (let e = 0; e < this.area.contentAttributes.length; e++)
-        this.updateAttr(this.area.contentAttributes[e], t);
+    if (this.contentAttributes)
+      for (let e = 0; e < this.contentAttributes.length; e++) this.updateAttr(this.contentAttributes[e], t);
   }
   updateVars(t) {
-    if (this.area.varAttributes)
-      for (let e = 0; e < this.area.varAttributes.length; e++) {
-        const s = this.area.varAttributes[e];
+    if (this.varAttributes)
+      for (let e = 0; e < this.varAttributes.length; e++) {
+        const s = this.varAttributes[e];
         this.updateVar(s, t);
       }
   }
   removeEvents() {
-    if (this.events) {
-      for (const t in this.area.events) this.node.removeEventListener(t, this.events[t]);
-      this.events = null;
+    if (this.eventsFns) {
+      for (const t in this.eventsFns) this.node.removeEventListener(t, this.eventsFns[t]);
+      this.eventsFns = null;
     }
   }
   setEvents() {
-    this.events ?? (this.events = /* @__PURE__ */ Object.create(null));
-    for (const t in this.area.events) {
+    this.eventsFns ?? (this.eventsFns = /* @__PURE__ */ Object.create(null));
+    for (const t in this.eventsBC) {
       const e = (s) => {
         this.runVMProgramForContext(
           2,
-          this.area.events[t],
+          this.eventsBC[t],
           0,
           !1,
           s
         );
       };
-      this.events[t] = e, this.node.addEventListener(t, e);
+      this.eventsFns[t] = e, this.node.addEventListener(t, e);
     }
   }
   handleAttachedAttr(t) {
@@ -1170,7 +1173,7 @@ const ct = { bubbles: !1 }, b = class b {
     this.attached && this.updateInnerHtml(!1);
   }
   updateTextNode(t, e) {
-    const s = this.nodeByIndex[t], i = this.area.nodeTemplateByIndex[t], o = this.execBytecode(
+    const s = this.nodeByIndex[t], i = this.nodeTemplateByIndex[t], o = this.execBytecode(
       3,
       i,
       t,
@@ -1179,44 +1182,44 @@ const ct = { bubbles: !1 }, b = class b {
     this.nodeValueByIndex[t] === o && t in this.nodeValueByIndex || (s.textContent = o, this.nodeValueByIndex[t] = o);
   }
   updateAttr(t, e) {
-    var u;
+    var d;
     const s = this.execBytecode(
       4,
-      this.area.attrTemplateByIndex[t],
+      this.attrTemplateByIndex[t],
       t,
       e
     );
-    let i = this.area.attrNameByIndex[t];
+    let i = this.attrNameByIndex[t];
     i === "data-src" && (i = "src");
     const o = this.attrValueByIndex[t];
     if (o === s && t in this.attrValueByIndex) return;
-    const c = s === b.REMOVE_ATTR;
-    c ? this.node.removeAttribute(i) : this.node.setAttribute(i, s);
-    const d = ht[i];
-    d && (this.node[d] = c ? !1 : !!s), this.attrValueByIndex[t] = s, (u = I == null ? void 0 : I.get(this.node)) != null && u.has(i) && this.node.dispatchEvent(b.getChangeAttrEvent(i, o, s));
+    const l = s === b.REMOVE_ATTR;
+    l ? this.node.removeAttribute(i) : this.node.setAttribute(i, s);
+    const u = ht[i];
+    u && (this.node[u] = l ? !1 : !!s), this.attrValueByIndex[t] = s, (d = I == null ? void 0 : I.get(this.node)) != null && d.has(i) && this.node.dispatchEvent(b.getChangeAttrEvent(i, o, s));
   }
   updateInnerHtml(t) {
-    if (!this.area.innerHtmlTemplateBC) return;
+    if (!this.innerHtmlTemplateBC) return;
     const e = this.runVMProgramForContext(
       7,
-      this.area.innerHtmlTemplateBC,
+      this.innerHtmlTemplateBC,
       0,
       t
     );
     this.innerHTMLValue !== e && (this.node.innerHTML = e, this.innerHTMLValue = e);
   }
   updateVar(t, e) {
-    this.lexicalEnv[this.area.varNameByIndex[t]] = this.runVMProgramForContext(
+    this.lexicalEnv[this.varNameByIndex[t]] = this.runVMProgramForContext(
       6,
-      this.area.varBytecodeByIndex[t],
+      this.varBytecodeByIndex[t],
       t,
       e
     );
   }
   updateAllTextNodes(t) {
-    if (this.area.textNodes)
-      for (let e = 0; e < this.area.textNodes.length; e++)
-        this.updateTextNode(this.area.textNodes[e], t);
+    if (this.textNodes)
+      for (let e = 0; e < this.textNodes.length; e++)
+        this.updateTextNode(this.textNodes[e], t);
   }
   updateAllClones(t) {
     if (this.clones)
@@ -1243,18 +1246,18 @@ const ct = { bubbles: !1 }, b = class b {
   getTemplateBytecode(t, e, s) {
     const i = H.get(t);
     if (i) return i;
-    const o = [], c = t.length;
-    let d = 0;
-    for (; d < c; ) {
-      const m = t.indexOf(L, d);
-      if (m === -1) {
-        d < c && o.push(t.slice(d));
+    const o = [], l = t.length;
+    let u = 0;
+    for (; u < l; ) {
+      const x = t.indexOf(L, u);
+      if (x === -1) {
+        u < l && o.push(t.slice(u));
         break;
       }
-      m > d && o.push(t.slice(d, m));
-      const f = m + 2, p = [];
-      let r = f, h = null, v = -1;
-      for (; r < c; ) {
+      x > u && o.push(t.slice(u, x));
+      const m = x + 2, p = [];
+      let r = m, h = null, v = -1;
+      for (; r < l; ) {
         const E = t[r];
         if (h !== null) {
           if (E === "\\") {
@@ -1277,11 +1280,11 @@ const ct = { bubbles: !1 }, b = class b {
           continue;
         }
         if (E === ")") {
-          (!p.length || p[p.length - 1] !== "(") && this.handleTemplateParseError(t, f, c, `Unmatched ")" at position ${r}`), p.pop(), r++;
+          (!p.length || p[p.length - 1] !== "(") && this.handleTemplateParseError(t, m, l, `Unmatched ")" at position ${r}`), p.pop(), r++;
           continue;
         }
         if (E === "]") {
-          (!p.length || p[p.length - 1] !== "[") && this.handleTemplateParseError(t, f, c, `Unmatched "]" at position ${r}`), p.pop(), r++;
+          (!p.length || p[p.length - 1] !== "[") && this.handleTemplateParseError(t, m, l, `Unmatched "]" at position ${r}`), p.pop(), r++;
           continue;
         }
         if (E === "}") {
@@ -1294,26 +1297,26 @@ const ct = { bubbles: !1 }, b = class b {
             break;
           }
           if (p.length > 0) {
-            const C = p[p.length - 1] === "(" ? ")" : "]";
-            this.handleTemplateParseError(t, f, c, `Expected "${C}" but got "}" at position ${r}`);
+            const A = p[p.length - 1] === "(" ? ")" : "]";
+            this.handleTemplateParseError(t, m, l, `Expected "${A}" but got "}" at position ${r}`);
           }
-          this.handleTemplateParseError(t, f, c, `Unexpected "}" at position ${r}`);
+          this.handleTemplateParseError(t, m, l, `Unexpected "}" at position ${r}`);
         }
         r++;
       }
       if (v === -1) {
         if (p.length > 0) {
-          const E = p[p.length - 1], C = E === "(" ? ")" : E === "[" ? "]" : "}";
-          this.handleTemplateParseError(t, f, c, `Unclosed "${E}": expected "${C}" before end of expression`);
+          const E = p[p.length - 1], A = E === "(" ? ")" : E === "[" ? "]" : "}";
+          this.handleTemplateParseError(t, m, l, `Unclosed "${E}": expected "${A}" before end of expression`);
         }
-        o.push(this.getSingleBytecode(t.slice(f).trim(), t));
+        o.push(this.getSingleBytecode(t.slice(m).trim(), t));
         break;
       }
-      o.push(this.getSingleBytecode(t.slice(f, v).trim(), t)), d = v + 2;
+      o.push(this.getSingleBytecode(t.slice(m, v).trim(), t)), u = v + 2;
     }
-    e && o.length > 1 ? this.handleError(new Error("Template has multi expressions, only single expression is allowed here"), "vm compile", null, t) : o.filter((m) => m instanceof K).length || this.handleError(new Error(`Expression not found, ${this.getNodeForError()} in ${s} attr`), "vm compile", null, t);
-    const u = o.length === 1 ? o[0] : o;
-    return H.set(t, u), u;
+    e && o.length > 1 ? this.handleError(new Error("Template has multi expressions, only single expression is allowed here"), "vm compile", null, t) : o.filter((x) => x instanceof K).length || this.handleError(new Error(`Expression not found, ${this.getNodeForError()} in ${s} attr`), "vm compile", null, t);
+    const d = o.length === 1 ? o[0] : o;
+    return H.set(t, d), d;
   }
   getItem(t, e, s, i) {
     return typeof t == "string" ? t : this.runVMProgramForContext(e, t, s, i);
@@ -1322,11 +1325,8 @@ const ct = { bubbles: !1 }, b = class b {
     if (!Array.isArray(e))
       return this.getItem(e, t, s, i);
     let o = new Array(e.length);
-    for (let c = 0; c < e.length; c++) o[c] = this.getItem(e[c], t, s, i);
+    for (let l = 0; l < e.length; l++) o[l] = this.getItem(e[l], t, s, i);
     return o.join("");
-  }
-  childNodeIsDynamic(t) {
-    return t.hasAttribute("repeat") || t.hasAttribute("attached") ? !0 : this.root.areas[+t.getAttribute("area-index")].hasBindings;
   }
   addClone(t, e, s) {
     const i = new b({
@@ -1346,32 +1346,6 @@ const ct = { bubbles: !1 }, b = class b {
       cloneIndex: this.cloneIndex
     });
   }
-  areaFactory() {
-    return {
-      hasBindings: !1,
-      nodeTemplateByIndex: null,
-      attrNameByIndex: null,
-      attrTemplateByIndex: null,
-      varNameByIndex: null,
-      varBytecodeByIndex: null,
-      textNodes: null,
-      contentAttributes: null,
-      varAttributes: null,
-      eventAttributes: null,
-      events: null,
-      templateNodeForClone: null,
-      filled: !1,
-      innerHtmlTemplateBC: null
-    };
-  }
-  createAreas(t) {
-    t.setAttribute("area-index", String(this.root.areas.length));
-    const e = this.areaFactory();
-    this.root.areas.push(e);
-    const s = t.hasAttribute("inner-html");
-    if (e.hasBindings = this.hasBindingAttributes(t) || this.hasTemplateTextChild(t), !s)
-      for (let i = t.firstElementChild; i; i = i.nextElementSibling) this.createAreas(i);
-  }
   hasBindingAttributes(t) {
     for (const e of Array.from(t.attributes)) if (this.isTemplate(e.value)) return !0;
     return !1;
@@ -1381,26 +1355,25 @@ const ct = { bubbles: !1 }, b = class b {
     return !1;
   }
   handleChildrens(t) {
-    var s, i;
     let e = t.firstChild;
     for (; e; ) {
-      const o = e.nextSibling;
+      const s = e.nextSibling;
       if (e.nodeType === 1) {
-        const c = e;
-        if (this.childNodeIsDynamic(c)) {
-          const d = this.addChildren(c);
-          d.parent = this, this.children ?? (this.children = []), this.children.push(d);
+        const i = e;
+        if (this.hasBindingAttributes(i) || this.hasTemplateTextChild(i)) {
+          const o = this.addChildren(i);
+          o.parent = this, this.children ?? (this.children = []), this.children.push(o);
         } else
-          this.handleChildrens(c);
+          this.handleChildrens(i);
       } else if (e.nodeType === 3) {
-        const c = e.textContent;
-        if (this.isTemplate(c)) {
+        const i = e.textContent;
+        if (this.isTemplate(i)) {
           this.nodeByIndex ?? (this.nodeByIndex = []), this.nodeValueByIndex ?? (this.nodeValueByIndex = []);
-          const d = this.nodeByIndex.push(e) - 1;
-          this.area.filled || ((s = this.area).nodeTemplateByIndex ?? (s.nodeTemplateByIndex = []), this.area.nodeTemplateByIndex.push(this.getTemplateBytecode(c)), (i = this.area).textNodes ?? (i.textNodes = []), this.area.textNodes.push(d));
+          const o = this.nodeByIndex.push(e) - 1;
+          this.nodeTemplateByIndex ?? (this.nodeTemplateByIndex = []), this.nodeTemplateByIndex.push(this.getTemplateBytecode(i)), this.textNodes ?? (this.textNodes = []), this.textNodes.push(o);
         }
       }
-      e = o;
+      e = s;
     }
   }
   resetDetectingUpTree() {
@@ -1408,13 +1381,13 @@ const ct = { bubbles: !1 }, b = class b {
     for (; t; )
       t.detecting = !1, t = t.parent;
   }
-  handleError(t, e, s = null, i = "", o = "", c = null) {
-    const d = o ? [o] : [];
-    i && d.push(i), this.root.selector && d.push(this.root.selector);
-    let u = d.join(" at ");
-    this.root.debug.__tplFile && (u += ` (${this.root.debug.__tplFile})`);
-    let m = c ? ", " + q[c] : "";
-    throw t.message = `${e}${m}: ${t.message} in ${u}`, s && (console.log(u), s.log()), t;
+  handleError(t, e, s = null, i = "", o = "", l = null) {
+    const u = o ? [o] : [];
+    i && u.push(i), this.root.selector && u.push(this.root.selector);
+    let d = u.join(" at ");
+    this.root.debug.__tplFile && (d += ` (${this.root.debug.__tplFile})`);
+    let x = l ? ", " + q[l] : "";
+    throw t.message = `${e}${x}: ${t.message} in ${d}`, s && (console.log(d), s.log()), t;
   }
   handleSafeError(t, e = "") {
     const s = e ? [e] : [];
@@ -1436,10 +1409,10 @@ const ct = { bubbles: !1 }, b = class b {
   }
   linkRxToTemplate(t, e, s) {
     if (t === 4) {
-      const c = this.area.attrNameByIndex[s];
-      if (c && at.has(c))
+      const l = this.attrNameByIndex[s];
+      if (l && ct.has(l))
         throw new Error(
-          `::rx is not allowed in "${c}".`
+          `::rx is not allowed in "${l}".`
         );
     }
     let i = this.root.rxAcc.get(e);
@@ -1466,45 +1439,33 @@ const ct = { bubbles: !1 }, b = class b {
         i,
         o
       );
-    } catch (c) {
-      this.resetDetectingUpTree(), this.handleError(c, "vm run", e, e.expr, null, t);
+    } catch (l) {
+      this.resetDetectingUpTree(), this.handleError(l, "vm run", e, e.expr, null, t);
     }
   }
-  handleAttributesFilledArea() {
+  handleDomAttributes() {
+    const t = this.node.getAttribute("repeat"), e = this.node.getAttribute("attached");
+    t ? (this.setPointer(), this.repeatBC = this.getTemplateBytecode(t, !0, "repeat"), this.templateNodeForClone = this.node.cloneNode(!0), this.templateNodeForClone.removeAttribute("repeat"), this.node.remove(), this.clones = []) : e && (this.setPointer(), this.attachedBC = this.getTemplateBytecode(e, !0, "attached"), this.node.removeAttribute("attached"));
+  }
+  handleAttributes() {
     const t = Array.from(this.node.attributes);
     for (let e = 0; e < t.length; e++) {
       const s = t[e];
-      s.name === "attached" && !this.repeatBC && (this.setPointer(), this.attachedBC = this.getTemplateBytecode(s.value, !0, s.name)), s.name === "inner-html" && this.node.removeAttribute("inner-html");
-    }
-    if (this.area.eventAttributes)
-      for (let e = 0; e < this.area.eventAttributes.length; e++)
-        this.node.removeAttribute(this.area.eventAttributes[e]);
-  }
-  handleAttributes() {
-    var e, s, i, o, c, d, u, m;
-    const t = Array.from(this.node.attributes);
-    for (let f = 0; f < t.length; f++) {
-      const p = t[f];
-      if (!(p.name === "repeat" || !this.isTemplate(p.value)))
-        if (p.name.indexOf("on") === 0)
-          (e = this.area).eventAttributes ?? (e.eventAttributes = []), this.area.eventAttributes.push(p.name), (s = this.area).events ?? (s.events = /* @__PURE__ */ Object.create(null)), this.area.events[p.name.slice(2)] = this.getTemplateBytecode(p.value, !0, p.name);
-        else if (p.name === "attached" && !this.repeatBC)
-          this.setPointer(), this.attachedBC = this.getTemplateBytecode(p.value, !0, p.name);
-        else if (p.name === "inner-html")
-          this.area.innerHtmlTemplateBC = this.getTemplateBytecode(p.value, !0, p.name), this.node.removeAttribute("inner-html");
-        else if (p.name.indexOf("let-") === 0) {
-          (i = this.area).varNameByIndex ?? (i.varNameByIndex = []);
-          const r = this.area.varNameByIndex.push(b.kebabToCamel(p.name.slice(4))) - 1;
-          (o = this.area).varBytecodeByIndex ?? (o.varBytecodeByIndex = []), this.area.varBytecodeByIndex.push(this.getTemplateBytecode(p.value, !0, p.name)), (c = this.area).varAttributes ?? (c.varAttributes = []), this.area.varAttributes.push(r);
+      if (!(s.name === "attached" || s.name === "repeat" || !this.isTemplate(s.value)))
+        if (s.name.indexOf("on") === 0)
+          this.eventAttributes ?? (this.eventAttributes = []), this.eventAttributes.push(s.name), this.eventsBC ?? (this.eventsBC = /* @__PURE__ */ Object.create(null)), this.eventsBC[s.name.slice(2)] = this.getTemplateBytecode(s.value, !0, s.name), this.node.removeAttribute(s.name);
+        else if (s.name === "inner-html")
+          this.innerHtmlTemplateBC = this.getTemplateBytecode(s.value, !0, s.name), this.node.removeAttribute(s.name);
+        else if (s.name.indexOf("let-") === 0) {
+          this.varNameByIndex ?? (this.varNameByIndex = []), this.lexicalEnv ?? (this.lexicalEnv = /* @__PURE__ */ Object.create(null));
+          const i = this.varNameByIndex.push(b.kebabToCamel(s.name.slice(4))) - 1;
+          this.varBytecodeByIndex ?? (this.varBytecodeByIndex = []), this.varBytecodeByIndex.push(this.getTemplateBytecode(s.value, !0, s.name)), this.varAttributes ?? (this.varAttributes = []), this.varAttributes.push(i), this.node.removeAttribute(s.name);
         } else {
-          (d = this.area).attrNameByIndex ?? (d.attrNameByIndex = []);
-          const r = this.area.attrNameByIndex.push(p.name) - 1;
-          (u = this.area).attrTemplateByIndex ?? (u.attrTemplateByIndex = []), this.area.attrTemplateByIndex.push(this.getTemplateBytecode(p.value)), (m = this.area).contentAttributes ?? (m.contentAttributes = []), this.area.contentAttributes.push(r);
+          this.attrNameByIndex ?? (this.attrNameByIndex = []), this.attrValueByIndex ?? (this.attrValueByIndex = []);
+          const i = this.attrNameByIndex.push(s.name) - 1;
+          this.attrTemplateByIndex ?? (this.attrTemplateByIndex = []), this.attrTemplateByIndex.push(this.getTemplateBytecode(s.value, !1, s.name)), this.contentAttributes ?? (this.contentAttributes = []), this.contentAttributes.push(i), this.node.removeAttribute(s.name);
         }
     }
-    if (this.area.eventAttributes)
-      for (let f = 0; f < this.area.eventAttributes.length; f++)
-        this.node.removeAttribute(this.area.eventAttributes[f]);
   }
   markDomStructureChanged() {
     typeof this.root.domStructureChanged == "function" && (this.root.domChangedScheduled || (this.root.domChangedScheduled = !0, queueMicrotask(() => {
@@ -1523,22 +1484,22 @@ const ct = { bubbles: !1 }, b = class b {
           const i = this.root.rxAcc.get(s);
           if (i)
             for (const o of i) {
-              const c = o[0], d = o[1];
-              if (d[2]) {
-                c.reactiveUpdateAttachedAttr();
+              const l = o[0], u = o[1];
+              if (u[2]) {
+                l.reactiveUpdateAttachedAttr();
                 continue;
               }
-              if (d[4]) {
-                c.reactiveUpdateLexicalEnv();
+              if (u[4]) {
+                l.reactiveUpdateLexicalEnv();
                 continue;
               }
-              if (d[0])
-                for (const u of d[0])
-                  c.reactiveUpdateNode(u);
-              if (d[1])
-                for (const u of d[1])
-                  c.reactiveUpdateAttr(u);
-              d[3] && c.reactiveUpdateRepeat(), d[5] && c.reactiveUpdateInnerHtml();
+              if (u[0])
+                for (const d of u[0])
+                  l.reactiveUpdateNode(d);
+              if (u[1])
+                for (const d of u[1])
+                  l.reactiveUpdateAttr(d);
+              u[3] && l.reactiveUpdateRepeat(), u[5] && l.reactiveUpdateInnerHtml();
             }
         }
         this.root.rxUpdated = null;
@@ -1572,19 +1533,19 @@ const ct = { bubbles: !1 }, b = class b {
     ));
   }
 };
-a(b, "REMOVE_ATTR", {}), a(b, "appVariables", {});
+c(b, "REMOVE_ATTR", {}), c(b, "appVariables", {});
 let U = b;
 class lt {
   constructor() {
-    a(this, "instancesBySelector", {});
-    a(this, "componentsRoot", []);
-    a(this, "buckets", {});
-    a(this, "listBySelector", /* @__PURE__ */ new Map());
+    c(this, "instancesBySelector", {});
+    c(this, "componentsRoot", []);
+    c(this, "buckets", {});
+    c(this, "listBySelector", /* @__PURE__ */ new Map());
   }
   removeComponents(t, e = !1) {
     for (; t.length; ) {
       const s = t.pop();
-      s.disconnectedCallback(e), B.instancesBySelector[s.selector].delete(
+      s.disconnectedCallback(e), C.instancesBySelector[s.selector].delete(
         s.node
       );
     }
@@ -1593,29 +1554,29 @@ class lt {
     this.listBySelector.set(t.selector, t);
   }
   connectBySelector(t, e, s = document, i = null) {
-    const o = s.querySelectorAll(t), c = Array.from(o), d = [];
-    if (c.length) {
-      const u = this.listBySelector.get(t);
-      if (!u)
+    const o = s.querySelectorAll(t), l = Array.from(o), u = [];
+    if (l.length) {
+      const d = this.listBySelector.get(t);
+      if (!d)
         throw new Error(
           `${t} component is not defined. Call componentsRegistryService.define(...)`
         );
-      for (const m of c) {
+      for (const x of l) {
         this.instancesBySelector[t] = this.instancesBySelector[t] || /* @__PURE__ */ new Map();
-        let f = this.instancesBySelector[t].get(m);
-        if (!f) {
-          f = new u(), f.selector = t, f.node = m;
+        let m = this.instancesBySelector[t].get(x);
+        if (!m) {
+          m = new d(), m.selector = t, m.node = x;
           let p = null;
           i != null && i.httpFactory && (p ?? (p = {}), p.httpFactory = i.httpFactory), i != null && i.params$ && (p ?? (p = {}), p.routeParams$ = i.params$);
           try {
-            f.connectedCallback(p), e.push(f), this.instancesBySelector[t].set(m, f), d.push(f);
+            m.connectedCallback(p), e.push(m), this.instancesBySelector[t].set(x, m), u.push(m);
           } catch (r) {
             throw r;
           }
         }
       }
     }
-    return d;
+    return u;
   }
   initApp() {
     for (const t of this.listBySelector.keys())
@@ -1628,12 +1589,12 @@ class lt {
     delete this.buckets[t.id];
   }
 }
-const B = new lt();
+const C = new lt();
 class Q {
   constructor(t, e = null) {
-    a(this, "actual", null);
-    a(this, "groupIndex", null);
-    a(this, "postUpdateFns", null);
+    c(this, "actual", null);
+    c(this, "groupIndex", null);
+    c(this, "postUpdateFns", null);
     this.group = t, this.fn = e, this.groupIndex = this.group.length, this.group.push(this);
   }
   update(...t) {
@@ -1651,15 +1612,15 @@ class Q {
 class dt extends Q {
   constructor(e, s, i, ...o) {
     super(e, s);
-    a(this, "deps");
-    a(this, "updateScheduled", !1);
-    a(this, "update", () => {
+    c(this, "deps");
+    c(this, "updateScheduled", !1);
+    c(this, "update", () => {
       this.updateScheduled || (this.updateScheduled = !0, queueMicrotask(() => {
         super.update(...this.deps.map((e) => e.actual)), this.updateScheduled = !1;
       }));
     });
     this.deps = o;
-    for (const c of o) c.setPostUpdate(this.update);
+    for (const l of o) l.setPostUpdate(this.update);
     i != null && i.immediate && this.update();
   }
   unsubscribe() {
@@ -1671,41 +1632,41 @@ class dt extends Q {
 }
 class pt {
   constructor() {
-    a(this, "id", "");
-    a(this, "index", "");
-    a(this, "selector", "");
-    a(this, "node", null);
-    a(this, "http", null);
-    a(this, "config", null);
-    a(this, "outerBucket", null);
-    a(this, "innerBucket", null);
-    a(this, "destroyed", !1);
-    a(this, "ac", null);
-    a(this, "dependencies", null);
-    a(this, "connectedDependencies", null);
-    a(this, "hasOuterBucket", !1);
-    a(this, "hasConfig", !1);
-    a(this, "isDirective", !1);
-    a(this, "template", null);
-    a(this, "rxList", null);
-    a(this, "value$", this.newRx());
-    a(this, "value", null);
-    a(this, "state$", this.newRx());
-    a(this, "state", null);
-    a(this, "__tplFile", "");
-    a(this, "onUpdateValue", (t, e, s) => {
+    c(this, "id", "");
+    c(this, "index", "");
+    c(this, "selector", "");
+    c(this, "node", null);
+    c(this, "http", null);
+    c(this, "config", null);
+    c(this, "outerBucket", null);
+    c(this, "innerBucket", null);
+    c(this, "destroyed", !1);
+    c(this, "ac", null);
+    c(this, "dependencies", null);
+    c(this, "connectedDependencies", null);
+    c(this, "hasOuterBucket", !1);
+    c(this, "hasConfig", !1);
+    c(this, "isDirective", !1);
+    c(this, "template", null);
+    c(this, "rxList", null);
+    c(this, "value$", this.newRx());
+    c(this, "value", null);
+    c(this, "state$", this.newRx());
+    c(this, "state", null);
+    c(this, "__tplFile", "");
+    c(this, "onUpdateValue", (t, e, s) => {
       this.index !== e || this.value === t || this.setValue(s);
     });
-    a(this, "onUpdateState", (t, e, s) => {
+    c(this, "onUpdateState", (t, e, s) => {
       this.index !== e || this.state === t || this.setState(s);
     });
   }
   disconnectedCallback(t = !1) {
-    if (this.destroyed = !0, this.ac && this.ac.abort(), this.template && this.template.fullDestroy(), t && this.node && !this.isDirective && this.node.remove(), this.value$ && this.value$.unsubscribe(), this.state$ && this.state$.unsubscribe(), this.connectedDependencies && B.removeComponents(this.connectedDependencies), this.rxList) for (; this.rxList.length; ) this.rxList.pop().unsubscribe();
-    this.innerBucket && B.disconnectBucket(this.innerBucket);
+    if (this.destroyed = !0, this.ac && this.ac.abort(), this.template && this.template.fullDestroy(), t && this.node && !this.isDirective && this.node.remove(), this.value$ && this.value$.unsubscribe(), this.state$ && this.state$.unsubscribe(), this.connectedDependencies && C.removeComponents(this.connectedDependencies), this.rxList) for (; this.rxList.length; ) this.rxList.pop().unsubscribe();
+    this.innerBucket && C.disconnectBucket(this.innerBucket);
   }
   getBucket() {
-    const t = this.getBucketId(), e = B.buckets[t];
+    const t = this.getBucketId(), e = C.buckets[t];
     if (t && !e)
       throw new Error(
         `Bucket "${t}" not found for selector "${this.selector}" (component-id="${this.getId()}")`
@@ -1732,7 +1693,7 @@ class pt {
         this.rxList
       ));
     }
-    if (this.innerBucket && B.connectBucket(this.innerBucket), !this.isDirective && !(t != null && t.disableTemplate) && this.initTemplate(), t != null && t.httpFactory) {
+    if (this.innerBucket && C.connectBucket(this.innerBucket), !this.isDirective && !(t != null && t.disableTemplate) && this.initTemplate(), t != null && t.httpFactory) {
       this.ac = new AbortController();
       const e = Object.keys(t.httpFactory);
       this.http = /* @__PURE__ */ Object.create(null);
@@ -1776,13 +1737,13 @@ class pt {
         let t = null, e = null;
         for (const s of this.connectedDependencies)
           document.contains(s.node) ? (e ?? (e = []), e.push(s)) : (t ?? (t = []), t.push(s));
-        this.connectedDependencies = e, t && B.removeComponents(t);
+        this.connectedDependencies = e, t && C.removeComponents(t);
       }
       for (const t of this.dependencies) this.connectDependency(t);
     }
   }
   connectDependency(t) {
-    return this.connectedDependencies ?? (this.connectedDependencies = []), B.connectBySelector(
+    return this.connectedDependencies ?? (this.connectedDependencies = []), C.connectBySelector(
       t,
       this.connectedDependencies,
       this.node
@@ -1837,7 +1798,7 @@ class pt {
   newRxEventFromBucketByIndex(t, e, s) {
     this.rxList ?? (this.rxList = []);
     const i = {};
-    return t.newRxEvent(e, s, (o, c) => (i[c] = o, i), this.rxList);
+    return t.newRxEvent(e, s, (o, l) => (i[l] = o, i), this.rxList);
   }
 }
 export {
@@ -1845,6 +1806,6 @@ export {
   Q as R,
   U as T,
   dt as a,
-  B as c
+  C as c
 };
-//# sourceMappingURL=component-BplwVDE8.js.map
+//# sourceMappingURL=component-CK41B9Gk.js.map
