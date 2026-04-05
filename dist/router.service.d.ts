@@ -31,7 +31,7 @@ declare class RouteUrl<A extends Record<string, any> = {}> {
     private re;
     constructor(templateUrl: string);
     private getReplacer;
-    build(params?: A, query?: URLSearchParams, hash?: string): string;
+    build(params?: A, query?: URLSearchParams): string;
 }
 declare class RouteMatcher {
     static reEscape: RegExp;
@@ -46,21 +46,23 @@ declare class RouterService extends AbstractService {
     private rules;
     private completedComponentRules;
     pathname$: Rx<string, [v: string]>;
-    hash$: Rx<string, [v: string]>;
     search$: Rx<string, [v: string]>;
-    private scrollToHashElementIsBlocked;
+    private hashMode;
     private normalizePathname;
+    private parseHashRoute;
+    private getRoutedPathname;
+    private getRoutedSearch;
+    private buildHashModeLocationUrl;
+    private redirectToHistoryUrl;
+    setHashMode(value: boolean): void;
+    isHashMode(): boolean;
     hrefIsActive(href: string, mode?: {
         startsWith?: boolean;
         ignoreSearch?: boolean;
-        ignoreHash?: boolean;
     }): boolean;
     private getCompletedRedirectRules;
     private getCompletedComponentRules;
     update(ignoreRedirectRules?: boolean): void;
-    scrollToHashElement(): void;
-    blockScrollToHashElement(time?: number): (this: unknown) => void;
-    unblockScrollToHashElement: () => void;
     pushHistory(href: string): void;
     pushHistoryLink(event: Event, href: string): void;
     private eventListener;
@@ -76,7 +78,7 @@ export declare class RouteUrlBucket<A> {
     constructor(rulesParams: {
         [K in keyof A]: RuleParams;
     });
-    buildUrl(k: keyof A, params?: Record<number | string, number | string>): string;
+    buildUrl(k: keyof A, params?: Record<number | string, number | string>, query?: URLSearchParams): string;
     private getRouterOutletUnbox;
     destroy(): void;
 }

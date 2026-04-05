@@ -5,12 +5,11 @@ const listenedAttrs = new Set(['href']);
 interface RouterLinkParams {
   activeCls?: string;
   startsWith?: boolean;
-  ignoreHash?: boolean;
   ignoreSearch?: boolean;
 }
 
-export function RouterLinkConfig(params: RouterLinkParams) {
-  return Object.assign({}, params);
+export function RouterLinkConfig(params: RouterLinkParams = {}) {
+  return { activeCls: "", ...params };
 }
 
 declare global {
@@ -33,6 +32,7 @@ export class RouterLinkComponent extends AbstractComponent<RouterLinkParams, boo
   }
 
   disconnectedCallback(): void {
+    window.removeEventListener("hashchange", this.onHashChangeForActive);
     super.disconnectedCallback();
     this.node.removeEventListener("click", this.onClick);
   }
@@ -43,10 +43,13 @@ export class RouterLinkComponent extends AbstractComponent<RouterLinkParams, boo
   };
 
   onChange() {
-    let activeCls = this.config.activeCls;
-
+    const activeCls = this.config.activeCls ?? "";
     const isActive = this.isActive();
     this.outerBucket.emitEvent(this.id, 'routerLinkStateChanged', {data: {isActive}}, this.index);
+
+    if (!activeCls) {
+      return;
+    }
 
     if (isActive) {
       this.node.classList.add(activeCls);
@@ -59,6 +62,10 @@ export class RouterLinkComponent extends AbstractComponent<RouterLinkParams, boo
     return routerService.hrefIsActive(this.node.getAttribute('href'), this.config);
   }
 
+  private onHashChangeForActive = () => {
+    if (!routerService.isHashMode()) this.onChange()
+  };
+
   connectedCallback(): void {
     super.connectedCallback();
 
@@ -69,9 +76,11 @@ export class RouterLinkComponent extends AbstractComponent<RouterLinkParams, boo
       this.onChange();
     });
 
+    window.addEventListener("hashchange", this.onHashChangeForActive);
+
     this.newRxFunc(() => {
       this.onChange();
-    }, routerService.pathname$, routerService.hash$, routerService.search$);
+    }, routerService.pathname$, routerService.search$);
   }
 }
 

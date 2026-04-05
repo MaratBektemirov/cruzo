@@ -22,7 +22,7 @@
   width: var(--spinner-size);
   height: var(--spinner-size);
   border-radius: 50%;
-  background: var(--spinner-color, var(--accent, currentColor));
+  background: var(--spinner-color);
   opacity: 0.4;
 }
 

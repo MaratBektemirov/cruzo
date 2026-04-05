@@ -2,10 +2,13 @@ import { AbstractComponent } from "../../lib";
 interface RouterLinkParams {
     activeCls?: string;
     startsWith?: boolean;
-    ignoreHash?: boolean;
     ignoreSearch?: boolean;
 }
-export declare function RouterLinkConfig(params: RouterLinkParams): RouterLinkParams;
+export declare function RouterLinkConfig(params?: RouterLinkParams): {
+    activeCls: string;
+    startsWith?: boolean;
+    ignoreSearch?: boolean;
+};
 declare global {
     interface BucketEventMap {
         routerLinkStateChanged: {
@@ -23,6 +26,7 @@ export declare class RouterLinkComponent extends AbstractComponent<RouterLinkPar
     onClick: (event: Event) => void;
     onChange(): void;
     isActive(): boolean;
+    private onHashChangeForActive;
     connectedCallback(): void;
 }
 export {};

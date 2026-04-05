@@ -1,0 +1,42 @@
+:root {
+  --font: "Roboto", sans-serif;
+
+  --xxs: 2px;
+  --xs: 6px;
+  --s: 10px;
+  --m: 16px;
+  --xl: 42px;
+  --xxl: 68px;
+
+  --surface: #ffffff;
+  --surface-2: #f5f5f5;
+  --surface-hover: #eeeeee;
+
+  --text-main: rgba(0, 0, 0, 0.85);
+  --text-muted-mid: rgba(0, 0, 0, 0.7);
+  --text-muted: rgba(0, 0, 0, 0.5);
+
+  --accent: #111827;
+  --accent-hover: rgba(17, 24, 39, 0.9);
+
+  --overlay-hover: rgba(0, 0, 0, 0.04);
+  --overlay-selected: rgba(0, 0, 0, 0.06);
+
+  --border-subtle: rgba(0, 0, 0, 0.12);
+
+  --tooltip-bg: rgba(0, 0, 0, 0.85);
+  --tooltip-fg: #ffffff;
+
+  --backdrop: rgba(0, 0, 0, 0.28);
+
+  --shadow-dropdown: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-modal: 0 4px 16px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.02);
+  --shadow-modal-focus: 0 6px 20px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04);
+
+  --radius-tooltip: 4px;
+  --radius-control: 8px;
+  --radius-button: 6px;
+
+  --spinner-size: 10px;
+  --spinner-color: var(--accent);
+}

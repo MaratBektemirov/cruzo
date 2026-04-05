@@ -1,7 +1,7 @@
 function r(t, e) {
-  const n = {};
-  for (const o of t) n[o[e]] = o;
-  return n;
+  const o = {};
+  for (const n of t) o[n[e]] = n;
+  return o;
 }
 function u(t) {
   return new Promise((e) => {
@@ -11,10 +11,10 @@ function u(t) {
   });
 }
 function i(t, e) {
-  let n;
-  return function(...o) {
-    clearTimeout(n), n = setTimeout(() => {
-      e.apply(this, o);
+  let o;
+  return function(...n) {
+    clearTimeout(o), o = setTimeout(() => {
+      e.apply(this, n);
     }, t);
   };
 }

@@ -2,7 +2,6 @@ import { Rx } from "./rx";
 import { AbstractService } from "./service";
 import { componentsRegistryService } from "./components-registry.service";
 import { AbstractComponentConstructor, IHttpClient } from "./interfaces";
-import { debounce } from "./utils";
 
 interface Rule {
   onLoadRoute?: () => any;
@@ -71,16 +70,16 @@ class RouteUrl<A extends Record<string, any> = {}> {
     };
   }
 
-  public build(params: A = {} as A, query?: URLSearchParams, hash?: string) {
+  public build(params: A = {} as A, query?: URLSearchParams) {
     const replacer = this.getReplacer(params);
     const path = this.templateUrl.replace(this.re, (_, mode, name) =>
       replacer(mode, name),
     );
 
     const q = query?.toString();
-    const h = hash ? hash.replace(/^#/, "") : "";
+    const qstr = q ? `?${q}` : "";
 
-    return path + (q ? `?${q}` : "") + (h ? `#${h}` : "");
+    return path + qstr;
   }
 }
 
@@ -124,46 +123,109 @@ class RouterService extends AbstractService {
   private completedComponentRules: RuleCompleted[] = [];
 
   public pathname$ = this.newRx('');
-  public hash$ = this.newRx('');
   public search$ = this.newRx('');
 
-  private scrollToHashElementIsBlocked = false;
+  private hashMode = false;
 
   private normalizePathname(pathname: string) {
     if (pathname === "/") return pathname;
     return pathname.replace(/\/+$/, "");
   }
 
+  private parseHashRoute(rawHash: string): { path: string; search: string } {
+    if (!rawHash || rawHash === "#") return { path: "/", search: "" }
+
+    let h = rawHash.startsWith("#") ? rawHash.slice(1) : rawHash;
+    const qidx = h.indexOf("?");
+    const pathPartRaw = qidx >= 0 ? h.slice(0, qidx) : h;
+    const searchPart = qidx >= 0 ? h.slice(qidx) : "";
+    const pathPart = pathPartRaw.replace(/^\/+/, "");
+    const path = pathPart === "" ? "/" : this.normalizePathname("/" + pathPart);
+
+    return { path, search: searchPart }
+  }
+
+  private getRoutedPathname(url: URL) {
+    if (this.hashMode) return this.parseHashRoute(url.hash).path
+    return this.normalizePathname(url.pathname);
+  }
+
+  private getRoutedSearch(url: URL) {
+    if (this.hashMode) return this.parseHashRoute(url.hash).search
+    return url.search;
+  }
+
+  private buildHashModeLocationUrl(hashRoute: string) {
+    return window.location.pathname + window.location.search + hashRoute;
+  }
+
+  private redirectToHistoryUrl(redirectTo: string) {
+    if (!this.hashMode) return redirectTo
+
+    const u = new URL(redirectTo, window.location.origin);
+    let path: string;
+    let search: string;
+    if (u.hash && u.hash.startsWith("#/")) {
+      const r = this.parseHashRoute(u.hash);
+      path = r.path;
+      search = r.search;
+    } else {
+      path = this.normalizePathname(u.pathname);
+      search = u.search;
+    }
+
+    const hashRoute = "#/" + path.replace(/^\//, "") + search;
+    return this.buildHashModeLocationUrl(hashRoute);
+  }
+
+  public setHashMode(value: boolean) {
+    this.hashMode = value;
+  }
+
+  public isHashMode() {
+    return this.hashMode;
+  }
+
   public hrefIsActive(href: string, mode: {
     startsWith?: boolean,
     ignoreSearch?: boolean,
-    ignoreHash?: boolean,
   } = null) {
     const linkUrl = new URL(href, window.location.origin);
+    const cur = new URL(window.location.href);
+
+    if (this.hashMode) {
+      const linkPath = linkUrl.hash ? this.parseHashRoute(linkUrl.hash).path : this.normalizePathname(linkUrl.pathname);
+      const linkSearch = linkUrl.hash ? this.parseHashRoute(linkUrl.hash).search : linkUrl.search;
+
+      const currentPathname = this.getRoutedPathname(cur);
+      const currentSearch = this.getRoutedSearch(cur);
+
+      let a = mode?.startsWith ? currentPathname.startsWith(linkPath) : linkPath === currentPathname;
+
+      let b = true;
+      if (!mode?.ignoreSearch && linkSearch) b = linkSearch === currentSearch
+
+      return a && b;
+    }
+
     const currentPathname = this.normalizePathname(window.location.pathname);
     const linkPathname = this.normalizePathname(linkUrl.pathname);
 
-    let a = mode?.startsWith
-      ? currentPathname.startsWith(linkPathname)
-      : linkPathname === currentPathname;
+    let a = mode?.startsWith ? currentPathname.startsWith(linkPathname) : linkPathname === currentPathname;
 
     let b = true;
     let c = true;
 
-    if (!mode?.ignoreSearch && linkUrl.search) {
-      b = linkUrl.search === window.location.search;
-    }
+    if (!mode?.ignoreSearch && linkUrl.search) b = linkUrl.search === window.location.search
 
-    if (!mode?.ignoreHash && linkUrl.hash) {
-      c = linkUrl.hash === window.location.hash;
-    }
+    if (linkUrl.hash) c = linkUrl.hash === window.location.hash
 
     return a && b && c;
   }
 
   private getCompletedRedirectRules(rules: Rule[]) {
     const rulesCompleted: RuleCompleted[] = [];
-    const currentPath = this.normalizePathname(window.location.pathname);
+    const currentPath = this.getRoutedPathname(new URL(window.location.href));
 
     for (const rule of rules) {
       const params = rule.url.matcher.parse(currentPath);
@@ -182,7 +244,7 @@ class RouterService extends AbstractService {
   private getCompletedComponentRules(prevCompletedRules: RuleCompleted[], rules: Rule[]) {
     const prevUrls = new Set(prevCompletedRules.map((r) => r.url));
     const rulesCompleted: RuleCompleted[] = [];
-    const currentPath = this.normalizePathname(window.location.pathname);
+    const currentPath = this.getRoutedPathname(new URL(window.location.href));
 
     for (const rule of rules) {
       const params = rule.url.matcher.parse(currentPath);
@@ -215,7 +277,8 @@ class RouterService extends AbstractService {
 
   public update(ignoreRedirectRules = false) {
     const url = new URL(window.location.href);
-    const pathname = this.normalizePathname(url.pathname);
+    const pathname = this.getRoutedPathname(url);
+    const search = this.getRoutedSearch(url);
 
     if (this.pathname$.actual !== pathname) {
       const { redirectRules, componentRules } = this.separateRules();
@@ -229,39 +292,43 @@ class RouterService extends AbstractService {
       this.pathname$.update(pathname);
     }
 
-    if (this.hash$.actual !== url.hash) {
-      this.hash$.update(url.hash);
-      this.scrollToHashElement();
-    }
-
-    if (this.search$.actual !== url.search) {
-      this.search$.update(url.search);
-    }
-  }
-
-  public scrollToHashElement() {
-    if (this.scrollToHashElementIsBlocked) return;
-
-    if (this.hash$.actual) {
-      document.querySelector(this.hash$.actual)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }
-
-  public blockScrollToHashElement(time = 200) {
-    this.scrollToHashElementIsBlocked = true;
-    return debounce(time, this.unblockScrollToHashElement);
-  }
-
-  unblockScrollToHashElement = () => {
-    this.scrollToHashElementIsBlocked = false;
+    if (this.search$.actual !== search) this.search$.update(search)
   }
 
   public pushHistory(href: string) {
     const url = new URL(href, window.location.origin);
+
+    if (this.hashMode) {
+      let path: string;
+      let search: string;
+
+      if (url.hash && url.hash.startsWith("#/")) {
+        const r = this.parseHashRoute(url.hash);
+        path = r.path;
+        search = r.search;
+      } else {
+        path = this.normalizePathname(url.pathname);
+        search = url.search;
+      }
+
+      const hashRoute = "#/" + path.replace(/^\//, "") + search;
+      if (window.location.hash === hashRoute) return
+
+      history.pushState(null, "", this.buildHashModeLocationUrl(hashRoute));
+      this.update();
+      return;
+    }
+
     const pathname = this.normalizePathname(url.pathname);
     const hrefNormalized = pathname + url.search + url.hash;
 
-    if (this.pathname$.actual === pathname && this.hash$.actual === url.hash && this.search$.actual === url.search) return;
+    if (
+      this.pathname$.actual === pathname &&
+      this.search$.actual === url.search &&
+      window.location.hash === url.hash
+    ) {
+      return;
+    }
 
     history.pushState("", "", hrefNormalized);
 
@@ -285,13 +352,9 @@ class RouterService extends AbstractService {
       let componentRule = false;
       let redirectRule = false;
 
-      if (typeof rule.componentSelectorUnbox === 'function') {
-        componentRule = true;
-      }
+      if (typeof rule.componentSelectorUnbox === 'function') componentRule = true
 
-      if (rule.redirectTo) {
-        redirectRule = true;
-      }
+      if (rule.redirectTo) redirectRule = true
 
       if (componentRule && redirectRule || (!componentRule && !redirectRule)) {
         throw new Error(
@@ -315,7 +378,7 @@ class RouterService extends AbstractService {
 
     if (next.length) {
       const last = next[next.length - 1];
-      history.replaceState(null, "", last.redirectTo);
+      history.replaceState(null, "", this.redirectToHistoryUrl(last.redirectTo));
       return true;
     }
 
@@ -337,9 +400,7 @@ class RouterService extends AbstractService {
     }
 
     for (const rule of next) {
-      if (prevUrls.has(rule.url)) {
-        continue;
-      };
+      if (prevUrls.has(rule.url)) continue
 
       const routeNode = document.querySelector(rule.routeSelector);
 
@@ -400,8 +461,16 @@ export class RouteUrlBucket<A> {
     }
   }
 
-  buildUrl(k: keyof A, params: Record<number | string, number | string> = {}) {
-    return this.rules[k].url.build(params);
+  buildUrl(
+    k: keyof A,
+    params: Record<number | string, number | string> = {},
+    query?: URLSearchParams,
+  ) {
+    const base = this.rules[k].url.build(params, query);
+    if (!routerService.isHashMode()) return base
+    const u = new URL(base, "http://router.invalid");
+    const tail = u.pathname.replace(/^\//, "");
+    return `#/${tail}${u.search}`;
   }
 
   private getRouterOutletUnbox() {

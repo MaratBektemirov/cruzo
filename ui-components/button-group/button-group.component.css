@@ -1,9 +1,9 @@
 .cruzo-ui-component_button-group {
   display: flex;
-  gap: 2px;
+  gap: var(--xxs);
   background: var(--surface-2);
   border-radius: var(--m);
-  padding: 3px;
+  padding: calc(var(--xs) / 2);
   width: fit-content;
 }
 
@@ -29,10 +29,10 @@
 
 .cruzo-ui-component_button-group-item-active {
   background: var(--accent);
-  color: #fff;
+  color: var(--surface);
   font-weight: 500;
 }
 
 .cruzo-ui-component_button-group-item-active:hover {
-  background: rgba(17, 24, 39, 0.9);
+  background: var(--accent-hover);
 }

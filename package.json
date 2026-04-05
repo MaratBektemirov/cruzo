@@ -1,6 +1,6 @@
 {
   "name": "cruzo",
-  "version": "0.9.3",
+  "version": "0.9.666",
   "description": "Zero-dependency reactive framework with an expression VM",
   "license": "MIT",
   "type": "module",
@@ -46,6 +46,7 @@
       "types": "./dist/ui-components/modal/modal.component.d.ts",
       "default": "./dist/ui-components/modal.js"
     },
+    "./ui-components/vars.css": "./dist/ui-components/vars.css",
     "./ui-components/button-group.css": "./dist/ui-components/button-group.css",
     "./ui-components/input.css": "./dist/ui-components/input.css",
     "./ui-components/modal.css": "./dist/ui-components/modal.css",

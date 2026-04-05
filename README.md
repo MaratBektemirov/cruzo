@@ -30,8 +30,9 @@ If you want full control over DOM and a small runtime footprint, this is your la
 ```bash
 npm i cruzo
 ```
-- Starter repo: [cruzo-starter](https://maratbektemirov.github.io/cruzo-starter/)
+- Official site and examples: (https://cruzo.org)
 - VSCode extension (syntax): [cruzo-syntax](https://marketplace.visualstudio.com/items?itemName=cruzo.cruzo-syntax)
+- Cruzo starter (Vite) https://github.com/MaratBektemirov/cruzo-starter
 
 ---
 
@@ -164,15 +165,36 @@ const routes = new RouteUrlBucket({
   },
 });
 
-routes.buildUrl("docs", { slug: "template-vm" }); // /docs/template-vm
+routes.buildUrl("docs", { slug: "template-vm" }); // /docs/template-vm (history mode)
+// With routerService.setHashMode(true): "#/docs/template-vm"
+// Optional: buildUrl(key, params, query?)
 ```
 
 `routerService` also provides:
 
 - `pushHistory(href)`
 - `pushHistoryLink(event, href)`
-- `hrefIsActive(href, { startsWith, ignoreSearch, ignoreHash })`
-- reactive URL streams: `pathname$`, `search$`, `hash$`
+- `hrefIsActive(href, { startsWith, ignoreSearch })`
+- reactive URL streams: `pathname$` and `search$` (both follow the **routed** path and query — see hash mode below)
+
+### Hash mode (`#/path?query`)
+
+For static hosting without server-side fallback to `index.html`, enable hash routing so the real page path stays fixed (for example `/` or `/app.html`) while the SPA path lives in the fragment:
+
+```ts
+import { routerService } from "cruzo";
+
+routerService.setHashMode(true);
+routerService.update();
+```
+
+Behavior when hash mode is on:
+
+- **Matching** — route patterns such as `/docs/:slug` are matched against the path parsed from `location.hash`, not `location.pathname`. The expected shape is `#/path/to/page` with an optional query inside the hash: `#/docs/intro?tab=api`.
+- **`pathname$` / `search$`** — reflect that virtual path and query string (the part after `#`), not the browser pathname/search.
+- **`pushHistory`** — you can pass either a normal path (`/docs/intro?tab=api`) or a hash URL (`#/docs/intro?tab=api`); both are normalized to the same `location.hash`.
+- **`routes.buildUrl`** — returns `#/path?query` in the same shape as `pushHistory` expects (no leading document pathname). Optional `URLSearchParams` builds the query string; append a fragment yourself if you need `#section` in history mode.
+- **`redirectTo`** — still written as a path (e.g. `/docs/intro`); it is applied as the corresponding `#/…` entry on the current document URL.
 
 ---
 
@@ -218,9 +240,10 @@ import { UploadComponent, UploadConfig } from "cruzo/ui-components/upload";
 import { ModalComponent, ModalConfig } from "cruzo/ui-components/modal";
 ```
 
-CSS is also per-component:
+CSS is also per-component. Shared tokens live in **`vars.css`**: `:root` variables for typography, spacing, surfaces, text colors, accents, shadows, radii, and spinner options. Components reference only these names (no baked-in theme fallbacks), so **import `vars.css` first**, then each component stylesheet. To restyle the set, override the same variables on `:root` (or a wrapper) after importing `vars.css`, or ship your own token file with matching names.
 
 ```ts
+import "cruzo/ui-components/vars.css";
 import "cruzo/ui-components/input.css";
 import "cruzo/ui-components/button-group.css";
 import "cruzo/ui-components/select.css";

@@ -1,7 +1,7 @@
 .cruzo-ui-component_modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.28);
+  background: var(--backdrop);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11,9 +11,7 @@
 .cruzo-ui-component_modal {
   background: var(--surface);
   border-radius: var(--m);
-  box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.08),
-    0 0 0 1px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--shadow-modal);
   border: none;
 
   padding: var(--xl) var(--xl) var(--xxl);
@@ -29,7 +27,5 @@
 }
 
 .cruzo-ui-component_modal:focus-within {
-  box-shadow:
-    0 6px 20px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-modal-focus);
 }

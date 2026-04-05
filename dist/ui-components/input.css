@@ -1,10 +1,10 @@
 .cruzo-ui-component_input-tooltip {
   position: fixed;
   z-index: 10000;
-  background: rgba(0, 0, 0, 0.85);
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 4px;
+  background: var(--tooltip-bg);
+  color: var(--tooltip-fg);
+  padding: var(--xs) var(--s);
+  border-radius: var(--radius-tooltip);
   font-size: 13px;
   font-family: var(--font);
   pointer-events: none;

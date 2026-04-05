@@ -19,6 +19,11 @@ if (!existsSync(outDir)) {
   mkdirSync(outDir, { recursive: true });
 }
 
+const varsSrc = join(root, "ui-components", "vars.css");
+const varsDest = join(outDir, "vars.css");
+copyFileSync(varsSrc, varsDest);
+console.log(`  vars.css → dist/ui-components/vars.css`);
+
 for (const name of components) {
   const src = join(root, "ui-components", name, `${name}.component.css`);
   const dest = join(outDir, `${name}.css`);

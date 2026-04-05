@@ -2,9 +2,9 @@ export function arrayToHash<I extends Record<PropertyKey, any>, K extends keyof 
   arr: I[],
   key: K
 ): Record<string, I> {
-  const hash: Record<string, I> = {};
-  for (const item of arr) hash[item[key]] = item;
-  return hash;
+  const out: Record<string, I> = {};
+  for (const item of arr) out[item[key]] = item;
+  return out;
 }
 
 export function delay(ms: number) {
