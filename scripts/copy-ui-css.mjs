@@ -6,7 +6,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
 
 const components = [
+  "button",
   "button-group",
+  "checkbox",
   "input",
   "modal",
   "select",
@@ -19,10 +21,15 @@ if (!existsSync(outDir)) {
   mkdirSync(outDir, { recursive: true });
 }
 
-const varsSrc = join(root, "ui-components", "vars.css");
-const varsDest = join(outDir, "vars.css");
-copyFileSync(varsSrc, varsDest);
-console.log(`  vars.css → dist/ui-components/vars.css`);
+function copyRootCss(name) {
+  const src = join(root, "ui-components", name);
+  const dest = join(outDir, name);
+  copyFileSync(src, dest);
+  console.log(`  ${name} → dist/ui-components/${name}`);
+}
+
+copyRootCss("vars.css");
+copyRootCss("margin.css");
 
 for (const name of components) {
   const src = join(root, "ui-components", name, `${name}.component.css`);

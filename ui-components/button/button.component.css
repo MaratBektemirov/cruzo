@@ -1,0 +1,69 @@
+.cruzo-ui-component_button {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-main);
+
+  border-radius: var(--m);
+  padding: var(--s) var(--m);
+
+  font-size: 14px;
+  font-weight: 500;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--xs);
+
+  cursor: pointer;
+  user-select: none;
+
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.05s ease,
+    box-shadow 0.15s ease;
+}
+
+.cruzo-ui-component_button:hover {
+  background: var(--surface-2);
+  border-color: var(--border-dark);
+}
+
+.cruzo-ui-component_button-primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: #fff;
+}
+
+.cruzo-ui-component_button-primary:hover {
+  background: var(--accent-hover);
+}
+
+.cruzo-ui-component_button-secondary {
+  background: var(--surface-2);
+  border-color: var(--border-dark);
+  color: var(--text-main);
+}
+
+.cruzo-ui-component_button-secondary:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-subtle);
+}
+
+.cruzo-ui-component_button-s {
+  font-size: 12px;
+  padding: var(--xs) var(--s);
+  gap: var(--xs);
+}
+
+.cruzo-ui-component_button-xs {
+  font-size: 11px;
+  padding: 3px var(--xs);
+  gap: var(--xxs);
+  border-radius: var(--radius-button);
+}

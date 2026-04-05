@@ -83,14 +83,17 @@ export class SelectComponent extends AbstractComponent<SelectConfigParams, Recor
   }
 
   getItemContent() {
-    let checkbox = this.config.multi ? `<label class="checkbox">
+    const checkbox = this.config.multi
+      ? `<label class="cruzo-ui-component_checkbox">
         <input
           type="checkbox"
+          class="cruzo-ui-component_checkbox-input"
           checked="{{root.value$::rx?.[this.value]}}"
           />
-      </label>`: '';
+      </label>`
+      : "";
 
-    return `${checkbox} <span>{{this.label}}</span>`;
+    return `${checkbox}<span class="cruzo-ui-component_option-label">{{this.label}}</span>`;
   }
 
   getHTML() {

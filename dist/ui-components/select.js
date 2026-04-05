@@ -1,11 +1,11 @@
 var a = Object.defineProperty;
-var u = (o, s, e) => s in o ? a(o, s, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[s] = e;
-var t = (o, s, e) => u(o, typeof s != "symbol" ? s + "" : s, e);
-import { c as r, A as d } from "../component-CK41B9Gk.js";
-function g(o) {
+var u = (o, n, e) => n in o ? a(o, n, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[n] = e;
+var t = (o, n, e) => u(o, typeof n != "symbol" ? n + "" : n, e);
+import { c as r, A as p } from "../component-CK41B9Gk.js";
+function m(o) {
   return Object.assign({}, o);
 }
-class l extends d {
+class l extends p {
   constructor() {
     super();
     t(this, "hasConfig", !0);
@@ -13,9 +13,9 @@ class l extends d {
     t(this, "open$", this.newRx(!1));
     t(this, "items$", this.newRx(null));
     t(this, "selectedLabel$", this.newRx(""));
-    t(this, "getItems$", this.newRxFunc(async (e, n) => {
-      if (!e || !(n != null && n.length)) return;
-      const c = n.filter((i) => e[i.value]).map((i) => i.label);
+    t(this, "getItems$", this.newRxFunc(async (e, s) => {
+      if (!e || !(s != null && s.length)) return;
+      const c = s.filter((i) => e[i.value]).map((i) => i.label);
       c.length ? this.selectedLabel$.update(c.join(", ")) : this.config && this.selectedLabel$.update(this.config.placeholder);
     }, this.value$, this.items$));
     t(this, "handleOutsideClick", (e) => {
@@ -36,16 +36,17 @@ class l extends d {
     this.open$.update(!this.open$.actual);
   }
   toggleItem(e) {
-    const n = this.value || {}, c = this.config.multi ? Object.assign({}, n) : { [e.value]: n[e.value] };
+    const s = this.value || {}, c = this.config.multi ? Object.assign({}, s) : { [e.value]: s[e.value] };
     c[e.value] = !c[e.value], this.outerBucket.setValue(this.id, c, this.index, !0), this.config.multi || this.open$.update(!1);
   }
   getItemContent() {
-    return `${this.config.multi ? `<label class="checkbox">
+    return `${this.config.multi ? `<label class="cruzo-ui-component_checkbox">
         <input
           type="checkbox"
+          class="cruzo-ui-component_checkbox-input"
           checked="{{root.value$::rx?.[this.value]}}"
           />
-      </label>` : ""} <span>{{this.label}}</span>`;
+      </label>` : ""}<span class="cruzo-ui-component_option-label">{{this.label}}</span>`;
   }
   getHTML() {
     return `<div class="cruzo-ui-component_select">
@@ -71,6 +72,6 @@ t(l, "selector", "select-component");
 r.define(l);
 export {
   l as SelectComponent,
-  g as SelectConfig
+  m as SelectConfig
 };
 //# sourceMappingURL=select.js.map

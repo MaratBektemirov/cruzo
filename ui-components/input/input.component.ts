@@ -38,7 +38,7 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
         required="{{state.required}}"
         inputmode="{{state.inputmode}}"
         maxlength="{{state.maxlength}}"
-        class="input {{state.cls}}"
+        class="cruzo-ui-component_input {{state.cls}}"
         autocomplete="{{state.autocomplete}}"
         type="${this.config.type || 'text'}"
         placeholder="{{state.placeholder}}"
@@ -78,7 +78,6 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
     if (addTooltip) {
       this.tooltipNode = Template.stringToNode(`<div class="cruzo-ui-component_input-tooltip"></div>`) as HTMLElement;
       document.body.appendChild(this.tooltipNode);
-      this.updateTooltipCoords();
       window.addEventListener('resize', this.updateTooltipCoords);
       window.addEventListener('scroll', this.updateTooltipCoords);
     } else if (removeTooltip) {
@@ -90,12 +89,14 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
 
     if (this.tooltipNode) {
       this.updateTooltipText();
+      this.updateTooltipCoords();
     }
   }
 
   updateTooltipText() {
+    if (!this.tooltipNode) return;
     const input = this.getInput();
-    this.tooltipNode.innerHTML = input.value;
+    this.tooltipNode.textContent = input?.value ?? "";
   }
 
   updateTooltipCoords = () => {
@@ -103,9 +104,11 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
     const input = this.getInput();
     if (!input) return;
     const rect = input.getBoundingClientRect();
+    const gap = 6;
+    const th = this.tooltipNode.offsetHeight || 28;
 
-    this.tooltipNode.style.left = rect.left + 'px';
-    this.tooltipNode.style.top = (rect.top - 43) + 'px';
+    this.tooltipNode.style.left = `${rect.left}px`;
+    this.tooltipNode.style.top = `${rect.top - th - gap}px`;
   }
 
   onEvent() {

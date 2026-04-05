@@ -1,0 +1,61 @@
+.cruzo-ui-component_checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--xs);
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+
+  font-size: 14px;
+  color: var(--text-main);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.cruzo-ui-component_checkbox-input {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 16px;
+  height: 16px;
+  margin: 0;
+
+  border: 1px solid var(--border-dark);
+  border-radius: 4px;
+  background: var(--surface);
+
+  display: inline-grid;
+  place-content: center;
+
+  flex-shrink: 0;
+
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.cruzo-ui-component_checkbox-input::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 2px;
+  transform: scale(0);
+  transition: transform 0.1s ease;
+}
+
+.cruzo-ui-component_checkbox-input:checked::before {
+  transform: scale(1);
+}
+
+.cruzo-ui-component_checkbox-input:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+  border-color: rgba(17, 24, 39, 0.22);
+}
+
+.cruzo-ui-component_checkbox-input:hover {
+  border-color: rgba(10, 10, 10, 0.2);
+}

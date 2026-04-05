@@ -1,0 +1,33 @@
+/**
+ * Margin utility classes (mt_*, mb_*, ml_*, mr_*).
+ * Import after vars.css — uses spacing tokens (--xxs … --xxl).
+ */
+
+.mt_xxs { margin-top: var(--xxs) }
+.mt_xs { margin-top: var(--xs) }
+.mt_s { margin-top: var(--s) }
+.mt_m { margin-top: var(--m) }
+.mt_l { margin-top: var(--l) }
+.mt_xl { margin-top: var(--xl) }
+.mt_xxl { margin-top: var(--xxl) }
+.mb_xxs { margin-bottom: var(--xxs) }
+.mb_xs { margin-bottom: var(--xs) }
+.mb_s { margin-bottom: var(--s) }
+.mb_m { margin-bottom: var(--m) }
+.mb_l { margin-bottom: var(--l) }
+.mb_xl { margin-bottom: var(--xl) }
+.mb_xxl { margin-bottom: var(--xxl) }
+.ml_xxs { margin-left: var(--xxs) }
+.ml_xs { margin-left: var(--xs) }
+.ml_s { margin-left: var(--s) }
+.ml_m { margin-left: var(--m) }
+.ml_l { margin-left: var(--l) }
+.ml_xl { margin-left: var(--xl) }
+.ml_xxl { margin-left: var(--xxl) }
+.mr_xxs { margin-right: var(--xxs) }
+.mr_xs { margin-right: var(--xs) }
+.mr_s { margin-right: var(--s) }
+.mr_m { margin-right: var(--m) }
+.mr_l { margin-right: var(--l) }
+.mr_xl { margin-right: var(--xl) }
+.mr_xxl { margin-right: var(--xxl) }

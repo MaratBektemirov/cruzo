@@ -240,11 +240,16 @@ import { UploadComponent, UploadConfig } from "cruzo/ui-components/upload";
 import { ModalComponent, ModalConfig } from "cruzo/ui-components/modal";
 ```
 
-CSS is also per-component. Shared tokens live in **`vars.css`**: `:root` variables for typography, spacing, surfaces, text colors, accents, shadows, radii, and spinner options. Components reference only these names (no baked-in theme fallbacks), so **import `vars.css` first**, then each component stylesheet. To restyle the set, override the same variables on `:root` (or a wrapper) after importing `vars.css`, or ship your own token file with matching names.
+CSS is also per-component. Shared styling lives in flat files next to the bundle (not TS components): **`vars.css`** defines `:root` tokens (typography, spacing scale, surfaces, text colors, accents, shadows, radii, spinner). Optional **`margin.css`** adds utility classes (`.mt_*`, `.mb_*`, …) that use those spacing tokens — import it right after **`vars.css`**. Then import each component stylesheet. To restyle, override the same variables on `:root` (or a wrapper) after **`vars.css`**, or ship your own token file with matching names.
+
+`InputComponent` renders the native `<input>` with base class **`cruzo-ui-component_input`** (plus optional extra classes from bucket `state.cls`).
 
 ```ts
 import "cruzo/ui-components/vars.css";
+import "cruzo/ui-components/button.css"; // optional: standalone button classes (no TS component yet)
+import "cruzo/ui-components/checkbox.css"; // optional: `.cruzo-ui-component_checkbox*` — required for multi-select
 import "cruzo/ui-components/input.css";
+import "cruzo/ui-components/margin.css"; // optional: spacing utilities (flat file, after vars.css)
 import "cruzo/ui-components/button-group.css";
 import "cruzo/ui-components/select.css";
 import "cruzo/ui-components/spinner.css";

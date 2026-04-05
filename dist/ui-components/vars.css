@@ -5,6 +5,7 @@
   --xs: 6px;
   --s: 10px;
   --m: 16px;
+  --l: 26px;
   --xl: 42px;
   --xxl: 68px;
 
@@ -22,7 +23,13 @@
   --overlay-hover: rgba(0, 0, 0, 0.04);
   --overlay-selected: rgba(0, 0, 0, 0.06);
 
+  --border: rgba(0, 0, 0, 0.04);
   --border-subtle: rgba(0, 0, 0, 0.12);
+  --border-dark: rgba(0, 0, 0, 0.08);
+
+  --focus: 0 0 0 3px rgba(17, 24, 39, 0.16);
+  --shadow-focus-soft: 0 0 0 3px rgba(0, 0, 0, 0.08);
+  --border-focus: rgba(0, 0, 0, 0.15);
 
   --tooltip-bg: rgba(0, 0, 0, 0.85);
   --tooltip-fg: #ffffff;

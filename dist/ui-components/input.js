@@ -1,24 +1,24 @@
 var a = Object.defineProperty;
 var p = (o, i, t) => i in o ? a(o, i, { enumerable: !0, configurable: !0, writable: !0, value: t }) : o[i] = t;
-var s = (o, i, t) => p(o, typeof i != "symbol" ? i + "" : i, t);
+var n = (o, i, t) => p(o, typeof i != "symbol" ? i + "" : i, t);
 import { c as d, A as h, T as c } from "../component-CK41B9Gk.js";
-function v(o) {
+function g(o) {
   return Object.assign({}, o);
 }
-class r extends h {
+class u extends h {
   constructor() {
     super(...arguments);
-    s(this, "hasConfig", !0);
-    s(this, "hasOuterBucket", !0);
-    s(this, "tooltipNode", null);
-    s(this, "hasFocus", !1);
-    s(this, "hasMouseEnter", !1);
-    s(this, "updateTooltipCoords", () => {
+    n(this, "hasConfig", !0);
+    n(this, "hasOuterBucket", !0);
+    n(this, "tooltipNode", null);
+    n(this, "hasFocus", !1);
+    n(this, "hasMouseEnter", !1);
+    n(this, "updateTooltipCoords", () => {
       if (!this.tooltipNode) return;
       const t = this.getInput();
       if (!t) return;
-      const e = t.getBoundingClientRect();
-      this.tooltipNode.style.left = e.left + "px", this.tooltipNode.style.top = e.top - 43 + "px";
+      const e = t.getBoundingClientRect(), s = 6, l = this.tooltipNode.offsetHeight || 28;
+      this.tooltipNode.style.left = `${e.left}px`, this.tooltipNode.style.top = `${e.top - l - s}px`;
     });
   }
   getHTML() {
@@ -28,7 +28,7 @@ class r extends h {
         required="{{state.required}}"
         inputmode="{{state.inputmode}}"
         maxlength="{{state.maxlength}}"
-        class="input {{state.cls}}"
+        class="cruzo-ui-component_input {{state.cls}}"
         autocomplete="{{state.autocomplete}}"
         type="${this.config.type || "text"}"
         placeholder="{{state.placeholder}}"
@@ -48,16 +48,17 @@ class r extends h {
   }
   recalc() {
     const t = this.hasFocus || this.hasMouseEnter;
-    let e = !1, n = !1, l = !1;
+    let e = !1, s = !1, l = !1;
     if (t) {
-      const u = this.getInput();
-      u && (l = u.scrollWidth > u.offsetWidth, e = !this.tooltipNode && l);
+      const r = this.getInput();
+      r && (l = r.scrollWidth > r.offsetWidth, e = !this.tooltipNode && l);
     }
-    n = this.tooltipNode && !l, e ? (this.tooltipNode = c.stringToNode('<div class="cruzo-ui-component_input-tooltip"></div>'), document.body.appendChild(this.tooltipNode), this.updateTooltipCoords(), window.addEventListener("resize", this.updateTooltipCoords), window.addEventListener("scroll", this.updateTooltipCoords)) : n && (this.tooltipNode.remove(), this.tooltipNode = null, window.removeEventListener("resize", this.updateTooltipCoords), window.removeEventListener("scroll", this.updateTooltipCoords)), this.tooltipNode && this.updateTooltipText();
+    s = this.tooltipNode && !l, e ? (this.tooltipNode = c.stringToNode('<div class="cruzo-ui-component_input-tooltip"></div>'), document.body.appendChild(this.tooltipNode), window.addEventListener("resize", this.updateTooltipCoords), window.addEventListener("scroll", this.updateTooltipCoords)) : s && (this.tooltipNode.remove(), this.tooltipNode = null, window.removeEventListener("resize", this.updateTooltipCoords), window.removeEventListener("scroll", this.updateTooltipCoords)), this.tooltipNode && (this.updateTooltipText(), this.updateTooltipCoords());
   }
   updateTooltipText() {
+    if (!this.tooltipNode) return;
     const t = this.getInput();
-    this.tooltipNode.innerHTML = t.value;
+    this.tooltipNode.textContent = (t == null ? void 0 : t.value) ?? "";
   }
   onEvent() {
     const t = this.getInput();
@@ -90,15 +91,15 @@ class r extends h {
       autocomplete: t.autocomplete || this.config.autocomplete || "",
       inputmode: t.inputmode || this.config.inputmode || ""
     }, this.index), this.newRxFunc((e) => {
-      const n = this.getInput();
-      !n || e === n.value || (n.value = e ?? "");
+      const s = this.getInput();
+      !s || e === s.value || (s.value = e ?? "");
     }, this.value$);
   }
 }
-s(r, "selector", "input-component");
-d.define(r);
+n(u, "selector", "input-component");
+d.define(u);
 export {
-  r as InputComponent,
-  v as InputConfig
+  u as InputComponent,
+  g as InputConfig
 };
 //# sourceMappingURL=input.js.map
