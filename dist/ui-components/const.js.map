@@ -1,0 +1,1 @@
+{"version":3,"file":"const.js","sources":["../../ui-components/const.ts"],"sourcesContent":["export const UI_KIT = 'cruzo-ui-component';\n"],"names":["UI_KIT"],"mappings":"AAAO,MAAMA,IAAS;"}

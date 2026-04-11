@@ -1,5 +1,5 @@
 import { AbstractComponent, componentsRegistryService, Template } from "../../lib";
-import { UI_KIT } from "../vars";
+import { UI_KIT } from "../const";
 
 export enum SpinnerValue {
   "inactive" = "inactive",

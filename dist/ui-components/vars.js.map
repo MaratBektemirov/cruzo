@@ -1,1 +1,0 @@
-{"version":3,"file":"vars.js","sources":["../../ui-components/vars.ts"],"sourcesContent":["export const UI_KIT = 'cruzo-ui-component';\n"],"names":["UI_KIT"],"mappings":"AAAO,MAAMA,IAAS;"}

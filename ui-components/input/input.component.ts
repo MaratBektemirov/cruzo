@@ -1,5 +1,5 @@
 import { AbstractComponent, componentsRegistryService, Template } from "../../lib";
-import { UI_KIT } from "../vars";
+import { UI_KIT } from "../const";
 
 interface InputConfigParams {
   type?: 'text' | 'password' | 'email' | 'url' | 'tel' | 'search' | 'number';

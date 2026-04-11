@@ -242,16 +242,16 @@ import { ModalComponent, ModalConfig } from "cruzo/ui-components/modal";
 
 CSS is per-component. Shared tokens live in **`vars.css`** (`:root`: typography, spacing, surfaces, accents, radii, …). Import **`vars.css` first**, then only the stylesheets you need. Optional **`margin.css`** adds spacing utilities (`.mt_*`, `.mb_*`, …). Override tokens on `:root` or a wrapper after `vars.css` to theme.
 
-**`UI_KIT`** — string prefix for all UI class names (same value as in the CSS files: `cruzo-ui-component`). It is defined in `ui-components/vars.ts` and **re-exported from the root package** so your markup can stay aligned with the stylesheets without hardcoding the prefix:
+**`UI_KIT`** — string prefix for all UI class names (same value as in the CSS files: `cruzo-ui-component`). It is defined in `ui-components/const.ts` and **re-exported from the root package** so your markup can stay aligned with the stylesheets without hardcoding the prefix:
 
 ```ts
-import { UI_KIT } from "cruzo/ui-components/vars";
+import { UI_KIT } from "cruzo/ui-components/const";
 
 const cls = `${UI_KIT}_button ${UI_KIT}_button-s ${UI_KIT}_button-primary`;
 // → "cruzo-ui-component_button cruzo-ui-component_button-s cruzo-ui-component_button-primary"
 ```
 
-Use **`${UI_KIT}_…`** for element classes and **`${UI_KIT}--…`** for modifiers. The value must match the prefix used in the bundled `.css` files (see `ui-components/vars.ts`).
+Use **`${UI_KIT}_…`** for element classes and **`${UI_KIT}--…`** for modifiers. The value must match the prefix used in the bundled `.css` files (see `ui-components/const.ts`).
 
 **Stylesheet index (pick what you use):** `checkbox.css` (multi-select), `margin.css`, `button.css`, `button-group.css`, `input.css`, `select.css`, `spinner.css`, `modal.css`, `upload.css`.
 

@@ -7,7 +7,7 @@ export default defineConfig({
       entry: {
         index: "./lib/index.ts",
         utils: "./lib/utils.ts",
-        "ui-components/vars": "./ui-components/vars.ts",
+        "ui-components/const": "./ui-components/const.ts",
         "ui-components/input": "./ui-components/input/input.component.ts",
         "ui-components/button-group": "./ui-components/button-group/button-group.component.ts",
         "ui-components/router-link": "./ui-components/router-link/router-link.ts",

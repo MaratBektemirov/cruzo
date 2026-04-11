@@ -2,7 +2,7 @@ var a = Object.defineProperty;
 var c = (e, i, t) => i in e ? a(e, i, { enumerable: !0, configurable: !0, writable: !0, value: t }) : e[i] = t;
 var n = (e, i, t) => c(e, typeof i != "symbol" ? i + "" : i, t);
 import { c as l, A as d, T as h } from "../component-DBoFvGq8.js";
-import { UI_KIT as s } from "./vars.js";
+import { UI_KIT as s } from "./const.js";
 var u = /* @__PURE__ */ ((e) => (e.inactive = "inactive", e.active = "active", e))(u || {});
 function m(e) {
   return Object.assign({}, e);

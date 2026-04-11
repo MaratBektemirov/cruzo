@@ -1,6 +1,6 @@
 import { ComponentsList } from "../../lib/interfaces";
 import { AbstractComponent, componentsRegistryService, Template } from "../../lib";
-import { UI_KIT } from "../vars";
+import { UI_KIT } from "../const";
 
 declare global {
   interface BucketEventMap {

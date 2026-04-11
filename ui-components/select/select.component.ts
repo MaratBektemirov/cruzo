@@ -1,5 +1,5 @@
 import { AbstractComponent, componentsRegistryService } from "../../lib";
-import { UI_KIT } from "../vars";
+import { UI_KIT } from "../const";
 
 export interface SelectItem {
   label: string;
