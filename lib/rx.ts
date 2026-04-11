@@ -4,9 +4,10 @@ export class Rx<A, Args extends any[] = any[]> {
 
   public postUpdateFns?: Set<(rx: Rx<any>) => any> = null;
 
-  constructor(private group: Rx<any>[], public fn: (...args: Args) => A = null) {
+  constructor(private group: Rx<any>[], public fn: (...args: Args) => A = null, initValue: A = null) {
     this.groupIndex = this.group.length;
     this.group.push(this);
+    this.actual = initValue;
   }
 
   public update(...args: Args) {

@@ -240,16 +240,43 @@ import { UploadComponent, UploadConfig } from "cruzo/ui-components/upload";
 import { ModalComponent, ModalConfig } from "cruzo/ui-components/modal";
 ```
 
-CSS is also per-component. Shared styling lives in flat files next to the bundle (not TS components): **`vars.css`** defines `:root` tokens (typography, spacing scale, surfaces, text colors, accents, shadows, radii, spinner). Optional **`margin.css`** adds utility classes (`.mt_*`, `.mb_*`, …) that use those spacing tokens — import it right after **`vars.css`**. Then import each component stylesheet. To restyle, override the same variables on `:root` (or a wrapper) after **`vars.css`**, or ship your own token file with matching names.
+CSS is per-component. Shared tokens live in **`vars.css`** (`:root`: typography, spacing, surfaces, accents, radii, …). Import **`vars.css` first**, then only the stylesheets you need. Optional **`margin.css`** adds spacing utilities (`.mt_*`, `.mb_*`, …). Override tokens on `:root` or a wrapper after `vars.css` to theme.
 
-`InputComponent` renders the native `<input>` with base class **`cruzo-ui-component_input`** (plus optional extra classes from bucket `state.cls`).
+**`UI_KIT`** — string prefix for all UI class names (same value as in the CSS files: `cruzo-ui-component`). It is defined in `ui-components/vars.ts` and **re-exported from the root package** so your markup can stay aligned with the stylesheets without hardcoding the prefix:
+
+```ts
+import { UI_KIT } from "cruzo/ui-components/vars";
+
+const cls = `${UI_KIT}_button ${UI_KIT}_button-s ${UI_KIT}_button-primary`;
+// → "cruzo-ui-component_button cruzo-ui-component_button-s cruzo-ui-component_button-primary"
+```
+
+Use **`${UI_KIT}_…`** for element classes and **`${UI_KIT}--…`** for modifiers. The value must match the prefix used in the bundled `.css` files (see `ui-components/vars.ts`).
+
+**Stylesheet index (pick what you use):** `checkbox.css` (multi-select), `margin.css`, `button.css`, `button-group.css`, `input.css`, `select.css`, `spinner.css`, `modal.css`, `upload.css`.
+
+`InputComponent` uses base class **`cruzo-ui-component_input`**, plus optional classes from bucket `state.cls`.
+
+**Standalone button (`button.css`)** — there is no `<button>` component; apply classes to a normal `<button type="button">`. Combine **one** size modifier with **one** variant (or neither for default look).
+
+| Modifier | Class |
+| --- | --- |
+| (default) | `.cruzo-ui-component_button` |
+| Size | `_xxs`, `_xs`, `_s`, `_m`, `_l`, `_xl`, `_xxl` → e.g. `.cruzo-ui-component_button-s` |
+| Variant | `.cruzo-ui-component_button-primary`, `.cruzo-ui-component_button-secondary` |
+
+```html
+<button type="button" class="cruzo-ui-component_button cruzo-ui-component_button-s cruzo-ui-component_button-primary">
+  Save
+</button>
+```
 
 ```ts
 import "cruzo/ui-components/vars.css";
-import "cruzo/ui-components/button.css"; // optional: standalone button classes (no TS component yet)
-import "cruzo/ui-components/checkbox.css"; // optional: `.cruzo-ui-component_checkbox*` — required for multi-select
 import "cruzo/ui-components/input.css";
-import "cruzo/ui-components/margin.css"; // optional: spacing utilities (flat file, after vars.css)
+import "cruzo/ui-components/button.css";
+import "cruzo/ui-components/checkbox.css";
+import "cruzo/ui-components/margin.css";
 import "cruzo/ui-components/button-group.css";
 import "cruzo/ui-components/select.css";
 import "cruzo/ui-components/spinner.css";

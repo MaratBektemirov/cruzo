@@ -85,16 +85,17 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
       if (this.hasConfig) {
         if (!descriptor) {
           throw new Error(
-            `Descriptor not found for selector "${this.selector}" id "${this.id
-            }" in bucket "${this.getBucketId()}"`
+            `Descriptor not found for selector "${this.selector}" id "${this.id}" in bucket "${this.getBucketId()}"`
+          );
+        }
+
+        if (!descriptor.config) {
+          throw new Error(
+            `Config in descriptor not found for selector "${this.selector}" id "${this.id}" in bucket "${this.getBucketId()}"`
           );
         }
 
         this.config = descriptor.config;
-
-        if (!this.config) {
-          this.config = {} as any;
-        }
       }
 
       if (this.hasOuterBucket) {
@@ -106,6 +107,8 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
           this.id,
           this.onUpdateValue,
           this.rxList,
+          this.outerBucket.getValue(this.id, this.index),
+          this.index
         );
 
         this.setState();
@@ -114,6 +117,8 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
           this.id,
           this.onUpdateState,
           this.rxList,
+          this.outerBucket.getState(this.id, this.index),
+          this.index
         );
       }
     }
@@ -271,44 +276,22 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
     return new RxFunc(this.rxList, cb, { immediate: true }, ...deps);
   }
 
-  public newRxValueFromBucket<A>(bucket: RxBucket<A>, id: keyof A) {
-    this.rxList ??= [];
-
-    return bucket.newRxValue(id, (value) => value, this.rxList)
-  }
-
-  public newRxStateFromBucket<A>(bucket: RxBucket<A>, id: keyof A) {
-    this.rxList ??= [];
-
-    return bucket.newRxState(id, (value) => value, this.rxList)
-  }
-
   public newRxEventFromBucket<A, K extends keyof BucketEventMap>(bucket: RxBucket<A>, id: keyof A, name: K) {
     this.rxList ??= [];
 
     return bucket.newRxEvent(id, name, (value) => value, this.rxList)
   }
 
-  public newRxValueFromBucketByIndex<A>(bucket: RxBucket<A>, id: keyof A) {
+  public newRxValueFromBucket<A>(bucket: RxBucket<A>, id: keyof A, index = '0') {
     this.rxList ??= [];
 
-    const acc: Record<string, any> = {};
-
-    return bucket.newRxValue(id, (value, index) => {
-      acc[index] = value;
-      return acc;
-    }, this.rxList)
+    return bucket.newRxValue(id, (value) => value, this.rxList, bucket.getValue(id, index), index)
   }
 
-  public newRxStateFromBucketByIndex<A>(bucket: RxBucket<A>, id: keyof A) {
+  public newRxStateFromBucket<A>(bucket: RxBucket<A>, id: keyof A, index = '0') {
     this.rxList ??= [];
 
-    const acc: Record<string, any> = {};
-
-    return bucket.newRxState(id, (value, index) => {
-      acc[index] = value;
-      return acc;
-    }, this.rxList)
+    return bucket.newRxState(id, (value) => value, this.rxList, bucket.getState(id, index), index)
   }
 
   public newRxEventFromBucketByIndex<A, K extends keyof BucketEventMap>(bucket: RxBucket<A>, id: keyof A, name: K) {

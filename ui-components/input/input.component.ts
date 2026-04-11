@@ -1,4 +1,5 @@
 import { AbstractComponent, componentsRegistryService, Template } from "../../lib";
+import { UI_KIT } from "../vars";
 
 interface InputConfigParams {
   type?: 'text' | 'password' | 'email' | 'url' | 'tel' | 'search' | 'number';
@@ -38,7 +39,7 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
         required="{{state.required}}"
         inputmode="{{state.inputmode}}"
         maxlength="{{state.maxlength}}"
-        class="cruzo-ui-component_input {{state.cls}}"
+        class="${UI_KIT}_input {{state.cls}}"
         autocomplete="{{state.autocomplete}}"
         type="${this.config.type || 'text'}"
         placeholder="{{state.placeholder}}"
@@ -76,7 +77,7 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
     removeTooltip = (this.tooltipNode && !hasOverflow);
 
     if (addTooltip) {
-      this.tooltipNode = Template.stringToNode(`<div class="cruzo-ui-component_input-tooltip"></div>`) as HTMLElement;
+      this.tooltipNode = Template.stringToNode(`<div class="${UI_KIT}_input-tooltip"></div>`) as HTMLElement;
       document.body.appendChild(this.tooltipNode);
       window.addEventListener('resize', this.updateTooltipCoords);
       window.addEventListener('scroll', this.updateTooltipCoords);

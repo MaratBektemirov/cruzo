@@ -1,4 +1,5 @@
 import { AbstractComponent, componentsRegistryService } from "../../lib";
+import { UI_KIT } from "../vars";
 
 interface ButtonGroupConfigParams {
   items: Array<{ label: string; value: string }>;
@@ -14,10 +15,10 @@ export class ButtonGroupComponent extends AbstractComponent<ButtonGroupConfigPar
   hasOuterBucket = true;
 
   getHTML() {
-    return `<div class="cruzo-ui-component_button-group">
+    return `<div class="${UI_KIT}_button-group">
         <button
           repeat="{{root.config?.items}}"
-          class="cruzo-ui-component_button-group-item {{this.value === root.value$::rx ? 'cruzo-ui-component_button-group-item-active' : ''}}"
+          class="${UI_KIT}_button-group-item {{this.value === root.value$::rx ? '${UI_KIT}_button-group-item-active' : ''}}"
           onclick="{{root.select(this.value)}}"
           >
           {{this.label}}

@@ -1,11 +1,12 @@
-var r = Object.defineProperty;
-var u = (o, t, e) => t in o ? r(o, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[t] = e;
-var s = (o, t, e) => u(o, typeof t != "symbol" ? t + "" : t, e);
-import { c as d, A as h, T as p } from "../component-CK41B9Gk.js";
-function g(o) {
+var h = Object.defineProperty;
+var p = (o, t, e) => t in o ? h(o, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[t] = e;
+var s = (o, t, e) => p(o, typeof t != "symbol" ? t + "" : t, e);
+import { c as a, A as u, T as m } from "../component-DBoFvGq8.js";
+import { UI_KIT as d } from "./vars.js";
+function x(o) {
   return Object.assign({}, o);
 }
-const n = [], c = class c extends h {
+const i = [], c = class c extends u {
   constructor() {
     super();
     s(this, "hasOuterBucket", !0);
@@ -14,20 +15,20 @@ const n = [], c = class c extends h {
     s(this, "closeEvents$");
   }
   getHTML() {
-    return `<div class="cruzo-ui-component_modal-backdrop" onclick="{{this.closeModal(false)}}">
-        <div class="cruzo-ui-component_modal" onclick="{{event.stopPropagation()}}">${this.config.bodyContent}</div>
+    return `<div class="${d}_modal-backdrop" onclick="{{this.closeModal(false)}}">
+        <div class="${d}_modal" onclick="{{event.stopPropagation()}}">${this.config.bodyContent}</div>
       </div>`;
   }
-  static attach(e, a) {
-    const l = p.stringToNode(`<modal-component component-id="${e}" bucket-id="${a}"></modal-component>`);
-    document.body.appendChild(l), d.connectBySelector(c.selector, n, document.body);
+  static attach(e, l) {
+    const r = m.stringToNode(`<modal-component component-id="${e}" bucket-id="${l}"></modal-component>`);
+    document.body.appendChild(r), a.connectBySelector(c.selector, i, document.body);
   }
   closeModal(e) {
     this.outerBucket.emitEvent(this.id, "closeModal", { data: { isOK: e } });
   }
   destroyModal() {
-    const e = n.indexOf(this);
-    e > -1 && n.splice(e, 1), this.disconnectedCallback();
+    const e = i.indexOf(this);
+    e > -1 && i.splice(e, 1), this.disconnectedCallback();
   }
   connectedCallback() {
     super.connectedCallback(), this.closeEvents$ = this.getCloseRx(), this.newRxFunc((e) => {
@@ -36,10 +37,10 @@ const n = [], c = class c extends h {
   }
 };
 s(c, "selector", "modal-component");
-let i = c;
-d.define(i);
+let n = c;
+a.define(n);
 export {
-  i as ModalComponent,
-  g as ModalConfig
+  n as ModalComponent,
+  x as ModalConfig
 };
 //# sourceMappingURL=modal.js.map

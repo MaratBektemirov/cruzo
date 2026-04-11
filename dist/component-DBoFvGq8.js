@@ -52,8 +52,8 @@ function nt(n) {
       e++;
       let u = "", d = !1;
       for (; e < n.length; ) {
-        const x = n[e++];
-        if (x === "\\") {
+        const g = n[e++];
+        if (g === "\\") {
           if (e >= n.length)
             throw new Error(`Unterminated escape sequence in string at ${l}`);
           const m = n[e++];
@@ -61,11 +61,11 @@ function nt(n) {
 ` : m === "t" ? "	" : m;
           continue;
         }
-        if (x === o) {
+        if (g === o) {
           d = !0;
           break;
         }
-        u += x;
+        u += g;
       }
       if (!d)
         throw new Error(`Unterminated string literal at ${l}`);
@@ -100,7 +100,7 @@ const B = {
   jump: "color:#ff5370;font-weight:600",
   arg: "color:#000",
   com: "color:#777;font-style:italic"
-}, D = (n) => "0x" + (n >>> 0).toString(16).padStart(8, "0"), F = (n) => {
+}, D = (n) => "0x" + (n >>> 0).toString(16).padStart(8, "0"), $ = (n) => {
   if (typeof n == "string") return JSON.stringify(n);
   if (n == null || typeof n == "number" || typeof n == "boolean") return String(n);
   try {
@@ -120,7 +120,7 @@ function M(n, t = 0) {
 function R(n) {
   return n & j;
 }
-function $(n) {
+function F(n) {
   return n >>> J;
 }
 class K {
@@ -133,12 +133,12 @@ class K {
   fmtArg(t, e, s) {
     switch (t) {
       case 1:
-        return [`const[${e}]`, F(this.consts[e])];
+        return [`const[${e}]`, $(this.consts[e])];
       case 2:
         return [this.idNames[e] ?? `<bad id[${e}]>`, ""];
       case 4:
       case 5:
-        return [F(this.consts[e]), ""];
+        return [$(this.consts[e]), ""];
       case 29:
       case 30:
       case 31:
@@ -162,17 +162,17 @@ class K {
   }
   log() {
     for (let t = 0; t < this.code.length; t++) {
-      const e = this.code[t] >>> 0, s = R(e), i = $(e);
+      const e = this.code[t] >>> 0, s = R(e), i = F(e);
       let o;
       s === 36 && (o = (this.code[t + 1] ?? 0) >>> 0);
-      const l = G[s] ?? `OP_${s}`, [u, d] = this.fmtArg(s, i, o), x = `%c${String(t).padStart(4)} %c${D(e)}  %c${l.padEnd(18)} %c${u}` + (d ? ` %c; ${d}` : ""), m = [
+      const l = G[s] ?? `OP_${s}`, [u, d] = this.fmtArg(s, i, o), g = `%c${String(t).padStart(4)} %c${D(e)}  %c${l.padEnd(18)} %c${u}` + (d ? ` %c; ${d}` : ""), m = [
         B.ip,
         B.hex,
         it(s) ? B.jump : B.op,
         B.arg,
         ...d ? [B.com] : []
       ];
-      if (console.log(x, ...m), s === 36) {
+      if (console.log(g, ...m), s === 36) {
         t++;
         const p = (this.code[t] ?? 0) >>> 0, r = `%c${String(t).padStart(4)} %c${D(p)}  %c${"WIDE".padEnd(18)} %c${`-> ${p}`}`;
         console.log(r, B.ip, B.hex, B.jump, B.arg);
@@ -203,26 +203,26 @@ class K {
     return `TemplateTypeError: Cannot read properties of ${t === null ? "null" : "undefined"} (reading '${e}')`;
   }
   run(t, e, s, i, o, l) {
-    const u = this.code, d = this.consts, x = this.idNames;
+    const u = this.code, d = this.consts, g = this.idNames;
     let m, p;
     const r = [];
-    let h = 0, v = 0, E = 0;
-    const A = (N, k, y) => {
+    let h = 0, y = 0, E = 0;
+    const A = (N, k, v) => {
       const a = r[N];
       if (typeof a != "function")
         throw new Error(`Cannot call undefined or non-function value: ${a}`);
-      if (!y) return a.call(k);
-      const f = r.slice(h - y, h);
+      if (!v) return a.call(k);
+      const f = r.slice(h - v, h);
       return a.apply(k, f);
     };
-    for (; v < u.length; ) {
-      const N = u[v++], k = R(N), y = $(N);
+    for (; y < u.length; ) {
+      const N = u[y++], k = R(N), v = F(N);
       switch (k) {
         case 1:
-          r[h++] = d[y];
+          r[h++] = d[v];
           break;
         case 2: {
-          const a = x[y];
+          const a = g[v];
           switch (a) {
             case "root":
               m ?? (m = t.root.self()), r[h++] = m;
@@ -249,14 +249,14 @@ class K {
           p ?? (p = t.getThisArg(o)), r[h++] = p;
           break;
         case 4: {
-          const a = d[y], f = r[--h];
+          const a = d[v], f = r[--h];
           f == null ? (t.handleSafeError(this.getSafeErrorMsg(f, a), this.expr), r[h++] = void 0) : r[h++] = f[a];
           break;
         }
         case 5: {
-          const a = d[y], f = r[--h];
-          let g;
-          f == null ? (t.handleSafeError(this.getSafeErrorMsg(f, a), this.expr), g = void 0) : g = f[a], r[h++] = f, r[h++] = g;
+          const a = d[v], f = r[--h];
+          let x;
+          f == null ? (t.handleSafeError(this.getSafeErrorMsg(f, a), this.expr), x = void 0) : x = f[a], r[h++] = f, r[h++] = x;
           break;
         }
         case 6: {
@@ -266,8 +266,8 @@ class K {
         }
         case 7: {
           const a = r[--h], f = r[--h];
-          let g;
-          f == null ? (t.handleSafeError(this.getSafeErrorMsg(f, a + ""), this.expr), g = void 0) : g = f[a], r[h++] = f, r[h++] = g;
+          let x;
+          f == null ? (t.handleSafeError(this.getSafeErrorMsg(f, a + ""), this.expr), x = void 0) : x = f[a], r[h++] = f, r[h++] = x;
           break;
         }
         case 8:
@@ -353,15 +353,15 @@ class K {
           break;
         }
         case 26: {
-          const a = y, f = h - a - 1;
+          const a = v, f = h - a - 1;
           p ?? (p = t.getThisArg(o));
-          const g = A(f, p, a);
-          h = f, r[h++] = g;
+          const x = A(f, p, a);
+          h = f, r[h++] = x;
           break;
         }
         case 27: {
-          const a = y, f = h - a - 1, g = h - a - 2, S = r[g], _ = A(f, S, a);
-          h = g, r[h++] = _;
+          const a = v, f = h - a - 1, x = h - a - 2, S = r[x], _ = A(f, S, a);
+          h = x, r[h++] = _;
           break;
         }
         case 28: {
@@ -377,43 +377,43 @@ class K {
           break;
         }
         case 36: {
-          const a = y, f = u[v++] >>> 0, g = this.getOnceSlotValue(t, a);
-          g !== w ? (r[h++] = g, v = f) : E++;
+          const a = v, f = u[y++] >>> 0, x = this.getOnceSlotValue(t, a);
+          x !== w ? (r[h++] = x, y = f) : E++;
           break;
         }
         case 37: {
-          const a = y;
+          const a = v;
           this.setOnceSlotValue(t, a, r[h - 1]), E--;
           break;
         }
         case 29:
-          v = y;
+          y = v;
           break;
         case 30: {
-          r[--h] || (v = y);
+          r[--h] || (y = v);
           break;
         }
         case 31: {
-          r[h - 1] ? h-- : v = y;
+          r[h - 1] ? h-- : y = v;
           break;
         }
         case 32: {
-          r[h - 1] ? v = y : h--;
+          r[h - 1] ? y = v : h--;
           break;
         }
         case 33: {
-          r[h - 1] == null && (v = y);
+          r[h - 1] == null && (y = v);
           break;
         }
         case 34: {
-          const a = y, f = new Array(a);
-          for (let g = a - 1; g >= 0; g--) f[g] = r[--h];
+          const a = v, f = new Array(a);
+          for (let x = a - 1; x >= 0; x--) f[x] = r[--h];
           r[h++] = f;
           break;
         }
         case 35: {
-          const a = y, f = {};
-          for (let g = 0; g < a; g++) {
+          const a = v, f = {};
+          for (let x = 0; x < a; x++) {
             const S = r[--h], _ = r[--h];
             f[_] = S;
           }
@@ -421,7 +421,7 @@ class K {
           break;
         }
         default:
-          throw new Error(`Unknown op ${k} at ip=${v - 1}`);
+          throw new Error(`Unknown op ${k} at ip=${y - 1}`);
       }
     }
     return h ? r[h - 1] : void 0;
@@ -724,7 +724,7 @@ class rt {
         /* JMP_IF_NULLISH */
       ));
     }, o = (u) => {
-      const d = this.c(u), x = this.peek(), m = x.t === "punc" && x.v === "(";
+      const d = this.c(u), g = this.peek(), m = g.t === "punc" && g.v === "(";
       this.emit(m ? 5 : 4, d), t = m;
     }, l = () => {
       const u = this.peek(), d = u.t === "punc" && u.v === "(";
@@ -753,9 +753,9 @@ class rt {
           continue;
         }
         s(), this.next(), i();
-        const x = this.next();
-        if (x.t !== "id") throw new Error('Expected identifier after "?."');
-        o(x.v);
+        const g = this.next();
+        if (g.t !== "id") throw new Error('Expected identifier after "?."');
+        o(g.v);
         continue;
       }
       if (u.t === "punc" && u.v === "[") {
@@ -1100,8 +1100,8 @@ const at = { bubbles: !1 }, b = class b {
       if (s > 0) {
         const i = this.clones.length, o = i === 0 ? this.getPointer() : this.clones[i - 1].node, l = document.createDocumentFragment(), u = (d) => this.execRepeatExpr(d);
         for (let d = 0; d < s; d++) {
-          const x = this.templateNodeForClone.cloneNode(!0);
-          l.appendChild(x), this.addClone(x, u, i + d);
+          const g = this.templateNodeForClone.cloneNode(!0);
+          l.appendChild(g), this.addClone(g, u, i + d);
         }
         this.insertFragmentAfter(o, l), this.markDomStructureChanged();
       } else {
@@ -1249,14 +1249,14 @@ const at = { bubbles: !1 }, b = class b {
     const o = [], l = t.length;
     let u = 0;
     for (; u < l; ) {
-      const x = t.indexOf(L, u);
-      if (x === -1) {
+      const g = t.indexOf(L, u);
+      if (g === -1) {
         u < l && o.push(t.slice(u));
         break;
       }
-      x > u && o.push(t.slice(u, x));
-      const m = x + 2, p = [];
-      let r = m, h = null, v = -1;
+      g > u && o.push(t.slice(u, g));
+      const m = g + 2, p = [];
+      let r = m, h = null, y = -1;
       for (; r < l; ) {
         const E = t[r];
         if (h !== null) {
@@ -1293,7 +1293,7 @@ const at = { bubbles: !1 }, b = class b {
             continue;
           }
           if (p.length === 0 && t[r + 1] === "}") {
-            v = r;
+            y = r;
             break;
           }
           if (p.length > 0) {
@@ -1304,7 +1304,7 @@ const at = { bubbles: !1 }, b = class b {
         }
         r++;
       }
-      if (v === -1) {
+      if (y === -1) {
         if (p.length > 0) {
           const E = p[p.length - 1], A = E === "(" ? ")" : E === "[" ? "]" : "}";
           this.handleTemplateParseError(t, m, l, `Unclosed "${E}": expected "${A}" before end of expression`);
@@ -1312,9 +1312,9 @@ const at = { bubbles: !1 }, b = class b {
         o.push(this.getSingleBytecode(t.slice(m).trim(), t));
         break;
       }
-      o.push(this.getSingleBytecode(t.slice(m, v).trim(), t)), u = v + 2;
+      o.push(this.getSingleBytecode(t.slice(m, y).trim(), t)), u = y + 2;
     }
-    e && o.length > 1 ? this.handleError(new Error("Template has multi expressions, only single expression is allowed here"), "vm compile", null, t) : o.filter((x) => x instanceof K).length || this.handleError(new Error(`Expression not found, ${this.getNodeForError()} in ${s} attr`), "vm compile", null, t);
+    e && o.length > 1 ? this.handleError(new Error("Template has multi expressions, only single expression is allowed here"), "vm compile", null, t) : o.filter((g) => g instanceof K).length || this.handleError(new Error(`Expression not found, ${this.getNodeForError()} in ${s} attr`), "vm compile", null, t);
     const d = o.length === 1 ? o[0] : o;
     return H.set(t, d), d;
   }
@@ -1386,8 +1386,8 @@ const at = { bubbles: !1 }, b = class b {
     i && u.push(i), this.root.selector && u.push(this.root.selector);
     let d = u.join(" at ");
     this.root.debug.__tplFile && (d += ` (${this.root.debug.__tplFile})`);
-    let x = l ? ", " + q[l] : "";
-    throw t.message = `${e}${x}: ${t.message} in ${d}`, s && (console.log(d), s.log()), t;
+    let g = l ? ", " + q[l] : "";
+    throw t.message = `${e}${g}: ${t.message} in ${d}`, s && (console.log(d), s.log()), t;
   }
   handleSafeError(t, e = "") {
     const s = e ? [e] : [];
@@ -1561,15 +1561,15 @@ class lt {
         throw new Error(
           `${t} component is not defined. Call componentsRegistryService.define(...)`
         );
-      for (const x of l) {
+      for (const g of l) {
         this.instancesBySelector[t] = this.instancesBySelector[t] || /* @__PURE__ */ new Map();
-        let m = this.instancesBySelector[t].get(x);
+        let m = this.instancesBySelector[t].get(g);
         if (!m) {
-          m = new d(), m.selector = t, m.node = x;
+          m = new d(), m.selector = t, m.node = g;
           let p = null;
           i != null && i.httpFactory && (p ?? (p = {}), p.httpFactory = i.httpFactory), i != null && i.params$ && (p ?? (p = {}), p.routeParams$ = i.params$);
           try {
-            m.connectedCallback(p), e.push(m), this.instancesBySelector[t].set(x, m), u.push(m);
+            m.connectedCallback(p), e.push(m), this.instancesBySelector[t].set(g, m), u.push(m);
           } catch (r) {
             throw r;
           }
@@ -1591,11 +1591,11 @@ class lt {
 }
 const C = new lt();
 class Q {
-  constructor(t, e = null) {
+  constructor(t, e = null, s = null) {
     c(this, "actual", null);
     c(this, "groupIndex", null);
     c(this, "postUpdateFns", null);
-    this.group = t, this.fn = e, this.groupIndex = this.group.length, this.group.push(this);
+    this.group = t, this.fn = e, this.groupIndex = this.group.length, this.group.push(this), this.actual = s;
   }
   update(...t) {
     if (this.actual = typeof this.fn == "function" ? this.fn(...t) : null, !!this.postUpdateFns)
@@ -1681,16 +1681,24 @@ class pt {
           throw new Error(
             `Descriptor not found for selector "${this.selector}" id "${this.id}" in bucket "${this.getBucketId()}"`
           );
-        this.config = e.config, this.config || (this.config = {});
+        if (!e.config)
+          throw new Error(
+            `Config in descriptor not found for selector "${this.selector}" id "${this.id}" in bucket "${this.getBucketId()}"`
+          );
+        this.config = e.config;
       }
       this.hasOuterBucket && (this.rxList ?? (this.rxList = []), this.setValue(), this.outerBucket.newRxValue(
         this.id,
         this.onUpdateValue,
-        this.rxList
+        this.rxList,
+        this.outerBucket.getValue(this.id, this.index),
+        this.index
       ), this.setState(), this.outerBucket.newRxState(
         this.id,
         this.onUpdateState,
-        this.rxList
+        this.rxList,
+        this.outerBucket.getState(this.id, this.index),
+        this.index
       ));
     }
     if (this.innerBucket && C.connectBucket(this.innerBucket), !this.isDirective && !(t != null && t.disableTemplate) && this.initTemplate(), t != null && t.httpFactory) {
@@ -1776,24 +1784,14 @@ class pt {
   newRxFunc(t, ...e) {
     return this.rxList ?? (this.rxList = []), new dt(this.rxList, t, { immediate: !0 }, ...e);
   }
-  newRxValueFromBucket(t, e) {
-    return this.rxList ?? (this.rxList = []), t.newRxValue(e, (s) => s, this.rxList);
-  }
-  newRxStateFromBucket(t, e) {
-    return this.rxList ?? (this.rxList = []), t.newRxState(e, (s) => s, this.rxList);
-  }
   newRxEventFromBucket(t, e, s) {
     return this.rxList ?? (this.rxList = []), t.newRxEvent(e, s, (i) => i, this.rxList);
   }
-  newRxValueFromBucketByIndex(t, e) {
-    this.rxList ?? (this.rxList = []);
-    const s = {};
-    return t.newRxValue(e, (i, o) => (s[o] = i, s), this.rxList);
+  newRxValueFromBucket(t, e, s = "0") {
+    return this.rxList ?? (this.rxList = []), t.newRxValue(e, (i) => i, this.rxList, t.getValue(e, s), s);
   }
-  newRxStateFromBucketByIndex(t, e) {
-    this.rxList ?? (this.rxList = []);
-    const s = {};
-    return t.newRxState(e, (i, o) => (s[o] = i, s), this.rxList);
+  newRxStateFromBucket(t, e, s = "0") {
+    return this.rxList ?? (this.rxList = []), t.newRxState(e, (i) => i, this.rxList, t.getState(e, s), s);
   }
   newRxEventFromBucketByIndex(t, e, s) {
     this.rxList ?? (this.rxList = []);
@@ -1808,4 +1806,4 @@ export {
   dt as a,
   C as c
 };
-//# sourceMappingURL=component-CK41B9Gk.js.map
+//# sourceMappingURL=component-DBoFvGq8.js.map

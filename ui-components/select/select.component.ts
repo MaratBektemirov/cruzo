@@ -1,4 +1,5 @@
 import { AbstractComponent, componentsRegistryService } from "../../lib";
+import { UI_KIT } from "../vars";
 
 export interface SelectItem {
   label: string;
@@ -84,34 +85,34 @@ export class SelectComponent extends AbstractComponent<SelectConfigParams, Recor
 
   getItemContent() {
     const checkbox = this.config.multi
-      ? `<label class="cruzo-ui-component_checkbox">
+      ? `<label class="${UI_KIT}_checkbox">
         <input
           type="checkbox"
-          class="cruzo-ui-component_checkbox-input"
+          class="${UI_KIT}_checkbox-input"
           checked="{{root.value$::rx?.[this.value]}}"
           />
       </label>`
       : "";
 
-    return `${checkbox}<span class="cruzo-ui-component_option-label">{{this.label}}</span>`;
+    return `${checkbox}<span class="${UI_KIT}_option-label">{{this.label}}</span>`;
   }
 
   getHTML() {
-    return `<div class="cruzo-ui-component_select">
-        <button type="button" class="cruzo-ui-component_trigger" onclick="{{root.toggle()}}">
-          <span class="cruzo-ui-component_value">{{root.selectedLabel$::rx}}</span>
-          <span class="cruzo-ui-component_caret {{root.open$::rx ? 'cruzo-ui-component_caret-open' : ''}}">▴</span>
+    return `<div class="${UI_KIT}_select">
+        <button type="button" class="${UI_KIT}_trigger" onclick="{{root.toggle()}}">
+          <span class="${UI_KIT}_value">{{root.selectedLabel$::rx}}</span>
+          <span class="${UI_KIT}_caret {{root.open$::rx ? '${UI_KIT}_caret-open' : ''}}">▴</span>
         </button>
-        <div class="cruzo-ui-component_dropdown" style="{{root.open$::rx ? '' : 'display:none'}}">
-          <div class="cruzo-ui-component_list" style="{{root.items$::rx && root.items$::rx.length ? '' : 'display:none'}}">
+        <div class="${UI_KIT}_dropdown" style="{{root.open$::rx ? '' : 'display:none'}}">
+          <div class="${UI_KIT}_list" style="{{root.items$::rx && root.items$::rx.length ? '' : 'display:none'}}">
             <div
               repeat="{{root.items$::rx}}"
-              class="cruzo-ui-component_option {{root.value$::rx?.[this.value] ? 'cruzo-ui-component_option-selected' : ''}}"
+              class="${UI_KIT}_option {{root.value$::rx?.[this.value] ? '${UI_KIT}_option-selected' : ''}}"
               onclick="{{root.toggleItem(this)}}">
               ${this.getItemContent()}
             </div>
           </div>
-          <div class="cruzo-ui-component_empty" style="{{root.items$::rx && root.items$::rx.length ? 'display:none' : ''}}">Нет вариантов</div>
+          <div class="${UI_KIT}_empty" style="{{root.items$::rx && root.items$::rx.length ? 'display:none' : ''}}">Нет вариантов</div>
         </div>
       </div>`;
   }

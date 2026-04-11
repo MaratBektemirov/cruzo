@@ -1,4 +1,5 @@
 import { AbstractComponent, componentsRegistryService, Template } from "../../lib";
+import { UI_KIT } from "../vars";
 
 export enum SpinnerValue {
   "inactive" = "inactive",
@@ -37,11 +38,11 @@ export class SpinnerComponent extends AbstractComponent<SpinnerConfigParams, Spi
 
   getHTML() {
     return `<div let-value="{{root.value$::rx}}"
-        class="cruzo-ui-component_spinner {{root.getCls(value)}}"
+        class="${UI_KIT}_spinner {{root.getCls(value)}}"
         style="{{root.getSpinnerStyle()}}">
-        <div class="cruzo-ui-component_spinner-dot cruzo-ui-component_spinner-dot-1"></div>
-        <div class="cruzo-ui-component_spinner-dot cruzo-ui-component_spinner-dot-2"></div>
-        <div class="cruzo-ui-component_spinner-dot cruzo-ui-component_spinner-dot-3"></div>
+        <div class="${UI_KIT}_spinner-dot ${UI_KIT}_spinner-dot-1"></div>
+        <div class="${UI_KIT}_spinner-dot ${UI_KIT}_spinner-dot-2"></div>
+        <div class="${UI_KIT}_spinner-dot ${UI_KIT}_spinner-dot-3"></div>
       </div>`;
   }
 
@@ -53,11 +54,11 @@ export class SpinnerComponent extends AbstractComponent<SpinnerConfigParams, Spi
   getCls(value: SpinnerValue): string {
     switch (value) {
       case SpinnerValue.inactive:
-        return "cruzo-ui-component--inactive";
+        return `${UI_KIT}--inactive`;
       case SpinnerValue.active:
-        return "cruzo-ui-component--active";
+        return `${UI_KIT}--active`;
       default:
-        return "cruzo-ui-component--inactive";
+        return `${UI_KIT}--inactive`;
     }
   }
 
@@ -74,7 +75,7 @@ export class SpinnerComponent extends AbstractComponent<SpinnerConfigParams, Spi
     this.contentNode = document.createElement("div");
     this.contentNode.innerHTML = this.getHTML();
 
-    this.contentNode.classList.add('cruzo-ui-component_spinner-wrapper');
+    this.contentNode.classList.add(`${UI_KIT}_spinner-wrapper`);
 
     const styles = getComputedStyle(this.node)
     const bgImage = styles.backgroundImage

@@ -1,21 +1,22 @@
-var r = Object.defineProperty;
-var i = (t, e, o) => e in t ? r(t, e, { enumerable: !0, configurable: !0, writable: !0, value: o }) : t[e] = o;
-var u = (t, e, o) => i(t, typeof e != "symbol" ? e + "" : e, o);
-import { c as s, A as c } from "../component-CK41B9Gk.js";
-function l(t) {
+var u = Object.defineProperty;
+var n = (t, e, o) => e in t ? u(t, e, { enumerable: !0, configurable: !0, writable: !0, value: o }) : t[e] = o;
+var r = (t, e, o) => n(t, typeof e != "symbol" ? e + "" : e, o);
+import { c, A as a } from "../component-DBoFvGq8.js";
+import { UI_KIT as s } from "./vars.js";
+function m(t) {
   return Object.assign({}, t);
 }
-class n extends c {
+class i extends a {
   constructor() {
     super(...arguments);
-    u(this, "hasConfig", !0);
-    u(this, "hasOuterBucket", !0);
+    r(this, "hasConfig", !0);
+    r(this, "hasOuterBucket", !0);
   }
   getHTML() {
-    return `<div class="cruzo-ui-component_button-group">
+    return `<div class="${s}_button-group">
         <button
           repeat="{{root.config?.items}}"
-          class="cruzo-ui-component_button-group-item {{this.value === root.value$::rx ? 'cruzo-ui-component_button-group-item-active' : ''}}"
+          class="${s}_button-group-item {{this.value === root.value$::rx ? '${s}_button-group-item-active' : ''}}"
           onclick="{{root.select(this.value)}}"
           >
           {{this.label}}
@@ -26,10 +27,10 @@ class n extends c {
     this.outerBucket.setValue(this.id, o, this.index, !0);
   }
 }
-u(n, "selector", "button-group-component");
-s.define(n);
+r(i, "selector", "button-group-component");
+c.define(i);
 export {
-  n as ButtonGroupComponent,
-  l as ButtonGroupConfig
+  i as ButtonGroupComponent,
+  m as ButtonGroupConfig
 };
 //# sourceMappingURL=button-group.js.map

@@ -33,31 +33,11 @@ export declare class RxBucket<A> {
         [id in keyof A]: any;
     }>, index?: I, byUser?: boolean): void;
     newRxEvent<K extends keyof BucketEventMap, B>(id: keyof A, name: K, fn: (event: BucketEvent<BucketEventMap[K]>, index?: string) => B, rxList: Rx<any>[]): Rx<B, [event: BucketEvent<BucketEventMap[K]>, index?: string]>;
-    newRxAllValues(fn: (values: Record<keyof A, {
-        [index: string]: any;
-    }>) => Record<keyof A, {
-        [index: string]: any;
-    }>): Rx<Record<keyof A, {
-        [index: string]: any;
-    }>, [values: Record<keyof A, {
-        [index: string]: any;
-    }>]>;
-    newRxAllStates(fn: (states: Record<keyof A, {
-        [index: string]: any;
-    }>) => Record<keyof A, {
-        [index: string]: any;
-    }>): Rx<Record<keyof A, {
-        [index: string]: any;
-    }>, [states: Record<keyof A, {
-        [index: string]: any;
-    }>]>;
-    newRxValue<B>(id: keyof A, fn: (value: any, index?: string, byUser?: boolean) => B, rxList: Rx<any>[]): Rx<any, any[]>;
-    newRxState<B>(id: keyof A, fn: (value: any, index?: string, byUser?: boolean) => B, rxList: Rx<any>[]): Rx<any, any[]>;
+    newRxValue<B>(id: keyof A, fn: (value: any, index?: string, byUser?: boolean) => B, rxList: Rx<any>[], initValue?: any, index?: string): Rx<any, any[]>;
+    newRxState<B>(id: keyof A, fn: (value: any, index?: string, byUser?: boolean) => B, rxList: Rx<any>[], initValue?: any, index?: string): Rx<any, any[]>;
     emitEvent<K extends keyof BucketEventMap>(id: keyof A, name: K, event: BucketEvent<BucketEventMap[K]>, index?: string): void;
-    private _set;
+    private _setValues;
     private _setStates;
-    private updateAllValues;
-    private updateAllStates;
     private execRxs;
     static idsArr<D>(descriptors: {
         [K in keyof D]: ComponentDescriptor<D[K]>;

@@ -1,5 +1,6 @@
 import { ComponentsList } from "../../lib/interfaces";
 import { AbstractComponent, componentsRegistryService, Template } from "../../lib";
+import { UI_KIT } from "../vars";
 
 declare global {
   interface BucketEventMap {
@@ -27,8 +28,8 @@ export class ModalComponent extends AbstractComponent<ModalConfigParams> {
   closeEvents$: ReturnType<typeof this.getCloseRx>;
 
   getHTML() {
-    return `<div class="cruzo-ui-component_modal-backdrop" onclick="{{this.closeModal(false)}}">
-        <div class="cruzo-ui-component_modal" onclick="{{event.stopPropagation()}}">${this.config.bodyContent}</div>
+    return `<div class="${UI_KIT}_modal-backdrop" onclick="{{this.closeModal(false)}}">
+        <div class="${UI_KIT}_modal" onclick="{{event.stopPropagation()}}">${this.config.bodyContent}</div>
       </div>`;
   }
 

@@ -1,16 +1,17 @@
-var c = Object.defineProperty;
-var r = (e, o, t) => o in e ? c(e, o, { enumerable: !0, configurable: !0, writable: !0, value: t }) : e[o] = t;
-var n = (e, o, t) => r(e, typeof o != "symbol" ? o + "" : o, t);
-import { c as a, A as l, T as u } from "../component-CK41B9Gk.js";
-var d = /* @__PURE__ */ ((e) => (e.inactive = "inactive", e.active = "active", e))(d || {});
+var a = Object.defineProperty;
+var c = (e, i, t) => i in e ? a(e, i, { enumerable: !0, configurable: !0, writable: !0, value: t }) : e[i] = t;
+var n = (e, i, t) => c(e, typeof i != "symbol" ? i + "" : i, t);
+import { c as l, A as d, T as h } from "../component-DBoFvGq8.js";
+import { UI_KIT as s } from "./vars.js";
+var u = /* @__PURE__ */ ((e) => (e.inactive = "inactive", e.active = "active", e))(u || {});
 function m(e) {
   return Object.assign({}, e);
 }
-const h = [
+const p = [
   "inactive"
   /* inactive */
 ];
-class s extends l {
+class r extends d {
   constructor() {
     super(...arguments);
     n(this, "hasConfig", !0);
@@ -26,11 +27,11 @@ class s extends l {
   }
   getHTML() {
     return `<div let-value="{{root.value$::rx}}"
-        class="cruzo-ui-component_spinner {{root.getCls(value)}}"
+        class="${s}_spinner {{root.getCls(value)}}"
         style="{{root.getSpinnerStyle()}}">
-        <div class="cruzo-ui-component_spinner-dot cruzo-ui-component_spinner-dot-1"></div>
-        <div class="cruzo-ui-component_spinner-dot cruzo-ui-component_spinner-dot-2"></div>
-        <div class="cruzo-ui-component_spinner-dot cruzo-ui-component_spinner-dot-3"></div>
+        <div class="${s}_spinner-dot ${s}_spinner-dot-1"></div>
+        <div class="${s}_spinner-dot ${s}_spinner-dot-2"></div>
+        <div class="${s}_spinner-dot ${s}_spinner-dot-3"></div>
       </div>`;
   }
   connectedCallback() {
@@ -39,21 +40,21 @@ class s extends l {
   getCls(t) {
     switch (t) {
       case "inactive":
-        return "cruzo-ui-component--inactive";
+        return `${s}--inactive`;
       case "active":
-        return "cruzo-ui-component--active";
+        return `${s}--active`;
       default:
-        return "cruzo-ui-component--inactive";
+        return `${s}--inactive`;
     }
   }
   syncContentFromState() {
-    h.includes(this.value) || !this.value ? this.destroyContent() : this.ensureContent();
+    p.includes(this.value) || !this.value ? this.destroyContent() : this.ensureContent();
   }
   ensureContent() {
     if (this.contentNode) return;
-    this.contentNode = document.createElement("div"), this.contentNode.innerHTML = this.getHTML(), this.contentNode.classList.add("cruzo-ui-component_spinner-wrapper");
-    const t = getComputedStyle(this.node), i = t.backgroundImage;
-    i.includes("gradient") ? this.contentNode.style.backgroundImage = i : this.contentNode.style.backgroundColor = t.backgroundColor, this.contentNode.style.borderRadius = t.borderRadius, this.ensureHostPositionForOverlay(), this.template = new u({
+    this.contentNode = document.createElement("div"), this.contentNode.innerHTML = this.getHTML(), this.contentNode.classList.add(`${s}_spinner-wrapper`);
+    const t = getComputedStyle(this.node), o = t.backgroundImage;
+    o.includes("gradient") ? this.contentNode.style.backgroundImage = o : this.contentNode.style.backgroundColor = t.backgroundColor, this.contentNode.style.borderRadius = t.borderRadius, this.ensureHostPositionForOverlay(), this.template = new h({
       node: this.contentNode,
       self: () => this,
       selector: this.selector,
@@ -73,11 +74,11 @@ class s extends l {
     this.destroyContent(), super.disconnectedCallback();
   }
 }
-n(s, "selector", '[is="spinner"]');
-a.define(s);
+n(r, "selector", '[is="spinner"]');
+l.define(r);
 export {
-  s as SpinnerComponent,
+  r as SpinnerComponent,
   m as SpinnerConfig,
-  d as SpinnerValue
+  u as SpinnerValue
 };
 //# sourceMappingURL=spinner.js.map

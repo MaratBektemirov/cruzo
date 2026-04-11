@@ -1,11 +1,12 @@
-var a = Object.defineProperty;
-var p = (o, i, t) => i in o ? a(o, i, { enumerable: !0, configurable: !0, writable: !0, value: t }) : o[i] = t;
-var n = (o, i, t) => p(o, typeof i != "symbol" ? i + "" : i, t);
-import { c as d, A as h, T as c } from "../component-CK41B9Gk.js";
-function g(o) {
+var p = Object.defineProperty;
+var d = (o, i, t) => i in o ? p(o, i, { enumerable: !0, configurable: !0, writable: !0, value: t }) : o[i] = t;
+var n = (o, i, t) => d(o, typeof i != "symbol" ? i + "" : i, t);
+import { c as h, A as c, T as f } from "../component-DBoFvGq8.js";
+import { UI_KIT as u } from "./vars.js";
+function N(o) {
   return Object.assign({}, o);
 }
-class u extends h {
+class a extends c {
   constructor() {
     super(...arguments);
     n(this, "hasConfig", !0);
@@ -28,7 +29,7 @@ class u extends h {
         required="{{state.required}}"
         inputmode="{{state.inputmode}}"
         maxlength="{{state.maxlength}}"
-        class="cruzo-ui-component_input {{state.cls}}"
+        class="${u}_input {{state.cls}}"
         autocomplete="{{state.autocomplete}}"
         type="${this.config.type || "text"}"
         placeholder="{{state.placeholder}}"
@@ -53,7 +54,7 @@ class u extends h {
       const r = this.getInput();
       r && (l = r.scrollWidth > r.offsetWidth, e = !this.tooltipNode && l);
     }
-    s = this.tooltipNode && !l, e ? (this.tooltipNode = c.stringToNode('<div class="cruzo-ui-component_input-tooltip"></div>'), document.body.appendChild(this.tooltipNode), window.addEventListener("resize", this.updateTooltipCoords), window.addEventListener("scroll", this.updateTooltipCoords)) : s && (this.tooltipNode.remove(), this.tooltipNode = null, window.removeEventListener("resize", this.updateTooltipCoords), window.removeEventListener("scroll", this.updateTooltipCoords)), this.tooltipNode && (this.updateTooltipText(), this.updateTooltipCoords());
+    s = this.tooltipNode && !l, e ? (this.tooltipNode = f.stringToNode(`<div class="${u}_input-tooltip"></div>`), document.body.appendChild(this.tooltipNode), window.addEventListener("resize", this.updateTooltipCoords), window.addEventListener("scroll", this.updateTooltipCoords)) : s && (this.tooltipNode.remove(), this.tooltipNode = null, window.removeEventListener("resize", this.updateTooltipCoords), window.removeEventListener("scroll", this.updateTooltipCoords)), this.tooltipNode && (this.updateTooltipText(), this.updateTooltipCoords());
   }
   updateTooltipText() {
     if (!this.tooltipNode) return;
@@ -96,10 +97,10 @@ class u extends h {
     }, this.value$);
   }
 }
-n(u, "selector", "input-component");
-d.define(u);
+n(a, "selector", "input-component");
+h.define(a);
 export {
-  u as InputComponent,
-  g as InputConfig
+  a as InputComponent,
+  N as InputConfig
 };
 //# sourceMappingURL=input.js.map

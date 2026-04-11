@@ -52,11 +52,9 @@ export declare abstract class AbstractComponent<Config = any, ValueType = any, S
     newRxFunc<RR, A extends readonly Rx<any>[]>(cb: (...values: {
         [K in keyof A]: A[K]["actual"];
     }) => RR, ...deps: A): RxFunc<RR>;
-    newRxValueFromBucket<A>(bucket: RxBucket<A>, id: keyof A): Rx<any, any[]>;
-    newRxStateFromBucket<A>(bucket: RxBucket<A>, id: keyof A): Rx<any, any[]>;
     newRxEventFromBucket<A, K extends keyof BucketEventMap>(bucket: RxBucket<A>, id: keyof A, name: K): Rx<BucketEvent<BucketEventMap[K]>, [event: BucketEvent<BucketEventMap[K]>, index?: string]>;
-    newRxValueFromBucketByIndex<A>(bucket: RxBucket<A>, id: keyof A): Rx<any, any[]>;
-    newRxStateFromBucketByIndex<A>(bucket: RxBucket<A>, id: keyof A): Rx<any, any[]>;
+    newRxValueFromBucket<A>(bucket: RxBucket<A>, id: keyof A, index?: string): Rx<any, any[]>;
+    newRxStateFromBucket<A>(bucket: RxBucket<A>, id: keyof A, index?: string): Rx<any, any[]>;
     newRxEventFromBucketByIndex<A, K extends keyof BucketEventMap>(bucket: RxBucket<A>, id: keyof A, name: K): Rx<Record<string, BucketEvent<BucketEventMap[K]>>, [event: BucketEvent<BucketEventMap[K]>, index?: string]>;
 }
 //# sourceMappingURL=component.d.ts.map

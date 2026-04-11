@@ -1,11 +1,13 @@
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  esbuild: { legalComments: "none" },
   build: {
     lib: {
       entry: {
         index: "./lib/index.ts",
         utils: "./lib/utils.ts",
+        "ui-components/vars": "./ui-components/vars.ts",
         "ui-components/input": "./ui-components/input/input.component.ts",
         "ui-components/button-group": "./ui-components/button-group/button-group.component.ts",
         "ui-components/router-link": "./ui-components/router-link/router-link.ts",
@@ -19,6 +21,8 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: true,
     sourcemap: true,
+    minify: "esbuild",
+    reportCompressedSize: true,
     rollupOptions: {
       external: ["cruzo"],
       output: {

@@ -4,7 +4,7 @@ export declare class Rx<A, Args extends any[] = any[]> {
     actual: A;
     private groupIndex;
     postUpdateFns?: Set<(rx: Rx<any>) => any>;
-    constructor(group: Rx<any>[], fn?: (...args: Args) => A);
+    constructor(group: Rx<any>[], fn?: (...args: Args) => A, initValue?: A);
     update(...args: Args): void;
     setPostUpdate(fn: (value: Rx<any>) => any): void;
     unsubscribe(): void;

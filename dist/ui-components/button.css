@@ -4,7 +4,7 @@
   background: var(--surface);
   color: var(--text-main);
 
-  border-radius: var(--m);
+  border-radius: var(--radius-button);
   padding: var(--s) var(--m);
 
   font-size: 14px;
@@ -29,9 +29,53 @@
     box-shadow 0.15s ease;
 }
 
-.cruzo-ui-component_button:hover {
-  background: var(--surface-2);
-  border-color: var(--border-dark);
+.cruzo-ui-component_button-xxs {
+  font-size: 10px;
+  padding: var(--xxs) var(--xs);
+  gap: var(--xxs);
+  border-radius: var(--radius-button);
+}
+
+.cruzo-ui-component_button-xs {
+  font-size: 11px;
+  padding: 3px var(--xs);
+  gap: var(--xxs);
+  border-radius: var(--radius-button);
+}
+
+.cruzo-ui-component_button-s {
+  font-size: 12px;
+  padding: var(--xs) var(--s);
+  gap: var(--xs);
+  border-radius: var(--radius-button);
+}
+
+.cruzo-ui-component_button-m {
+  font-size: 14px;
+  padding: var(--s) var(--m);
+  gap: var(--xs);
+  border-radius: var(--radius-button);
+}
+
+.cruzo-ui-component_button-l {
+  font-size: 15px;
+  padding: var(--s) var(--m);
+  gap: var(--s);
+  border-radius: var(--radius-button);
+}
+
+.cruzo-ui-component_button-xl {
+  font-size: 16px;
+  padding: var(--m) var(--l);
+  gap: var(--s);
+  border-radius: var(--radius-button);
+}
+
+.cruzo-ui-component_button-xxl {
+  font-size: 18px;
+  padding: var(--m) var(--xl);
+  gap: var(--m);
+  border-radius: var(--radius-button);
 }
 
 .cruzo-ui-component_button-primary {
@@ -40,30 +84,12 @@
   color: #fff;
 }
 
-.cruzo-ui-component_button-primary:hover {
-  background: var(--accent-hover);
-}
-
 .cruzo-ui-component_button-secondary {
   background: var(--surface-2);
   border-color: var(--border-dark);
   color: var(--text-main);
 }
 
-.cruzo-ui-component_button-secondary:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-subtle);
-}
-
-.cruzo-ui-component_button-s {
-  font-size: 12px;
-  padding: var(--xs) var(--s);
-  gap: var(--xs);
-}
-
-.cruzo-ui-component_button-xs {
-  font-size: 11px;
-  padding: 3px var(--xs);
-  gap: var(--xxs);
-  border-radius: var(--radius-button);
+.cruzo-ui-component_button:hover {
+  opacity: 0.75;
 }

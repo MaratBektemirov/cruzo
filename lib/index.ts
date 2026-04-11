@@ -20,4 +20,4 @@ export type {
 
 export { Rx, RxFunc } from './rx';
 
-export { delay, debounce, arrayToHash } from "./utils"
+export { delay, debounce, arrayToHash } from "./utils";
