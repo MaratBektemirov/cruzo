@@ -776,10 +776,14 @@ export class Template {
   }
 
   private handleChildrens(node: HTMLElement) {
-    let childNode: ChildNode = node.firstChild;
+    const stack: ChildNode[] = [];
 
-  while (childNode) {
-      const next = childNode.nextSibling;
+    for (let childNode = node.lastChild; childNode; childNode = childNode.previousSibling) {
+      stack.push(childNode);
+    }
+
+    while (stack.length) {
+      const childNode = stack.pop();
 
       if (childNode.nodeType === 1) {
         const el = childNode as HTMLElement;
@@ -790,7 +794,9 @@ export class Template {
           this.children ??= [];
           this.children.push(t);
         } else {
-          this.handleChildrens(el);
+          for (let nested = el.lastChild; nested; nested = nested.previousSibling) {
+            stack.push(nested);
+          }
         }
       } else if (childNode.nodeType === 3) {
         const template = childNode.textContent;
@@ -806,8 +812,6 @@ export class Template {
           this.textNodes.push(idx);
         }
       }
-
-      childNode = next;
     }
   }
 
@@ -930,11 +934,17 @@ export class Template {
   }
 
   public getVarFromLexicalEnv(name: string): any {
-    if (this.lexicalEnv && name in this.lexicalEnv) {
-      return this.lexicalEnv[name];
+    let template: Template = this;
+
+    while (template) {
+      if (template.lexicalEnv && name in template.lexicalEnv) {
+        return template.lexicalEnv[name];
+      }
+
+      template = template.parent;
     }
 
-    return this.parent ? this.parent.getVarFromLexicalEnv(name) : undefined;
+    return undefined;
   }
 
   private getThisArg(allowRxLink: boolean) {

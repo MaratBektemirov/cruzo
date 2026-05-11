@@ -1,7 +1,7 @@
 var r = Object.defineProperty;
 var u = (n, o, e) => o in n ? r(n, o, { enumerable: !0, configurable: !0, writable: !0, value: e }) : n[o] = e;
 var s = (n, o, e) => u(n, typeof o != "symbol" ? o + "" : o, e);
-import { c as d, A as h } from "../component-DBoFvGq8.js";
+import { c as d, A as h } from "../component-9yMj0O0y.js";
 import { UI_KIT as t } from "./const.js";
 function v(n) {
   return Object.assign({}, n);

@@ -1355,25 +1355,27 @@ const at = { bubbles: !1 }, b = class b {
     return !1;
   }
   handleChildrens(t) {
-    let e = t.firstChild;
-    for (; e; ) {
-      const s = e.nextSibling;
-      if (e.nodeType === 1) {
-        const i = e;
+    const e = [];
+    for (let s = t.lastChild; s; s = s.previousSibling)
+      e.push(s);
+    for (; e.length; ) {
+      const s = e.pop();
+      if (s.nodeType === 1) {
+        const i = s;
         if (this.hasBindingAttributes(i) || this.hasTemplateTextChild(i)) {
           const o = this.addChildren(i);
           o.parent = this, this.children ?? (this.children = []), this.children.push(o);
         } else
-          this.handleChildrens(i);
-      } else if (e.nodeType === 3) {
-        const i = e.textContent;
+          for (let o = i.lastChild; o; o = o.previousSibling)
+            e.push(o);
+      } else if (s.nodeType === 3) {
+        const i = s.textContent;
         if (this.isTemplate(i)) {
           this.nodeByIndex ?? (this.nodeByIndex = []), this.nodeValueByIndex ?? (this.nodeValueByIndex = []);
-          const o = this.nodeByIndex.push(e) - 1;
+          const o = this.nodeByIndex.push(s) - 1;
           this.nodeTemplateByIndex ?? (this.nodeTemplateByIndex = []), this.nodeTemplateByIndex.push(this.getTemplateBytecode(i)), this.textNodes ?? (this.textNodes = []), this.textNodes.push(o);
         }
       }
-      e = s;
     }
   }
   resetDetectingUpTree() {
@@ -1424,7 +1426,12 @@ const at = { bubbles: !1 }, b = class b {
     return t === 2 || o || i && this.linkRxToTemplate(t, e, s), e.actual;
   }
   getVarFromLexicalEnv(t) {
-    return this.lexicalEnv && t in this.lexicalEnv ? this.lexicalEnv[t] : this.parent ? this.parent.getVarFromLexicalEnv(t) : void 0;
+    let e = this;
+    for (; e; ) {
+      if (e.lexicalEnv && t in e.lexicalEnv)
+        return e.lexicalEnv[t];
+      e = e.parent;
+    }
   }
   getThisArg(t) {
     return typeof this.cloneIndex == "number" ? this.self(t)[this.cloneIndex] : this.self();
@@ -1806,4 +1813,4 @@ export {
   dt as a,
   C as c
 };
-//# sourceMappingURL=component-DBoFvGq8.js.map
+//# sourceMappingURL=component-9yMj0O0y.js.map

@@ -52,7 +52,7 @@ export class ModalComponent extends AbstractComponent<ModalConfigParams> {
     const index = modalList.indexOf(this);
     if (index > -1) modalList.splice(index, 1);
 
-    this.disconnectedCallback();
+    this.disconnectedCallback(true);
   }
 
   public connectedCallback() {

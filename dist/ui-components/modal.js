@@ -1,12 +1,12 @@
 var h = Object.defineProperty;
-var p = (o, t, e) => t in o ? h(o, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[t] = e;
-var s = (o, t, e) => p(o, typeof t != "symbol" ? t + "" : t, e);
-import { c as a, A as u, T as m } from "../component-DBoFvGq8.js";
+var u = (o, t, e) => t in o ? h(o, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[t] = e;
+var s = (o, t, e) => u(o, typeof t != "symbol" ? t + "" : t, e);
+import { c as a, A as p, T as m } from "../component-9yMj0O0y.js";
 import { UI_KIT as d } from "./const.js";
 function x(o) {
   return Object.assign({}, o);
 }
-const i = [], c = class c extends u {
+const i = [], c = class c extends p {
   constructor() {
     super();
     s(this, "hasOuterBucket", !0);
@@ -28,7 +28,7 @@ const i = [], c = class c extends u {
   }
   destroyModal() {
     const e = i.indexOf(this);
-    e > -1 && i.splice(e, 1), this.disconnectedCallback();
+    e > -1 && i.splice(e, 1), this.disconnectedCallback(!0);
   }
   connectedCallback() {
     super.connectedCallback(), this.closeEvents$ = this.getCloseRx(), this.newRxFunc((e) => {
