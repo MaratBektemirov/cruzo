@@ -8,6 +8,8 @@ interface InputConfigParams {
   required?: boolean;
   autocomplete?: string;
   inputmode?: string;
+  name?: string;
+  id?: string;
 }
 
 export function InputConfig(params: InputConfigParams) {
@@ -21,6 +23,8 @@ interface InputConfigState {
   maxlength: number;
   autocomplete: string;
   inputmode: string;
+  name: string;
+  id: string;
 }
 
 export class InputComponent extends AbstractComponent<InputConfigParams, any, InputConfigState> {
@@ -36,6 +40,8 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
     return `<input
         let-state="{{this.state$::rx}}"
         attached="{{state}}"
+        name="{{state.name}}"
+        id="{{state.id}}"
         required="{{state.required}}"
         inputmode="{{state.inputmode}}"
         maxlength="{{state.maxlength}}"
@@ -171,6 +177,8 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
       maxlength: state.maxlength || this.config.maxlength || '',
       autocomplete: state.autocomplete || this.config.autocomplete || '',
       inputmode: state.inputmode || this.config.inputmode || '',
+      id: state.id || this.config.id || '',
+      name: state.name || this.config.name || '',
     }, this.index);
 
     this.newRxFunc((value) => {

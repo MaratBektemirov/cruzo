@@ -23,13 +23,14 @@ export class ModalComponent extends AbstractComponent<ModalConfigParams> {
   static selector = "modal-component";
   hasOuterBucket = true;
   hasConfig = true;
+  backdropEl: HTMLElement;
 
   getCloseRx = () => this.newRxEventFromBucketByIndex(this.outerBucket, this.id, 'closeModal');
   closeEvents$: ReturnType<typeof this.getCloseRx>;
 
   getHTML() {
-    return `<div class="${UI_KIT}_modal-backdrop" onclick="{{this.closeModal(false)}}">
-        <div class="${UI_KIT}_modal" onclick="{{event.stopPropagation()}}">${this.config.bodyContent}</div>
+    return `<div class="${UI_KIT}_modal-backdrop" onpointerdown="{{this.closeModal(false, event)}}">
+        <div class="${UI_KIT}_modal">${this.config.bodyContent}</div>
       </div>`;
   }
 
@@ -44,7 +45,9 @@ export class ModalComponent extends AbstractComponent<ModalConfigParams> {
     componentsRegistryService.connectBySelector(ModalComponent.selector, modalList, document.body);
   }
 
-  closeModal(isOK: boolean) {
+  closeModal(isOK: boolean, event: MouseEvent) {
+    if (event.target !== this.backdropEl) return
+
     this.outerBucket.emitEvent(this.id, 'closeModal', { data: { isOK } });
   }
 
@@ -59,6 +62,7 @@ export class ModalComponent extends AbstractComponent<ModalConfigParams> {
     super.connectedCallback();
 
     this.closeEvents$ = this.getCloseRx();
+    this.backdropEl = this.node.querySelector(`.${UI_KIT}_modal-backdrop`)
 
     this.newRxFunc((events) => {
       if (events && events[this.index]) {

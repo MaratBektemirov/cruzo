@@ -6,6 +6,8 @@ interface InputConfigParams {
     required?: boolean;
     autocomplete?: string;
     inputmode?: string;
+    name?: string;
+    id?: string;
 }
 export declare function InputConfig(params: InputConfigParams): InputConfigParams;
 interface InputConfigState {
@@ -15,6 +17,8 @@ interface InputConfigState {
     maxlength: number;
     autocomplete: string;
     inputmode: string;
+    name: string;
+    id: string;
 }
 export declare class InputComponent extends AbstractComponent<InputConfigParams, any, InputConfigState> {
     static selector: string;

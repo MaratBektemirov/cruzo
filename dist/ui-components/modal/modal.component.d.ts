@@ -15,6 +15,7 @@ export declare class ModalComponent extends AbstractComponent<ModalConfigParams>
     static selector: string;
     hasOuterBucket: boolean;
     hasConfig: boolean;
+    backdropEl: HTMLElement;
     getCloseRx: () => import("../../lib").Rx<Record<string, import("../../lib").BucketEvent<{
         isOK: boolean;
     }>>, [event: import("../../lib").BucketEvent<{
@@ -24,7 +25,7 @@ export declare class ModalComponent extends AbstractComponent<ModalConfigParams>
     getHTML(): string;
     constructor();
     static attach(componentId: string, bucketId: number | string): void;
-    closeModal(isOK: boolean): void;
+    closeModal(isOK: boolean, event: MouseEvent): void;
     destroyModal(): void;
     connectedCallback(): void;
 }

@@ -1,12 +1,12 @@
-var p = Object.defineProperty;
-var d = (o, i, t) => i in o ? p(o, i, { enumerable: !0, configurable: !0, writable: !0, value: t }) : o[i] = t;
-var n = (o, i, t) => d(o, typeof i != "symbol" ? i + "" : i, t);
-import { c as h, A as c, T as f } from "../component-9yMj0O0y.js";
-import { UI_KIT as u } from "./const.js";
+var d = Object.defineProperty;
+var h = (o, i, t) => i in o ? d(o, i, { enumerable: !0, configurable: !0, writable: !0, value: t }) : o[i] = t;
+var n = (o, i, t) => h(o, typeof i != "symbol" ? i + "" : i, t);
+import { c as p, A as c, T as f } from "../component-9yMj0O0y.js";
+import { UI_KIT as a } from "./const.js";
 function N(o) {
   return Object.assign({}, o);
 }
-class a extends c {
+class u extends c {
   constructor() {
     super(...arguments);
     n(this, "hasConfig", !0);
@@ -26,10 +26,12 @@ class a extends c {
     return `<input
         let-state="{{this.state$::rx}}"
         attached="{{state}}"
+        name="{{state.name}}"
+        id="{{state.id}}"
         required="{{state.required}}"
         inputmode="{{state.inputmode}}"
         maxlength="{{state.maxlength}}"
-        class="${u}_input {{state.cls}}"
+        class="${a}_input {{state.cls}}"
         autocomplete="{{state.autocomplete}}"
         type="${this.config.type || "text"}"
         placeholder="{{state.placeholder}}"
@@ -54,7 +56,7 @@ class a extends c {
       const r = this.getInput();
       r && (l = r.scrollWidth > r.offsetWidth, e = !this.tooltipNode && l);
     }
-    s = this.tooltipNode && !l, e ? (this.tooltipNode = f.stringToNode(`<div class="${u}_input-tooltip"></div>`), document.body.appendChild(this.tooltipNode), window.addEventListener("resize", this.updateTooltipCoords), window.addEventListener("scroll", this.updateTooltipCoords)) : s && (this.tooltipNode.remove(), this.tooltipNode = null, window.removeEventListener("resize", this.updateTooltipCoords), window.removeEventListener("scroll", this.updateTooltipCoords)), this.tooltipNode && (this.updateTooltipText(), this.updateTooltipCoords());
+    s = this.tooltipNode && !l, e ? (this.tooltipNode = f.stringToNode(`<div class="${a}_input-tooltip"></div>`), document.body.appendChild(this.tooltipNode), window.addEventListener("resize", this.updateTooltipCoords), window.addEventListener("scroll", this.updateTooltipCoords)) : s && (this.tooltipNode.remove(), this.tooltipNode = null, window.removeEventListener("resize", this.updateTooltipCoords), window.removeEventListener("scroll", this.updateTooltipCoords)), this.tooltipNode && (this.updateTooltipText(), this.updateTooltipCoords());
   }
   updateTooltipText() {
     if (!this.tooltipNode) return;
@@ -90,17 +92,19 @@ class a extends c {
       cls: t.cls || "",
       maxlength: t.maxlength || this.config.maxlength || "",
       autocomplete: t.autocomplete || this.config.autocomplete || "",
-      inputmode: t.inputmode || this.config.inputmode || ""
+      inputmode: t.inputmode || this.config.inputmode || "",
+      id: t.id || this.config.id || "",
+      name: t.name || this.config.name || ""
     }, this.index), this.newRxFunc((e) => {
       const s = this.getInput();
       !s || e === s.value || (s.value = e ?? "");
     }, this.value$);
   }
 }
-n(a, "selector", "input-component");
-h.define(a);
+n(u, "selector", "input-component");
+p.define(u);
 export {
-  a as InputComponent,
+  u as InputComponent,
   N as InputConfig
 };
 //# sourceMappingURL=input.js.map
