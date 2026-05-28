@@ -1,7 +1,7 @@
 var h = Object.defineProperty;
 var p = (o, t, e) => t in o ? h(o, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[t] = e;
 var s = (o, t, e) => p(o, typeof t != "symbol" ? t + "" : t, e);
-import { c as l, A as u, T as m } from "../component-9yMj0O0y.js";
+import { c as l, A as u, T as m } from "../component-DUmooULT.js";
 import { UI_KIT as n } from "./const.js";
 function g(o) {
   return Object.assign({}, o);

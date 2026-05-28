@@ -1128,18 +1128,20 @@ const at = { bubbles: !1 }, b = class b {
     }
   }
   setEvents() {
-    this.eventsFns ?? (this.eventsFns = /* @__PURE__ */ Object.create(null));
-    for (const t in this.eventsBC) {
-      const e = (s) => {
-        this.runVMProgramForContext(
-          2,
-          this.eventsBC[t],
-          0,
-          !1,
-          s
-        );
-      };
-      this.eventsFns[t] = e, this.node.addEventListener(t, e);
+    if (this.attached) {
+      this.eventsFns ?? (this.eventsFns = /* @__PURE__ */ Object.create(null));
+      for (const t in this.eventsBC) {
+        const e = (s) => {
+          this.runVMProgramForContext(
+            2,
+            this.eventsBC[t],
+            0,
+            !1,
+            s
+          );
+        };
+        this.eventsFns[t] = e, this.node.addEventListener(t, e);
+      }
     }
   }
   handleAttachedAttr(t) {
@@ -1813,4 +1815,4 @@ export {
   dt as a,
   C as c
 };
-//# sourceMappingURL=component-9yMj0O0y.js.map
+//# sourceMappingURL=component-DUmooULT.js.map

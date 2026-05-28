@@ -431,6 +431,8 @@ export class Template {
   }
 
   private setEvents() {
+    if (!this.attached) return
+
     this.eventsFns ??= Object.create(null);
 
     for (const ev in this.eventsBC) {
