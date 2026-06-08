@@ -1,4 +1,4 @@
-import { AbstractComponent } from "../../lib";
+import { AbstractComponent } from "cruzo";
 interface ButtonGroupConfigParams {
     items: Array<{
         label: string;

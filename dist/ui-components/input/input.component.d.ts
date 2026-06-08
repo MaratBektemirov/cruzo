@@ -1,6 +1,6 @@
-import { AbstractComponent } from "../../lib";
-interface InputConfigParams {
-    type?: 'text' | 'password' | 'email' | 'url' | 'tel' | 'search' | 'number';
+import { AbstractComponent } from "cruzo";
+export interface InputConfig {
+    type?: "text" | "password" | "email" | "url" | "tel" | "search" | "number";
     maxlength?: number;
     placeholder?: string;
     required?: boolean;
@@ -9,18 +9,11 @@ interface InputConfigParams {
     name?: string;
     id?: string;
 }
-export declare function InputConfig(params: InputConfigParams): InputConfigParams;
-interface InputConfigState {
-    required: boolean;
-    placeholder: string;
-    cls: string;
-    maxlength: number;
-    autocomplete: string;
-    inputmode: string;
-    name: string;
-    id: string;
+export declare function InputConfig(params: InputConfig): InputConfig;
+export interface InputState {
+    cls?: string;
 }
-export declare class InputComponent extends AbstractComponent<InputConfigParams, any, InputConfigState> {
+export declare class InputComponent extends AbstractComponent<InputConfig, any, InputState> {
     static selector: string;
     hasConfig: boolean;
     hasOuterBucket: boolean;
@@ -41,5 +34,4 @@ export declare class InputComponent extends AbstractComponent<InputConfigParams,
     disconnectedCallback(): void;
     connectedCallback(): void;
 }
-export {};
 //# sourceMappingURL=input.component.d.ts.map

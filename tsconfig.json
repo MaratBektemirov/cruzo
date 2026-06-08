@@ -19,6 +19,9 @@
     "strictPropertyInitialization": false,
     "strictNullChecks": false,
     "noEmit": true,
+    "paths": {
+      "cruzo": ["./lib/index.ts"]
+    }
   },
   "include": ["lib/**/*.ts", "ui-components/**/*.ts"],
   "exclude": ["dist", "node_modules", "vite.config.ts"]

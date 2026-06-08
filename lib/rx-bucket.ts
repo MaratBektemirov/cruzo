@@ -12,6 +12,7 @@ export class RxBucket<A> {
     eventsByNames: {} as Record<keyof A, Record<string, Rx<BucketEvent<any>>[]>>,
     valuesByIndex: {} as Record<keyof A, Record<string, Rx<any>[]>>,
     statesByIndex: {} as Record<keyof A, Record<string, Rx<any>[]>>,
+    configs: {} as Record<keyof A, Rx<any>>,
   };
 
   private _ids: (keyof A)[] = [];
@@ -34,35 +35,16 @@ export class RxBucket<A> {
     this.rx.eventsByNames[id] = Object.create(null);
     this.values[id] = Object.create(null);
     this.states[id] = Object.create(null);
-  }
 
-  public addDescriptor(id: keyof A, descriptor: ComponentDescriptor<any>) {
-    if (this.descriptors[id]) throw new Error(`Descriptor "${String(id)}" already exists`)
+    const cfg = this.descriptors[id]?.config;
 
-    this._ids.push(id as any);
-    this.descriptors[id] = descriptor;
-
-    this.initId(id);
-  }
-
-  public removeDescriptor(id: keyof A) {
-    const index = this._ids.indexOf(id as any);
-
-    if (index === -1) throw new Error(`Descriptor "${String(id)}" not found`);
-    this._ids.splice(index, 1);
-
-    delete this.values[id];
-    delete this.states[id];
-    delete this.descriptors[id];
-    delete this.rx.valuesByIndex[id];
-    delete this.rx.statesByIndex[id];
-    delete this.rx.eventsByNames[id];
+    if (cfg) this.rx.configs[id] = new Rx<any>([], (value) => value, cfg);
   }
 
   public getValue(id: keyof A, index: string = "0") {
     const value = this.values[id];
 
-    if (!value) throw new Error(`Bucket value bucket "${String(id)}" not found`)
+    if (!value) throw new Error(`Bucket value for id:"${String(id)}" not found`)
 
     return value[index];
   }
@@ -70,9 +52,17 @@ export class RxBucket<A> {
   public getState(id: keyof A, index: string = "0") {
     const state = this.states[id];
 
-    if (!state) throw new Error(`Bucket state bucket "${String(id)}" not found`)
+    if (!state) throw new Error(`Bucket state for id:"${String(id)}" not found`)
 
     return state[index];
+  }
+
+  public getConfigRx(id: keyof A) {
+    const config = this.rx.configs[id];
+
+    if (!config) throw new Error(`Bucket config rx for id:"${String(id)}" not found`)
+
+    return this.rx.configs[id];
   }
 
   public setValue(
@@ -105,6 +95,20 @@ export class RxBucket<A> {
 
     (this.states[id] as { [index: string]: any })[index] = value;
     this.execRxs(this.rx.statesByIndex[id][index], value, index+'', byUser);
+  }
+
+  public setConfig(
+    id: keyof A,
+    value: any
+  ) {
+    if (!this.descriptors[id]) {
+      throw new Error(
+        `Cannot set config for unknown id "${id as string}" (descriptor not found)`
+      );
+    }
+
+    this.descriptors[id].config = value;
+    this.rx.configs[id].update(value)
   }
 
   public setValues(
@@ -276,18 +280,6 @@ export class RxBucket<A> {
     return Object.keys(descriptors) as (keyof D)[];
   }
 
-  static ids<D>(descriptors: { [K in keyof D]: ComponentDescriptor<D[K]> }) {
-    const acc: { [K in keyof D]: keyof D } = Object.create(null);
-    const ids = RxBucket.idsArr(descriptors);
-
-    for (let index = 0; index < ids.length; index++) {
-      const id = ids[index];
-      acc[id] = id;
-    }
-
-    return acc;
-  }
-
   static wrapAtIndex<A, I extends string>(
     values: Partial<{ [id in keyof A]: any }>,
     index: I = "0" as I
@@ -299,13 +291,5 @@ export class RxBucket<A> {
     for (let id in values) acc[id] = { [index]: values[id] }
 
     return acc;
-  }
-
-  public ids() {
-    return RxBucket.ids(this.descriptors);
-  }
-
-  public idsArr() {
-    return RxBucket.idsArr(this.descriptors);
   }
 }

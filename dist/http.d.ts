@@ -1,14 +1,5 @@
-import { IHttpClient } from "./interfaces";
-export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD";
-export type QueryParams = Record<string, string | number | boolean | null | undefined>;
-export type HeaderParams = Record<string, string | number | boolean | null | undefined>;
-export interface HttpRequestOptions {
-    query?: QueryParams;
-    headers?: HeaderParams;
-    body?: any;
-    useCache?: boolean;
-    signal?: AbortSignal;
-}
+import type { HttpMethod, HttpRequestOptions, IHttpClient, QueryParams } from "./http-types";
+export type { HttpMethod, HttpRequestOptions, QueryParams, HeaderParams, IHttpClient, } from "./http-types";
 type InterceptorParams = (method: HttpMethod, url: string, options: HttpRequestOptions) => Promise<void>;
 type InterceptorSuccess = (method: HttpMethod, url: string, options: HttpRequestOptions, data: any, response: Response) => Promise<void>;
 type InterceptorError = (method: HttpMethod, url: string, options: HttpRequestOptions, status: number, data: any, response: Response | null) => Promise<void>;
@@ -50,5 +41,4 @@ export declare class HttpClient {
     delete<A = any>(path: string, options?: HttpRequestOptions): Promise<A>;
     factory: (signal: AbortSignal) => IHttpClient;
 }
-export {};
 //# sourceMappingURL=http.d.ts.map

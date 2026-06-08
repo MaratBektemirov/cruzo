@@ -1,6 +1,6 @@
 import { RxBucket } from "./rx-bucket";
 import { AbstractComponentConstructor, ComponentsList } from "./interfaces";
-import { RuleCompleted } from "./router.service";
+import type { RuleCompleted } from "./router-types";
 declare class ComponentsRegistryService {
     private instancesBySelector;
     componentsRoot: ComponentsList;

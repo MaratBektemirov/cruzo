@@ -1,4 +1,4 @@
-import { AbstractComponent } from "../../lib";
+import { AbstractComponent } from "cruzo";
 interface UploadConfigParams {
     accept: string;
 }

@@ -1,4 +1,4 @@
-import { AbstractComponent, componentsRegistryService } from "../../lib";
+import { AbstractComponent, componentsRegistryService } from "cruzo";
 import { UI_KIT } from "../const";
 
 export interface SelectItem {
@@ -22,22 +22,10 @@ export class SelectComponent extends AbstractComponent<SelectConfigParams, Recor
   hasOuterBucket = true;
 
   open$ = this.newRx(false);
-
   items$ = this.newRx<SelectItem[]>(null);
-
   selectedLabel$ = this.newRx("");
 
-  getItems$ = this.newRxFunc(async (val, items) => {
-    if (!val || !items?.length) return;
-
-    const selectedItems = items.filter((item) => val[item.value]).map((item) => item.label);
-
-    if (selectedItems.length) {
-      this.selectedLabel$.update(selectedItems.join(', '));
-    } else if (this.config) {
-      this.selectedLabel$.update(this.config.placeholder);
-    }
-  }, this.value$, this.items$)
+  private itemsLoadToken: symbol = Symbol();
 
   constructor() {
     super();
@@ -46,12 +34,24 @@ export class SelectComponent extends AbstractComponent<SelectConfigParams, Recor
   connectedCallback() {
     super.connectedCallback();
     document.addEventListener("click", this.handleOutsideClick);
-    this.getItems();
-  }
 
-  async getItems() {
-    const items = await this.config.getItems();
-    this.items$.update(items);
+    this.newRxFunc(async (value, cfg) => {
+      const token = Symbol();
+      this.itemsLoadToken = token;
+
+      const items = await cfg.getItems(value, this.open$.actual);
+      if (this.itemsLoadToken !== token) return;
+
+      this.items$.update(items || []);
+
+      const selectedItems = value ? items.filter((item) => value[item.value]).map((item) => item.label) : [];
+
+      if (selectedItems.length) {
+        this.selectedLabel$.update(selectedItems.join(', '));
+      } else {
+        this.selectedLabel$.update(this.config$.actual.placeholder);
+      }
+    }, this.value$, this.config$);
   }
 
   disconnectedCallback() {
@@ -72,29 +72,15 @@ export class SelectComponent extends AbstractComponent<SelectConfigParams, Recor
   toggleItem(item: SelectItem) {
     const curValue = this.value || {};
 
-    const value = this.config.multi 
-      ? Object.assign({}, curValue) 
-      : {[item.value]: curValue[item.value]};
+    const value = this.config.multi
+      ? Object.assign({}, curValue)
+      : { [item.value]: curValue[item.value] };
 
     value[item.value] = !value[item.value];
 
     this.outerBucket.setValue(this.id, value, this.index, true);
 
     if (!this.config.multi) this.open$.update(false);
-  }
-
-  getItemContent() {
-    const checkbox = this.config.multi
-      ? `<label class="${UI_KIT}_checkbox">
-        <input
-          type="checkbox"
-          class="${UI_KIT}_checkbox-input"
-          checked="{{root.value$::rx?.[this.value]}}"
-          />
-      </label>`
-      : "";
-
-    return `${checkbox}<span class="${UI_KIT}_option-label">{{this.label}}</span>`;
   }
 
   getHTML() {
@@ -109,7 +95,14 @@ export class SelectComponent extends AbstractComponent<SelectConfigParams, Recor
               repeat="{{root.items$::rx}}"
               class="${UI_KIT}_option {{root.value$::rx?.[this.value] ? '${UI_KIT}_option-selected' : ''}}"
               onclick="{{root.toggleItem(this)}}">
-              ${this.getItemContent()}
+              <label class="${UI_KIT}_checkbox" attached="{{root.config$::rx.multi}}">
+                <input
+                  type="checkbox"
+                  class="${UI_KIT}_checkbox-input"
+                  checked="{{root.value$::rx?.[this.value]}}"
+                  />
+              </label>
+              <span class="${UI_KIT}_option-label">{{this.label}}</span>
             </div>
           </div>
           <div class="${UI_KIT}_empty" style="{{root.items$::rx && root.items$::rx.length ? 'display:none' : ''}}">Нет вариантов</div>

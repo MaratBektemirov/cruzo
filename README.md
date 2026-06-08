@@ -15,7 +15,7 @@
 `cruzo` is a tiny UI framework with:
 
 - reactive primitives (`newRx`, `newRxFunc`) inside components
-- template engine with `{{ }}` expressions compiled to bytecode VM
+- template engine with `{{ }}` expressions compiled to bytecode VM (not `eval`, not `new Function`. Strict CSP-friendly)
 - shared data bus via `RxBucket`
 - built-in router (`RouteUrlBucket`, `routerService`)
 - built-in HTTP client (`HttpClient`) with interceptors, cache, abort
@@ -30,9 +30,69 @@ If you want full control over DOM and a small runtime footprint, this is your la
 ```bash
 npm i cruzo
 ```
-- Official site and examples: (https://cruzo.org)
+- Official site and examples: [cruzo.org](https://cruzo.org)
 - VSCode extension (syntax): [cruzo-syntax](https://marketplace.visualstudio.com/items?itemName=cruzo.cruzo-syntax)
 - Cruzo starter (Vite) https://github.com/MaratBektemirov/cruzo-starter
+
+---
+
+## // footprint
+
+```
+tree-shakeable ESM · preserveModules · zero runtime deps
+numbers below = your app bundle after vite/rollup/webpack (production, gzip)
+not the sum of every file in node_modules/cruzo/dist
+```
+
+```text
+import profile                      minified    gzip
+─────────────────────────────────────────────────────
+Template only                       31.1 KB     9.7 KB
+Template + AbstractComponent        38.4 KB    11.5 KB
+full core (router, http, rx…)       44.3 KB    13.6 KB
+```
+
+**tier 1 — templates only** (~10 KB gzip). VM + compiler. no component base, no router, no http.
+
+```ts
+import { Template } from "cruzo";
+```
+
+**tier 2 — components** (~12 KB gzip). add `AbstractComponent`, registry, reactive shell.
+
+```ts
+import { Template, AbstractComponent, componentsRegistryService } from "cruzo";
+```
+
+**tier 3 — full core** (~14 KB gzip). everything from root `"cruzo"` when you actually use it.
+
+```ts
+import {
+  Template,
+  AbstractComponent,
+  RxBucket,
+  routerService,
+  RouteUrlBucket,
+  HttpClient,
+} from "cruzo";
+```
+
+**ui-kit is extra.** subpath imports — not in core numbers above.
+
+```ts
+import { InputComponent } from "cruzo/ui-components/input";
+import "cruzo/ui-components/vars.css";
+import "cruzo/ui-components/input.css";
+```
+
+rules of the road:
+
+- import symbols you use — bundler drops the rest (`sideEffects` only on `*.css`)
+- production build + gzip/brotli on the wire
+- lazy routes: `loadResources: () => import("./page.js")` — page code stays out until navigation
+- utils on a separate subpath if you want zero main-package coupling: `import { delay } from "cruzo/utils"`
+
+reproduce locally: `node scripts/measure-tree-shake.mjs` (after `npm run build`).
 
 ---
 
@@ -67,19 +127,22 @@ Place `<counter-component></counter-component>` in HTML and it works.
 
 ```ts
 import { AbstractComponent, RxBucket } from "cruzo";
+import { InputConfig } from "cruzo/ui-components/input";
+import { SelectConfig } from "cruzo/ui-components/select";
 
 class SearchPanelComponent extends AbstractComponent {
   static selector = "search-panel-component";
 
   innerBucket = new RxBucket({
-    searchInput: { config: { placeholder: "find by title..." } },
+    searchInput: { config: InputConfig({ placeholder: "find by title..." }) },
     sortSelect: {
-      config: {
-        options: [
-          { id: "new", value: "Newest" },
-          { id: "old", value: "Oldest" },
+      config: SelectConfig({
+        placeholder: "Sort by...",
+        getItems: async (_value, _isOpen) => [
+          { label: "Newest", value: "new" },
+          { label: "Oldest", value: "old" },
         ],
-      },
+      }),
     },
   });
 
@@ -105,6 +168,15 @@ class SearchPanelComponent extends AbstractComponent {
 
 Use `bucket-id` + `component-id` to route descriptor/config/value into components. Even if UI is nested through layout wrappers, components share state via bucket directly (no prop drilling through every level).
 
+Bucket data is keyed by **descriptor id**:
+
+- **config** — one object per id (from descriptor); UI components expose it as `config$` and update when you call `bucket.setConfig(id, value)`
+- **value** / **state** — per id and `component-index` (for `repeat` and multiple instances on the same id)
+
+Bulk helpers: `setValues`, `setValuesAtIndex`, `setStates`, `setStatesAtIndex`, `setConfig`.
+
+Events: `bucket.emitEvent(id, name, payload)`; subscribe with `newRxEventFromBucket` / `newRxEventFromBucketByIndex` on `AbstractComponent`.
+
 ### Why RxBucket
 
 - avoids prop drilling by passing context through `bucket-id`/`component-id` instead of multi-level props relay
@@ -127,7 +199,7 @@ Supported in templates:
 - loop: `repeat="{{ root.list$::rx }}"`
 - conditional mount: `attached="{{ root.flag$::rx }}"`
 - lexical vars: `let-item="{{ this::rx }}"`
-- raw html: `inner-html="{{ root.html$::rx }}"`
+- raw html: `inner-html="{{ root.html$::rx }}"` — only the **attribute** expression is compiled; `{{ }}` inside the inserted HTML string is **not** (use a child component there if you need events/bindings)
 
 Example:
 
@@ -158,6 +230,7 @@ const routes = new RouteUrlBucket({
     url: "/docs/:slug",
     componentSelectorUnbox: () => "docs-page",
     routeSelectorUnbox: () => "#app",
+    // loadResources: () => import("./pages/docs.page.js"),
   },
   oldDocs: {
     url: "/guide/*rest",
@@ -175,7 +248,8 @@ routes.buildUrl("docs", { slug: "template-vm" }); // /docs/template-vm (history 
 - `pushHistory(href)`
 - `pushHistoryLink(event, href)`
 - `hrefIsActive(href, { startsWith, ignoreSearch })`
-- reactive URL streams: `pathname$` and `search$` (both follow the **routed** path and query — see hash mode below)
+- reactive URL streams: `pathname$`, `search$`, `resourcesLoading$` (true while `loadResources` pending)
+- optional `loadResources: () => import("...")` — lazy chunk before mount; whatever that module imports (ts, css, `define`) loads with it
 
 ### Hash mode (`#/path?query`)
 
@@ -255,7 +329,24 @@ Use **`${UI_KIT}_…`** for element classes and **`${UI_KIT}--…`** for modifie
 
 **Stylesheet index (pick what you use):** `checkbox.css` (multi-select), `margin.css`, `button.css`, `button-group.css`, `input.css`, `select.css`, `spinner.css`, `modal.css`, `upload.css`.
 
-`InputComponent` uses base class **`cruzo-ui-component_input`**, plus optional classes from bucket `state.cls`.
+`InputComponent` reads attributes from **`config$`** (descriptor / `setConfig`). Optional extra classes come from bucket **`state.cls`** (`setState` on the same id).
+
+Other UI components (`select`, `spinner`, `button-group`, `modal`, `upload`) bind template fields to **`root.config$::rx`** so config changes propagate reactively.
+
+`SelectComponent` loads options via **`getItems(value, isOpen)`** in config — called when bucket **value** or **config** changes (static lists can ignore both args). Concurrent responses are dropped with an internal load token.
+
+**Modal** — open with `ModalComponent.attach(componentId, bucketId)`. Body is **`bodyContent`** rendered via `inner-html`, so put a **child component** in that string (not raw `onclick="{{ ... }}"`). List it in `ModalConfig({ dependencies })`. Close from the body with `bucket.emitEvent(id, "closeModal", { data: { isOK: boolean } })`; subscribe via `newRxEventFromBucketByIndex`. Backdrop click also emits `closeModal` with `isOK: false`.
+
+```ts
+ModalConfig({
+  bodyContent: `<my-modal-body-component></my-modal-body-component>`,
+  dependencies: new Set([MyModalBodyComponent.selector]),
+});
+
+close() {
+  bucket.emitEvent("myModal", "closeModal", { data: { isOK: true } });
+}
+```
 
 **Standalone button (`button.css`)** — there is no `<button>` component; apply classes to a normal `<button type="button">`. Combine **one** size modifier with **one** variant (or neither for default look).
 

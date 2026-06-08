@@ -1,40 +1,38 @@
 var d = Object.defineProperty;
-var h = (o, i, t) => i in o ? d(o, i, { enumerable: !0, configurable: !0, writable: !0, value: t }) : o[i] = t;
-var n = (o, i, t) => h(o, typeof i != "symbol" ? i + "" : i, t);
-import { c as p, A as c, T as f } from "../component-DUmooULT.js";
-import { UI_KIT as a } from "./const.js";
-function N(o) {
-  return Object.assign({}, o);
+var c = (e, i, t) => i in e ? d(e, i, { enumerable: !0, configurable: !0, writable: !0, value: t }) : e[i] = t;
+var s = (e, i, t) => c(e, typeof i != "symbol" ? i + "" : i, t);
+import { componentsRegistryService as a, AbstractComponent as h, Template as f } from "cruzo";
+import { UI_KIT as u } from "./const.js";
+function x(e) {
+  return Object.assign({}, e);
 }
-class u extends c {
+class p extends h {
   constructor() {
     super(...arguments);
-    n(this, "hasConfig", !0);
-    n(this, "hasOuterBucket", !0);
-    n(this, "tooltipNode", null);
-    n(this, "hasFocus", !1);
-    n(this, "hasMouseEnter", !1);
-    n(this, "updateTooltipCoords", () => {
+    s(this, "hasConfig", !0);
+    s(this, "hasOuterBucket", !0);
+    s(this, "tooltipNode", null);
+    s(this, "hasFocus", !1);
+    s(this, "hasMouseEnter", !1);
+    s(this, "updateTooltipCoords", () => {
       if (!this.tooltipNode) return;
       const t = this.getInput();
       if (!t) return;
-      const e = t.getBoundingClientRect(), s = 6, l = this.tooltipNode.offsetHeight || 28;
-      this.tooltipNode.style.left = `${e.left}px`, this.tooltipNode.style.top = `${e.top - l - s}px`;
+      const o = t.getBoundingClientRect(), r = 6, n = this.tooltipNode.offsetHeight || 28;
+      this.tooltipNode.style.left = `${o.left}px`, this.tooltipNode.style.top = `${o.top - n - r}px`;
     });
   }
   getHTML() {
     return `<input
-        let-state="{{this.state$::rx}}"
-        attached="{{state}}"
-        name="{{state.name}}"
-        id="{{state.id}}"
-        required="{{state.required}}"
-        inputmode="{{state.inputmode}}"
-        maxlength="{{state.maxlength}}"
-        class="${a}_input {{state.cls}}"
-        autocomplete="{{state.autocomplete}}"
-        type="${this.config.type || "text"}"
-        placeholder="{{state.placeholder}}"
+        class="${u}_input {{root.state$::rx?.cls}}"
+        type="{{root.config$::rx?.type || 'text'}}"
+        name="{{root.config$::rx?.name}}"
+        id="{{root.config$::rx?.id}}"
+        required="{{root.config$::rx?.required}}"
+        placeholder="{{root.config$::rx?.placeholder}}"
+        maxlength="{{root.config$::rx?.maxlength}}"
+        autocomplete="{{root.config$::rx?.autocomplete}}"
+        inputmode="{{root.config$::rx?.inputmode}}"
         oninput="{{root.onEvent()}}"
         onfocus="{{root.onFocus()}}"
         onblur="{{root.onBlur()}}"
@@ -51,12 +49,12 @@ class u extends c {
   }
   recalc() {
     const t = this.hasFocus || this.hasMouseEnter;
-    let e = !1, s = !1, l = !1;
+    let o = !1, r = !1, n = !1;
     if (t) {
-      const r = this.getInput();
-      r && (l = r.scrollWidth > r.offsetWidth, e = !this.tooltipNode && l);
+      const l = this.getInput();
+      l && (n = l.scrollWidth > l.offsetWidth, o = !this.tooltipNode && n);
     }
-    s = this.tooltipNode && !l, e ? (this.tooltipNode = f.stringToNode(`<div class="${a}_input-tooltip"></div>`), document.body.appendChild(this.tooltipNode), window.addEventListener("resize", this.updateTooltipCoords), window.addEventListener("scroll", this.updateTooltipCoords)) : s && (this.tooltipNode.remove(), this.tooltipNode = null, window.removeEventListener("resize", this.updateTooltipCoords), window.removeEventListener("scroll", this.updateTooltipCoords)), this.tooltipNode && (this.updateTooltipText(), this.updateTooltipCoords());
+    r = this.tooltipNode && !n, o ? (this.tooltipNode = f.stringToNode(`<div class="${u}_input-tooltip"></div>`), document.body.appendChild(this.tooltipNode), window.addEventListener("resize", this.updateTooltipCoords), window.addEventListener("scroll", this.updateTooltipCoords)) : r && (this.tooltipNode.remove(), this.tooltipNode = null, window.removeEventListener("resize", this.updateTooltipCoords), window.removeEventListener("scroll", this.updateTooltipCoords)), this.tooltipNode && (this.updateTooltipText(), this.updateTooltipCoords());
   }
   updateTooltipText() {
     if (!this.tooltipNode) return;
@@ -64,9 +62,8 @@ class u extends c {
     this.tooltipNode.textContent = (t == null ? void 0 : t.value) ?? "";
   }
   onEvent() {
-    const t = this.getInput();
-    let e;
-    this.isNumber() ? e = +t.value : e = t.value, this.value !== e && this.outerBucket.setValue(this.id, e, this.index, !0);
+    const t = this.getInput(), o = this.isNumber() ? +t.value : t.value;
+    this.value !== o && this.outerBucket.setValue(this.id, o, this.index, !0);
   }
   onFocus() {
     this.hasFocus = !0, this.recalc();
@@ -84,27 +81,16 @@ class u extends c {
     super.disconnectedCallback(), this.tooltipNode && (this.tooltipNode.remove(), this.tooltipNode = null, window.removeEventListener("resize", this.updateTooltipCoords), window.removeEventListener("scroll", this.updateTooltipCoords));
   }
   connectedCallback() {
-    super.connectedCallback();
-    const t = this.outerBucket.getState(this.id, this.index) || {};
-    this.outerBucket.setState(this.id, {
-      required: t.required || this.config.required || !1,
-      placeholder: t.placeholder || this.config.placeholder || "",
-      cls: t.cls || "",
-      maxlength: t.maxlength || this.config.maxlength || "",
-      autocomplete: t.autocomplete || this.config.autocomplete || "",
-      inputmode: t.inputmode || this.config.inputmode || "",
-      id: t.id || this.config.id || "",
-      name: t.name || this.config.name || ""
-    }, this.index), this.newRxFunc((e) => {
-      const s = this.getInput();
-      !s || e === s.value || (s.value = e ?? "");
+    super.connectedCallback(), this.state == null && this.outerBucket.setState(this.id, { cls: "" }, this.index), this.newRxFunc((t) => {
+      const o = this.getInput();
+      !o || t === o.value || (o.value = t ?? "");
     }, this.value$);
   }
 }
-n(u, "selector", "input-component");
-p.define(u);
+s(p, "selector", "input-component");
+a.define(p);
 export {
-  u as InputComponent,
-  N as InputConfig
+  p as InputComponent,
+  x as InputConfig
 };
 //# sourceMappingURL=input.js.map

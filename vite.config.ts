@@ -24,10 +24,11 @@ export default defineConfig({
     minify: "esbuild",
     reportCompressedSize: true,
     rollupOptions: {
-      external: ["cruzo"],
+      external: (id) => id === "cruzo",
       output: {
+        preserveModules: true,
+        preserveModulesRoot: "lib",
         entryFileNames: "[name].js",
-        assetFileNames: "[name][extname]",
       },
     },
   },

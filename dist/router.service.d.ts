@@ -1,52 +1,24 @@
-import { Rx } from "./rx";
 import { AbstractService } from "./service";
-import { AbstractComponentConstructor, IHttpClient } from "./interfaces";
+import type { HttpFactory } from "./http-types";
+export type { RuleCompleted } from "./router-types";
 interface RuleParams {
     onLoadRoute?: () => any;
     onUnloadRoute?: () => any;
+    loadResources?: () => Promise<unknown>;
     httpFactory?: {
-        [key: string]: (signal: AbortSignal) => IHttpClient;
+        [key: string]: HttpFactory;
     };
     url: string;
     redirectTo?: string;
     routeSelectorUnbox?: () => string;
     componentSelectorUnbox?: () => string;
 }
-export interface RuleCompleted {
-    onLoadRoute?: () => any;
-    onUnloadRoute?: () => any;
-    httpFactory?: {
-        [key: string]: (signal: AbortSignal) => IHttpClient;
-    };
-    url: RouteUrl;
-    redirectTo?: string;
-    componentSelector?: string;
-    routeSelector?: string;
-    params$?: Rx<any>;
-    components?: InstanceType<AbstractComponentConstructor>[];
-}
-declare class RouteUrl<A extends Record<string, any> = {}> {
-    templateUrl: string;
-    matcher: RouteMatcher;
-    private re;
-    constructor(templateUrl: string);
-    private getReplacer;
-    build(params?: A, query?: URLSearchParams): string;
-}
-declare class RouteMatcher {
-    static reEscape: RegExp;
-    static reParam: RegExp;
-    private names;
-    private re;
-    constructor(route: string);
-    private replacer;
-    parse(url: string): any;
-}
 declare class RouterService extends AbstractService {
     private rules;
     private completedComponentRules;
-    pathname$: Rx<string, [v: string]>;
-    search$: Rx<string, [v: string]>;
+    pathname$: import("./rx").Rx<string, [v: string]>;
+    search$: import("./rx").Rx<string, [v: string]>;
+    resourcesLoading$: import("./rx").Rx<boolean, [v: boolean]>;
     private hashMode;
     private normalizePathname;
     private parseHashRoute;
@@ -80,7 +52,5 @@ export declare class RouteUrlBucket<A> {
     });
     buildUrl(k: keyof A, params?: Record<number | string, number | string>, query?: URLSearchParams): string;
     private getRouterOutletUnbox;
-    destroy(): void;
 }
-export {};
 //# sourceMappingURL=router.service.d.ts.map

@@ -14,12 +14,12 @@ export declare class RxBucket<A> {
         [K in keyof A]: ComponentDescriptor<A[K]>;
     });
     private initId;
-    addDescriptor(id: keyof A, descriptor: ComponentDescriptor<any>): void;
-    removeDescriptor(id: keyof A): void;
     getValue(id: keyof A, index?: string): any;
     getState(id: keyof A, index?: string): any;
+    getConfigRx(id: keyof A): Record<keyof A, Rx<any, any[]>>[keyof A];
     setValue(id: keyof A, value: any, index?: string, byUser?: boolean): void;
     setState(id: keyof A, value: any, index?: string, byUser?: boolean): void;
+    setConfig(id: keyof A, value: any): void;
     setValues(values: Partial<Record<keyof A, {
         [index: string]: any;
     }>>, byUser?: boolean): void;
@@ -42,15 +42,10 @@ export declare class RxBucket<A> {
     static idsArr<D>(descriptors: {
         [K in keyof D]: ComponentDescriptor<D[K]>;
     }): (keyof D)[];
-    static ids<D>(descriptors: {
-        [K in keyof D]: ComponentDescriptor<D[K]>;
-    }): { [K in keyof D]: keyof D; };
     static wrapAtIndex<A, I extends string>(values: Partial<{
         [id in keyof A]: any;
     }>, index?: I): Partial<{
         [id in keyof A]: Record<I, any>;
     }>;
-    ids(): { [K in keyof A]: keyof A; };
-    idsArr(): (keyof A)[];
 }
 //# sourceMappingURL=rx-bucket.d.ts.map

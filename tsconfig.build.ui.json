@@ -5,7 +5,11 @@
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
-    "outDir": "dist"
+    "outDir": "dist/ui-components",
+    "rootDir": "ui-components",
+    "paths": {
+      "cruzo": ["./dist/index.d.ts"]
+    }
   },
   "include": ["ui-components/**/*.ts"],
   "exclude": ["dist", "node_modules"]

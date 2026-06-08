@@ -1,17 +1,18 @@
-import { IHttpClient } from "./interfaces";
+import type {
+  HeaderParams,
+  HttpMethod,
+  HttpRequestOptions,
+  IHttpClient,
+  QueryParams,
+} from "./http-types";
 
-export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "HEAD";
-
-export type QueryParams = Record<string, string | number | boolean | null | undefined>;
-export type HeaderParams = Record<string, string | number | boolean | null | undefined>;
-
-export interface HttpRequestOptions {
-  query?: QueryParams;
-  headers?: HeaderParams;
-  body?: any;
-  useCache?: boolean;
-  signal?: AbortSignal;
-}
+export type {
+  HttpMethod,
+  HttpRequestOptions,
+  QueryParams,
+  HeaderParams,
+  IHttpClient,
+} from "./http-types";
 
 type InterceptorParams = (
   method: HttpMethod,

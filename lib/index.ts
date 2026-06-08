@@ -16,7 +16,11 @@ export type {
   ComponentDescriptor,
   ComponentConnectedParams,
   BucketEvent,
+  ComponentsList,
 } from "./interfaces";
+
+export type { RuleCompleted } from "./router-types";
+export type { IHttpClient, HttpFactory, HttpMethod } from "./http-types";
 
 export { Rx, RxFunc } from './rx';
 

@@ -1,5 +1,5 @@
-import { ComponentsList } from "../../lib/interfaces";
-import { AbstractComponent, componentsRegistryService, Template } from "../../lib";
+import type { ComponentsList } from "cruzo";
+import { AbstractComponent, componentsRegistryService, Template } from "cruzo";
 import { UI_KIT } from "../const";
 
 declare global {
@@ -30,7 +30,7 @@ export class ModalComponent extends AbstractComponent<ModalConfigParams> {
 
   getHTML() {
     return `<div class="${UI_KIT}_modal-backdrop" onpointerdown="{{this.closeModal(false, event)}}">
-        <div class="${UI_KIT}_modal">${this.config.bodyContent}</div>
+        <div class="${UI_KIT}_modal" inner-html="{{root.config$::rx.bodyContent}}"></div>
       </div>`;
   }
 

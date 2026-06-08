@@ -1,12 +1,16 @@
-import { Rx } from "./rx";
 import { AbstractService } from "./service";
 import { componentsRegistryService } from "./components-registry.service";
-import { AbstractComponentConstructor, IHttpClient } from "./interfaces";
+import type { HttpFactory } from "./http-types";
+import { RouteUrl } from "./route-url";
+import type { RuleCompleted } from "./router-types";
+
+export type { RuleCompleted } from "./router-types";
 
 interface Rule {
   onLoadRoute?: () => any;
   onUnloadRoute?: () => any;
-  httpFactory?: { [key: string]: (signal: AbortSignal) => IHttpClient };
+  loadResources?: () => Promise<unknown>;
+  httpFactory?: { [key: string]: HttpFactory };
 
   url: RouteUrl;
   redirectTo?: string;
@@ -19,101 +23,13 @@ interface Rule {
 interface RuleParams {
   onLoadRoute?: () => any;
   onUnloadRoute?: () => any;
-  httpFactory?: { [key: string]: (signal: AbortSignal) => IHttpClient };
+  loadResources?: () => Promise<unknown>;
+  httpFactory?: { [key: string]: HttpFactory };
 
   url: string;
   redirectTo?: string;
   routeSelectorUnbox?: () => string;
   componentSelectorUnbox?: () => string;
-}
-
-export interface RuleCompleted {
-  onLoadRoute?: () => any;
-  onUnloadRoute?: () => any;
-  httpFactory?: { [key: string]: (signal: AbortSignal) => IHttpClient };
-
-  url: RouteUrl;
-  redirectTo?: string;
-
-  componentSelector?: string;
-  routeSelector?: string;
-  params$?: Rx<any>;
-  components?: InstanceType<AbstractComponentConstructor>[];
-}
-
-class RouteUrl<A extends Record<string, any> = {}> {
-  matcher: RouteMatcher;
-  private re = /([:*])(\w+)/g;
-
-  constructor(public templateUrl: string) {
-    this.matcher = new RouteMatcher(templateUrl);
-  }
-
-  private getReplacer(params: A) {
-    return (mode: string, name: string) => {
-      if (!(name in params)) {
-        throw new Error(
-          `Missing route param "${name}" for template "${this.templateUrl}"`,
-        );
-      }
-
-      const raw = params[name];
-
-      if (mode === "*") {
-        return String(raw)
-          .split("/")
-          .map((v) => encodeURIComponent(String(v)))
-          .join("/");
-      }
-
-      return encodeURIComponent(String(raw));
-    };
-  }
-
-  public build(params: A = {} as A, query?: URLSearchParams) {
-    const replacer = this.getReplacer(params);
-    const path = this.templateUrl.replace(this.re, (_, mode, name) =>
-      replacer(mode, name),
-    );
-
-    const q = query?.toString();
-    const qstr = q ? `?${q}` : "";
-
-    return path + qstr;
-  }
-}
-
-class RouteMatcher {
-  static reEscape = /[\-\[\]{}()+?.,\\\^$|#\s]/g;
-  static reParam = /([:*])(\w+)/g;
-
-  private names: string[] = [];
-  private re: RegExp;
-
-  constructor(route: string) {
-    let reSrc = route.replace(RouteMatcher.reEscape, "\\$&");
-    reSrc = reSrc.replace(RouteMatcher.reParam, this.replacer.bind(this));
-
-    this.re = new RegExp("^" + reSrc + "$");
-  }
-
-  private replacer(_: string, mode: string, name: string) {
-    this.names.push(name);
-    return mode === ":" ? "([^/]*)" : "(.*)";
-  }
-
-  public parse(url: string) {
-    const m = url.match(this.re);
-    if (!m) return null;
-
-    const params: any = {};
-    for (let i = 0; i < this.names.length; i++) {
-      const v = m[i + 1];
-      const n = +v;
-      params[this.names[i]] = isNaN(n) ? v : n;
-    }
-    return params;
-  }
 }
 
 const routerRules = new Set<Rule>();
@@ -124,6 +40,7 @@ class RouterService extends AbstractService {
 
   public pathname$ = this.newRx('');
   public search$ = this.newRx('');
+  public resourcesLoading$ = this.newRx(false);
 
   private hashMode = false;
 
@@ -288,8 +205,7 @@ class RouterService extends AbstractService {
         return;
       }
 
-      this.applyComponentRulesForUrl(componentRules);
-      this.pathname$.update(pathname);
+      this.applyComponentRulesForUrl(componentRules, pathname);
     }
 
     if (this.search$.actual !== search) this.search$.update(search)
@@ -385,7 +301,7 @@ class RouterService extends AbstractService {
     return false;
   }
 
-  private applyComponentRulesForUrl(componentRules: Rule[]) {
+  private applyComponentRulesForUrl(componentRules: Rule[], pathname: string) {
     const prev = this.completedComponentRules;
     const next = this.getCompletedComponentRules(prev, componentRules);
 
@@ -395,34 +311,69 @@ class RouterService extends AbstractService {
     for (const rule of prev) {
       if (nextUrls.has(rule.url)) continue;
 
-      if (typeof rule.onUnloadRoute === "function") rule.onUnloadRoute();
+      rule.onUnloadRoute?.();
       componentsRegistryService.removeComponents(rule.components, true);
     }
 
-    for (const rule of next) {
-      if (prevUrls.has(rule.url)) continue
+    const rulesToMount = next.filter((rule) => !prevUrls.has(rule.url));
+    const stale = () => this.getRoutedPathname(new URL(window.location.href)) !== pathname;
 
-      const routeNode = document.querySelector(rule.routeSelector);
+    const commit = () => {
+      if (stale()) return;
 
-      if (!routeNode) {
-        throw new Error(
-          `Node for ${rule.routeSelector} for ${rule.componentSelector} not found`,
-        );
-      }
+      this.completedComponentRules = next;
+      this.pathname$.update(pathname);
+    };
 
-      routeNode.innerHTML = `<${rule.componentSelector}></${rule.componentSelector}>`;
-
-      componentsRegistryService.connectBySelector(
-        rule.componentSelector,
-        rule.components,
-        routeNode,
-        rule,
-      );
-
-      if (typeof rule.onLoadRoute === "function") rule.onLoadRoute();
+    if (!rulesToMount.length) {
+      commit();
+      return;
     }
 
-    this.completedComponentRules = next;
+    const hasLoad = rulesToMount.some((rule) => {
+      const source = componentRules.find((r) => r.url === rule.url);
+      return typeof source?.loadResources === "function";
+    });
+
+    if (hasLoad) this.resourcesLoading$.update(true);
+
+    let step = Promise.resolve();
+
+    for (const rule of rulesToMount) {
+      const source = componentRules.find((r) => r.url === rule.url);
+
+      step = step
+        .then(() => source?.loadResources?.())
+        .then(() => {
+          if (stale()) return;
+
+          const routeNode = document.querySelector(rule.routeSelector);
+
+          if (!routeNode) {
+            throw new Error(
+              `Node for ${rule.routeSelector} for ${rule.componentSelector} not found`,
+            );
+          }
+
+          routeNode.innerHTML = `<${rule.componentSelector}></${rule.componentSelector}>`;
+
+          componentsRegistryService.connectBySelector(
+            rule.componentSelector,
+            rule.components,
+            routeNode,
+            rule,
+          );
+
+          rule.onLoadRoute?.();
+        });
+    }
+
+    step
+      .then(commit)
+      .catch(() => {})
+      .finally(() => {
+        if (hasLoad) this.resourcesLoading$.update(false);
+      });
   }
 
   constructor() {
@@ -477,12 +428,4 @@ export class RouteUrlBucket<A> {
     const routerOutlet = this.routerLayoutIdx++;
     return () => `.router-outlet-${routerOutlet}`
   };
-
-  destroy() {
-    const keys = Object.keys(this.rules);
-
-    for (const key of keys) {
-      routerRules.delete(this.rules[key as keyof A]);
-    }
-  }
 }

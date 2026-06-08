@@ -1,4 +1,5 @@
-import { BucketEvent, ComponentConnectedParams, ComponentsList, IHttpClient } from "./interfaces";
+import { BucketEvent, ComponentConnectedParams, ComponentsList } from "./interfaces";
+import type { IHttpClient } from "./http-types";
 import { Template } from "./template";
 import { Rx, RxFunc } from "./rx";
 import { RxBucket } from "./rx-bucket";
@@ -10,7 +11,6 @@ export declare abstract class AbstractComponent<Config = any, ValueType = any, S
     http: {
         [key: string]: IHttpClient;
     };
-    config: Config;
     outerBucket: RxBucket<any>;
     innerBucket: RxBucket<any>;
     destroyed: boolean;
@@ -26,23 +26,23 @@ export declare abstract class AbstractComponent<Config = any, ValueType = any, S
     value: ValueType;
     state$: Rx<StateType, [v: StateType]>;
     state: StateType;
+    config: Config;
+    config$: Rx<Config, [v: Config]>;
     protected __tplFile: string;
     constructor();
     disconnectedCallback(removeFromDom?: boolean): void;
     getBucket(): RxBucket<any>;
     connectedCallback(params?: ComponentConnectedParams): void;
-    setBucketId(id: string): void;
     getBucketId(): string;
-    setId(id: string): void;
     getId(): string;
     getIndex(): string;
-    private syncId;
-    private setIndex;
     private onUpdateValue;
     private onUpdateState;
+    private onUpdateConfig;
     protected getHTML(): string;
     protected setValue(byUser?: boolean): void;
     protected setState(byUser?: boolean): void;
+    protected setConfig(): void;
     protected updateDependencies(): void;
     connectDependency(selector: string): AbstractComponent<any, any, any>[];
     addDependencies(dependencies: string[]): void;

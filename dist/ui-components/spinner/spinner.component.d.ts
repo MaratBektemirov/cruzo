@@ -1,4 +1,4 @@
-import { AbstractComponent } from "../../lib";
+import { AbstractComponent } from "cruzo";
 export declare enum SpinnerValue {
     "inactive" = "inactive",
     "active" = "active"
@@ -16,7 +16,7 @@ export declare class SpinnerComponent extends AbstractComponent<SpinnerConfigPar
     private contentNode;
     private hostPositionWasPatched;
     private hostPrevPosition;
-    getSpinnerStyle(): string;
+    getSpinnerStyle(cfg: SpinnerConfigParams): string;
     getHTML(): string;
     connectedCallback(): void;
     getCls(value: SpinnerValue): string;

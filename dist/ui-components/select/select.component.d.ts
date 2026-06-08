@@ -1,4 +1,4 @@
-import { AbstractComponent } from "../../lib";
+import { AbstractComponent } from "cruzo";
 export interface SelectItem {
     label: string;
     value: any;
@@ -13,18 +13,16 @@ export declare class SelectComponent extends AbstractComponent<SelectConfigParam
     static selector: string;
     hasConfig: boolean;
     hasOuterBucket: boolean;
-    open$: import("../../lib").Rx<boolean, [v: boolean]>;
-    items$: import("../../lib").Rx<SelectItem[], [v: SelectItem[]]>;
-    selectedLabel$: import("../../lib").Rx<string, [v: string]>;
-    getItems$: import("../../lib").RxFunc<Promise<void>>;
+    open$: import("cruzo").Rx<boolean, [v: boolean]>;
+    items$: import("cruzo").Rx<SelectItem[], [v: SelectItem[]]>;
+    selectedLabel$: import("cruzo").Rx<string, [v: string]>;
+    private itemsLoadToken;
     constructor();
     connectedCallback(): void;
-    getItems(): Promise<void>;
     disconnectedCallback(): void;
     private handleOutsideClick;
     toggle(): void;
     toggleItem(item: SelectItem): void;
-    getItemContent(): string;
     getHTML(): string;
 }
 //# sourceMappingURL=select.component.d.ts.map

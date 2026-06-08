@@ -1,5 +1,6 @@
 import { componentsRegistryService } from "./components-registry.service";
-import { BucketEvent, ComponentConnectedParams, ComponentsList, IHttpClient } from "./interfaces";
+import { BucketEvent, ComponentConnectedParams, ComponentsList } from "./interfaces";
+import type { IHttpClient } from "./http-types";
 import { Template } from "./template";
 
 import { Rx, RxFunc } from "./rx";
@@ -12,7 +13,6 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
   public node: HTMLElement = null;
   public http: { [key: string]: IHttpClient } = null;
 
-  public config: Config = null;
   public outerBucket: RxBucket<any> = null;
   public innerBucket: RxBucket<any> = null;
 
@@ -35,9 +35,12 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
   public state$ = this.newRx<StateType>();
   public state: StateType = null;
 
+  public config: Config = null;
+  public config$ = this.newRx<Config>();
+
   protected __tplFile = '';
 
-  constructor() {}
+  constructor() { }
 
   disconnectedCallback(removeFromDom = false) {
     this.destroyed = true;
@@ -47,10 +50,6 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
     if (this.template) this.template.fullDestroy()
 
     if (removeFromDom && this.node && !this.isDirective) this.node.remove()
-
-    if (this.value$) this.value$.unsubscribe()
-
-    if (this.state$) this.state$.unsubscribe()
 
     if (this.connectedDependencies) componentsRegistryService.removeComponents(this.connectedDependencies)
 
@@ -67,7 +66,7 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
     if (bucketId && !bucket) {
       throw new Error(
         `Bucket "${bucketId}" not found for selector "${this.selector
-        }" (component-id="${this.getId()}")`
+        }" (component-id="${this.id}")`
       );
     }
 
@@ -75,11 +74,33 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
   }
 
   public connectedCallback(params: ComponentConnectedParams = null) {
-    this.syncId();
-    this.setIndex();
+    this.id = this.getId();
+    this.index = this.getIndex() || "0";
     this.outerBucket = this.getBucket();
 
-    if (this.outerBucket) {
+    if (this.hasOuterBucket && this.outerBucket) {
+      this.rxList ??= [];
+
+      this.setValue();
+
+      this.outerBucket.newRxValue(
+        this.id,
+        this.onUpdateValue,
+        this.rxList,
+        this.outerBucket.getValue(this.id, this.index),
+        this.index
+      );
+
+      this.setState();
+
+      this.outerBucket.newRxState(
+        this.id,
+        this.onUpdateState,
+        this.rxList,
+        this.outerBucket.getState(this.id, this.index),
+        this.index
+      );
+
       const descriptor = this.outerBucket.descriptors[this.id];
 
       if (this.hasConfig) {
@@ -95,31 +116,8 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
           );
         }
 
-        this.config = descriptor.config;
-      }
-
-      if (this.hasOuterBucket) {
-        this.rxList ??= [];
-
-        this.setValue();
-
-        this.outerBucket.newRxValue(
-          this.id,
-          this.onUpdateValue,
-          this.rxList,
-          this.outerBucket.getValue(this.id, this.index),
-          this.index
-        );
-
-        this.setState();
-
-        this.outerBucket.newRxState(
-          this.id,
-          this.onUpdateState,
-          this.rxList,
-          this.outerBucket.getState(this.id, this.index),
-          this.index
-        );
+        this.setConfig()
+        this.newRxFunc(this.onUpdateConfig, this.outerBucket.getConfigRx(this.id))
       }
     }
 
@@ -139,33 +137,16 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
     }
   }
 
-  setBucketId(id: string) {
-    return this.node.setAttribute("bucket-id", id);
-  }
-
   getBucketId() {
     return this.node.getAttribute("bucket-id");
   }
 
-  public setId(id: string) {
-    this.node.setAttribute("component-id", id);
-    this.syncId();
-  }
-
-  public getId() {
+  getId() {
     return this.node.getAttribute("component-id");
   }
 
-  public getIndex() {
+  getIndex() {
     return this.node.getAttribute("component-index");
-  }
-
-  private syncId() {
-    this.id = this.getId();
-  }
-
-  private setIndex() {
-    this.index = this.getIndex() || "0";
   }
 
   private onUpdateValue = (value: any, index: string, byUser: boolean) => {
@@ -180,6 +161,12 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
     this.setState(byUser);
   };
 
+  private onUpdateConfig = (config: any) => {
+    if (this.config === config) return;
+
+    this.setConfig();
+  };
+
   protected getHTML() {
     return '';
   }
@@ -192,6 +179,11 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
   protected setState(byUser = false) {
     this.state = this.outerBucket.getState(this.id, this.index);
     this.state$.update(this.state);
+  }
+
+  protected setConfig() {
+    this.config = this.outerBucket.descriptors[this.id].config;
+    this.config$.update(this.config);
   }
 
   protected updateDependencies() {

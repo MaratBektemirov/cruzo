@@ -1,4 +1,4 @@
-import { AbstractComponent } from "../../lib";
+import { AbstractComponent } from "cruzo";
 declare global {
     interface BucketEventMap {
         closeModal: {
@@ -16,9 +16,9 @@ export declare class ModalComponent extends AbstractComponent<ModalConfigParams>
     hasOuterBucket: boolean;
     hasConfig: boolean;
     backdropEl: HTMLElement;
-    getCloseRx: () => import("../../lib").Rx<Record<string, import("../../lib").BucketEvent<{
+    getCloseRx: () => import("cruzo").Rx<Record<string, import("cruzo").BucketEvent<{
         isOK: boolean;
-    }>>, [event: import("../../lib").BucketEvent<{
+    }>>, [event: import("cruzo").BucketEvent<{
         isOK: boolean;
     }>, index?: string]>;
     closeEvents$: ReturnType<typeof this.getCloseRx>;

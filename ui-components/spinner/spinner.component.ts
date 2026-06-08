@@ -1,4 +1,4 @@
-import { AbstractComponent, componentsRegistryService, Template } from "../../lib";
+import { AbstractComponent, componentsRegistryService, Template } from "cruzo";
 import { UI_KIT } from "../const";
 
 export enum SpinnerValue {
@@ -29,17 +29,17 @@ export class SpinnerComponent extends AbstractComponent<SpinnerConfigParams, Spi
   private hostPositionWasPatched = false;
   private hostPrevPosition = "";
 
-  getSpinnerStyle(): string {
+  getSpinnerStyle(cfg: SpinnerConfigParams): string {
     const parts: string[] = [];
-    if (this.config.color) parts.push(`--spinner-color:${this.config.color}`);
-    if (this.config.size) parts.push(`--spinner-size:${this.config.size}`);
+    if (cfg.color) parts.push(`--spinner-color:${cfg.color}`);
+    if (cfg.size) parts.push(`--spinner-size:${cfg.size}`);
     return parts.join(";");
   }
 
   getHTML() {
     return `<div let-value="{{root.value$::rx}}"
         class="${UI_KIT}_spinner {{root.getCls(value)}}"
-        style="{{root.getSpinnerStyle()}}">
+        style="{{root.getSpinnerStyle(root.config$::rx)}}">
         <div class="${UI_KIT}_spinner-dot ${UI_KIT}_spinner-dot-1"></div>
         <div class="${UI_KIT}_spinner-dot ${UI_KIT}_spinner-dot-2"></div>
         <div class="${UI_KIT}_spinner-dot ${UI_KIT}_spinner-dot-3"></div>

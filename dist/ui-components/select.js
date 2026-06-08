@@ -1,12 +1,12 @@
-var r = Object.defineProperty;
-var u = (n, o, e) => o in n ? r(n, o, { enumerable: !0, configurable: !0, writable: !0, value: e }) : n[o] = e;
-var s = (n, o, e) => u(n, typeof o != "symbol" ? o + "" : o, e);
-import { c as d, A as h } from "../component-DUmooULT.js";
+var u = Object.defineProperty;
+var h = (o, i, e) => i in o ? u(o, i, { enumerable: !0, configurable: !0, writable: !0, value: e }) : o[i] = e;
+var s = (o, i, e) => h(o, typeof i != "symbol" ? i + "" : i, e);
+import { componentsRegistryService as p, AbstractComponent as $ } from "cruzo";
 import { UI_KIT as t } from "./const.js";
-function v(n) {
-  return Object.assign({}, n);
+function b(o) {
+  return Object.assign({}, o);
 }
-class a extends h {
+class d extends $ {
   constructor() {
     super();
     s(this, "hasConfig", !0);
@@ -14,21 +14,21 @@ class a extends h {
     s(this, "open$", this.newRx(!1));
     s(this, "items$", this.newRx(null));
     s(this, "selectedLabel$", this.newRx(""));
-    s(this, "getItems$", this.newRxFunc(async (e, i) => {
-      if (!e || !(i != null && i.length)) return;
-      const l = i.filter((c) => e[c.value]).map((c) => c.label);
-      l.length ? this.selectedLabel$.update(l.join(", ")) : this.config && this.selectedLabel$.update(this.config.placeholder);
-    }, this.value$, this.items$));
+    s(this, "itemsLoadToken", Symbol());
     s(this, "handleOutsideClick", (e) => {
       this.node && !this.node.contains(e.target) && this.open$.update(!1);
     });
   }
   connectedCallback() {
-    super.connectedCallback(), document.addEventListener("click", this.handleOutsideClick), this.getItems();
-  }
-  async getItems() {
-    const e = await this.config.getItems();
-    this.items$.update(e);
+    super.connectedCallback(), document.addEventListener("click", this.handleOutsideClick), this.newRxFunc(async (e, n) => {
+      const l = Symbol();
+      this.itemsLoadToken = l;
+      const c = await n.getItems(e, this.open$.actual);
+      if (this.itemsLoadToken !== l) return;
+      this.items$.update(c || []);
+      const r = e ? c.filter((a) => e[a.value]).map((a) => a.label) : [];
+      r.length ? this.selectedLabel$.update(r.join(", ")) : this.selectedLabel$.update(this.config$.actual.placeholder);
+    }, this.value$, this.config$);
   }
   disconnectedCallback() {
     document.removeEventListener("click", this.handleOutsideClick), super.disconnectedCallback();
@@ -37,17 +37,8 @@ class a extends h {
     this.open$.update(!this.open$.actual);
   }
   toggleItem(e) {
-    const i = this.value || {}, l = this.config.multi ? Object.assign({}, i) : { [e.value]: i[e.value] };
+    const n = this.value || {}, l = this.config.multi ? Object.assign({}, n) : { [e.value]: n[e.value] };
     l[e.value] = !l[e.value], this.outerBucket.setValue(this.id, l, this.index, !0), this.config.multi || this.open$.update(!1);
-  }
-  getItemContent() {
-    return `${this.config.multi ? `<label class="${t}_checkbox">
-        <input
-          type="checkbox"
-          class="${t}_checkbox-input"
-          checked="{{root.value$::rx?.[this.value]}}"
-          />
-      </label>` : ""}<span class="${t}_option-label">{{this.label}}</span>`;
   }
   getHTML() {
     return `<div class="${t}_select">
@@ -61,7 +52,14 @@ class a extends h {
               repeat="{{root.items$::rx}}"
               class="${t}_option {{root.value$::rx?.[this.value] ? '${t}_option-selected' : ''}}"
               onclick="{{root.toggleItem(this)}}">
-              ${this.getItemContent()}
+              <label class="${t}_checkbox" attached="{{root.config$::rx.multi}}">
+                <input
+                  type="checkbox"
+                  class="${t}_checkbox-input"
+                  checked="{{root.value$::rx?.[this.value]}}"
+                  />
+              </label>
+              <span class="${t}_option-label">{{this.label}}</span>
             </div>
           </div>
           <div class="${t}_empty" style="{{root.items$::rx && root.items$::rx.length ? 'display:none' : ''}}">Нет вариантов</div>
@@ -69,10 +67,10 @@ class a extends h {
       </div>`;
   }
 }
-s(a, "selector", "select-component");
-d.define(a);
+s(d, "selector", "select-component");
+p.define(d);
 export {
-  a as SelectComponent,
-  v as SelectConfig
+  d as SelectComponent,
+  b as SelectConfig
 };
 //# sourceMappingURL=select.js.map

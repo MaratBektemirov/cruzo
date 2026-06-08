@@ -1,13 +1,12 @@
-var c = Object.defineProperty;
-var a = (t, n, e) => n in t ? c(t, n, { enumerable: !0, configurable: !0, writable: !0, value: e }) : t[n] = e;
-var i = (t, n, e) => a(t, typeof n != "symbol" ? n + "" : n, e);
-import { c as h, A as d, T as l } from "../component-DUmooULT.js";
-import { r as s } from "../router.service-CWRNycgW.js";
+var r = Object.defineProperty;
+var h = (t, n, e) => n in t ? r(t, n, { enumerable: !0, configurable: !0, writable: !0, value: e }) : t[n] = e;
+var i = (t, n, e) => h(t, typeof n != "symbol" ? n + "" : n, e);
+import { componentsRegistryService as a, AbstractComponent as d, routerService as s, Template as l } from "cruzo";
 const u = /* @__PURE__ */ new Set(["href"]);
-function f(t = {}) {
+function g(t = {}) {
   return { activeCls: "", ...t };
 }
-class r extends d {
+class c extends d {
   constructor() {
     super();
     i(this, "hasOuterBucket", !0);
@@ -39,10 +38,10 @@ class r extends d {
     }, s.pathname$, s.search$);
   }
 }
-i(r, "selector", "[router-link]");
-h.define(r);
+i(c, "selector", "[router-link]");
+a.define(c);
 export {
-  r as RouterLinkComponent,
-  f as RouterLinkConfig
+  c as RouterLinkComponent,
+  g as RouterLinkConfig
 };
 //# sourceMappingURL=router-link.js.map

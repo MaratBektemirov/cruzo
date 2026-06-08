@@ -5,7 +5,7 @@ import {
   ComponentsList,
   ComponentsRegistryState,
 } from "./interfaces";
-import { RuleCompleted } from "./router.service";
+import type { RuleCompleted } from "./router-types";
 
 class ComponentsRegistryService {
   private instancesBySelector: ComponentsRegistryState = {};

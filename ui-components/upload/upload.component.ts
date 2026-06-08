@@ -1,4 +1,4 @@
-import { AbstractComponent, componentsRegistryService } from "../../lib";
+import { AbstractComponent, componentsRegistryService } from "cruzo";
 import { UI_KIT } from "../const";
 
 interface UploadConfigParams {
@@ -27,7 +27,7 @@ export class UploadComponent extends AbstractComponent<UploadConfigParams> {
   }
 
   getHTML() {
-    return `<input class="${UI_KIT}_upload" accept="${this.config.accept}" type="file" onchange="{{this.upload(event)}}"/>`
+    return `<input class="${UI_KIT}_upload" accept="{{root.config$::rx.accept}}" type="file" onchange="{{this.upload(event)}}"/>`
   }
 
   upload = (event: Event) => {

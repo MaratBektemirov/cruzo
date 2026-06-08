@@ -1,4 +1,4 @@
-import { AbstractComponent, componentsRegistryService } from "../../lib";
+import { AbstractComponent, componentsRegistryService } from "cruzo";
 import { UI_KIT } from "../const";
 
 interface ButtonGroupConfigParams {
@@ -17,7 +17,7 @@ export class ButtonGroupComponent extends AbstractComponent<ButtonGroupConfigPar
   getHTML() {
     return `<div class="${UI_KIT}_button-group">
         <button
-          repeat="{{root.config?.items}}"
+          repeat="{{root.config$::rx.items}}"
           class="${UI_KIT}_button-group-item {{this.value === root.value$::rx ? '${UI_KIT}_button-group-item-active' : ''}}"
           onclick="{{root.select(this.value)}}"
           >

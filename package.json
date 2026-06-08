@@ -1,6 +1,6 @@
 {
   "name": "cruzo",
-  "version": "0.9.867",
+  "version": "0.9.869",
   "description": "Zero-dependency reactive framework with an expression VM",
   "license": "MIT",
   "type": "module",
@@ -15,7 +15,7 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/lib/index.d.ts",
+      "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
     "./ui-components/input": {
@@ -61,7 +61,7 @@
     "./ui-components/spinner.css": "./dist/ui-components/spinner.css",
     "./ui-components/upload.css": "./dist/ui-components/upload.css",
     "./utils": {
-      "types": "./dist/lib/utils.d.ts",
+      "types": "./dist/utils.d.ts",
       "default": "./dist/utils.js"
     }
   },

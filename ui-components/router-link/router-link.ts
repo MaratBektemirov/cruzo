@@ -1,4 +1,4 @@
-import { AbstractComponent, componentsRegistryService, routerService, Template } from "../../lib";
+import { AbstractComponent, componentsRegistryService, routerService, Template } from "cruzo";
 
 const listenedAttrs = new Set(['href']);
 

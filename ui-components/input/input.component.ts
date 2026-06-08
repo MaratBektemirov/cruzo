@@ -1,8 +1,8 @@
-import { AbstractComponent, componentsRegistryService, Template } from "../../lib";
+import { AbstractComponent, componentsRegistryService, Template } from "cruzo";
 import { UI_KIT } from "../const";
 
-interface InputConfigParams {
-  type?: 'text' | 'password' | 'email' | 'url' | 'tel' | 'search' | 'number';
+export interface InputConfig {
+  type?: "text" | "password" | "email" | "url" | "tel" | "search" | "number";
   maxlength?: number;
   placeholder?: string;
   required?: boolean;
@@ -12,22 +12,15 @@ interface InputConfigParams {
   id?: string;
 }
 
-export function InputConfig(params: InputConfigParams) {
+export function InputConfig(params: InputConfig) {
   return Object.assign({}, params);
 }
 
-interface InputConfigState {
-  required: boolean;
-  placeholder: string;
-  cls: string;
-  maxlength: number;
-  autocomplete: string;
-  inputmode: string;
-  name: string;
-  id: string;
+export interface InputState {
+  cls?: string;
 }
 
-export class InputComponent extends AbstractComponent<InputConfigParams, any, InputConfigState> {
+export class InputComponent extends AbstractComponent<InputConfig, any, InputState> {
   static selector = "input-component";
   hasConfig = true;
   hasOuterBucket = true;
@@ -38,17 +31,15 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
 
   getHTML() {
     return `<input
-        let-state="{{this.state$::rx}}"
-        attached="{{state}}"
-        name="{{state.name}}"
-        id="{{state.id}}"
-        required="{{state.required}}"
-        inputmode="{{state.inputmode}}"
-        maxlength="{{state.maxlength}}"
-        class="${UI_KIT}_input {{state.cls}}"
-        autocomplete="{{state.autocomplete}}"
-        type="${this.config.type || 'text'}"
-        placeholder="{{state.placeholder}}"
+        class="${UI_KIT}_input {{root.state$::rx?.cls}}"
+        type="{{root.config$::rx?.type || 'text'}}"
+        name="{{root.config$::rx?.name}}"
+        id="{{root.config$::rx?.id}}"
+        required="{{root.config$::rx?.required}}"
+        placeholder="{{root.config$::rx?.placeholder}}"
+        maxlength="{{root.config$::rx?.maxlength}}"
+        autocomplete="{{root.config$::rx?.autocomplete}}"
+        inputmode="{{root.config$::rx?.inputmode}}"
         oninput="{{root.onEvent()}}"
         onfocus="{{root.onFocus()}}"
         onblur="{{root.onBlur()}}"
@@ -58,7 +49,7 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
   }
 
   isNumber() {
-    return this.getInput()?.getAttribute('type') === 'number';
+    return this.getInput()?.getAttribute("type") === "number";
   }
 
   getInput() {
@@ -80,18 +71,18 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
       }
     }
 
-    removeTooltip = (this.tooltipNode && !hasOverflow);
+    removeTooltip = this.tooltipNode && !hasOverflow;
 
     if (addTooltip) {
       this.tooltipNode = Template.stringToNode(`<div class="${UI_KIT}_input-tooltip"></div>`) as HTMLElement;
       document.body.appendChild(this.tooltipNode);
-      window.addEventListener('resize', this.updateTooltipCoords);
-      window.addEventListener('scroll', this.updateTooltipCoords);
+      window.addEventListener("resize", this.updateTooltipCoords);
+      window.addEventListener("scroll", this.updateTooltipCoords);
     } else if (removeTooltip) {
       this.tooltipNode.remove();
       this.tooltipNode = null;
-      window.removeEventListener('resize', this.updateTooltipCoords);
-      window.removeEventListener('scroll', this.updateTooltipCoords);
+      window.removeEventListener("resize", this.updateTooltipCoords);
+      window.removeEventListener("scroll", this.updateTooltipCoords);
     }
 
     if (this.tooltipNode) {
@@ -116,18 +107,12 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
 
     this.tooltipNode.style.left = `${rect.left}px`;
     this.tooltipNode.style.top = `${rect.top - th - gap}px`;
-  }
+  };
 
   onEvent() {
     const input = this.getInput();
 
-    let value;
-
-    if (this.isNumber()) {
-      value = +input.value;
-    } else {
-      value = input.value;
-    }
+    const value = this.isNumber() ? +input.value : input.value;
 
     if (this.value !== value) {
       this.outerBucket.setValue(this.id, value, this.index, true);
@@ -160,32 +145,23 @@ export class InputComponent extends AbstractComponent<InputConfigParams, any, In
     if (this.tooltipNode) {
       this.tooltipNode.remove();
       this.tooltipNode = null;
-      window.removeEventListener('resize', this.updateTooltipCoords);
-      window.removeEventListener('scroll', this.updateTooltipCoords);
+      window.removeEventListener("resize", this.updateTooltipCoords);
+      window.removeEventListener("scroll", this.updateTooltipCoords);
     }
   }
 
   connectedCallback() {
     super.connectedCallback();
 
-    const state: InputConfigState = this.outerBucket.getState(this.id, this.index) || {};
-
-    this.outerBucket.setState(this.id, {
-      required: state.required || this.config.required || false,
-      placeholder: state.placeholder || this.config.placeholder || '',
-      cls: state.cls || '',
-      maxlength: state.maxlength || this.config.maxlength || '',
-      autocomplete: state.autocomplete || this.config.autocomplete || '',
-      inputmode: state.inputmode || this.config.inputmode || '',
-      id: state.id || this.config.id || '',
-      name: state.name || this.config.name || '',
-    }, this.index);
+    if (this.state == null) {
+      this.outerBucket.setState(this.id, { cls: "" }, this.index);
+    }
 
     this.newRxFunc((value) => {
-      const input = this.getInput()
-      if (!input || value === input.value) return
-      input.value = value ?? ''
-    }, this.value$)
+      const input = this.getInput();
+      if (!input || value === input.value) return;
+      input.value = value ?? "";
+    }, this.value$);
   }
 }
 

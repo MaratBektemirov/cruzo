@@ -1,10 +1,10 @@
 var a = Object.defineProperty;
 var c = (e, i, t) => i in e ? a(e, i, { enumerable: !0, configurable: !0, writable: !0, value: t }) : e[i] = t;
 var n = (e, i, t) => c(e, typeof i != "symbol" ? i + "" : i, t);
-import { c as l, A as d, T as h } from "../component-DUmooULT.js";
+import { componentsRegistryService as l, AbstractComponent as d, Template as h } from "cruzo";
 import { UI_KIT as s } from "./const.js";
 var u = /* @__PURE__ */ ((e) => (e.inactive = "inactive", e.active = "active", e))(u || {});
-function m(e) {
+function C(e) {
   return Object.assign({}, e);
 }
 const p = [
@@ -21,14 +21,14 @@ class r extends d {
     n(this, "hostPositionWasPatched", !1);
     n(this, "hostPrevPosition", "");
   }
-  getSpinnerStyle() {
-    const t = [];
-    return this.config.color && t.push(`--spinner-color:${this.config.color}`), this.config.size && t.push(`--spinner-size:${this.config.size}`), t.join(";");
+  getSpinnerStyle(t) {
+    const o = [];
+    return t.color && o.push(`--spinner-color:${t.color}`), t.size && o.push(`--spinner-size:${t.size}`), o.join(";");
   }
   getHTML() {
     return `<div let-value="{{root.value$::rx}}"
         class="${s}_spinner {{root.getCls(value)}}"
-        style="{{root.getSpinnerStyle()}}">
+        style="{{root.getSpinnerStyle(root.config$::rx)}}">
         <div class="${s}_spinner-dot ${s}_spinner-dot-1"></div>
         <div class="${s}_spinner-dot ${s}_spinner-dot-2"></div>
         <div class="${s}_spinner-dot ${s}_spinner-dot-3"></div>
@@ -78,7 +78,7 @@ n(r, "selector", '[is="spinner"]');
 l.define(r);
 export {
   r as SpinnerComponent,
-  m as SpinnerConfig,
+  C as SpinnerConfig,
   u as SpinnerValue
 };
 //# sourceMappingURL=spinner.js.map
