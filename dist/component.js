@@ -53,19 +53,7 @@ class B {
   }
   connectedCallback(t = null) {
     if (this.id = this.getId(), this.index = this.getIndex() || "0", this.outerBucket = this.getBucket(), this.hasOuterBucket && this.outerBucket) {
-      this.rxList ?? (this.rxList = []), this.setValue(), this.outerBucket.newRxValue(
-        this.id,
-        this.onUpdateValue,
-        this.rxList,
-        this.outerBucket.getValue(this.id, this.index),
-        this.index
-      ), this.setState(), this.outerBucket.newRxState(
-        this.id,
-        this.onUpdateState,
-        this.rxList,
-        this.outerBucket.getState(this.id, this.index),
-        this.index
-      );
+      this.rxList ?? (this.rxList = []);
       const e = this.outerBucket.descriptors[this.id];
       if (this.hasConfig) {
         if (!e)
@@ -78,6 +66,19 @@ class B {
           );
         this.setConfig(), this.newRxFunc(this.onUpdateConfig, this.outerBucket.getConfigRx(this.id));
       }
+      this.setValue(), this.outerBucket.newRxValue(
+        this.id,
+        this.onUpdateValue,
+        this.rxList,
+        this.outerBucket.getValue(this.id, this.index),
+        this.index
+      ), this.setState(), this.outerBucket.newRxState(
+        this.id,
+        this.onUpdateState,
+        this.rxList,
+        this.outerBucket.getState(this.id, this.index),
+        this.index
+      );
     }
     if (this.innerBucket && o.connectBucket(this.innerBucket), !this.isDirective && !(t != null && t.disableTemplate) && this.initTemplate(), t != null && t.httpFactory) {
       this.ac = new AbortController();

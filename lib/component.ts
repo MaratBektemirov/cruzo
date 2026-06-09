@@ -81,6 +81,25 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
     if (this.hasOuterBucket && this.outerBucket) {
       this.rxList ??= [];
 
+      const descriptor = this.outerBucket.descriptors[this.id];
+
+      if (this.hasConfig) {
+        if (!descriptor) {
+          throw new Error(
+            `Descriptor not found for selector "${this.selector}" id "${this.id}" in bucket "${this.getBucketId()}"`
+          );
+        }
+
+        if (!descriptor.config) {
+          throw new Error(
+            `Config in descriptor not found for selector "${this.selector}" id "${this.id}" in bucket "${this.getBucketId()}"`
+          );
+        }
+
+        this.setConfig()
+        this.newRxFunc(this.onUpdateConfig, this.outerBucket.getConfigRx(this.id))
+      }
+
       this.setValue();
 
       this.outerBucket.newRxValue(
@@ -100,25 +119,6 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
         this.outerBucket.getState(this.id, this.index),
         this.index
       );
-
-      const descriptor = this.outerBucket.descriptors[this.id];
-
-      if (this.hasConfig) {
-        if (!descriptor) {
-          throw new Error(
-            `Descriptor not found for selector "${this.selector}" id "${this.id}" in bucket "${this.getBucketId()}"`
-          );
-        }
-
-        if (!descriptor.config) {
-          throw new Error(
-            `Config in descriptor not found for selector "${this.selector}" id "${this.id}" in bucket "${this.getBucketId()}"`
-          );
-        }
-
-        this.setConfig()
-        this.newRxFunc(this.onUpdateConfig, this.outerBucket.getConfigRx(this.id))
-      }
     }
 
     if (this.innerBucket) componentsRegistryService.connectBucket(this.innerBucket)
