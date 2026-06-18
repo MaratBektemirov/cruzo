@@ -1,0 +1,65 @@
+.cruzo-ui-component_textarea {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-control);
+  padding: var(--s) var(--m);
+
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-main);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  resize: vertical;
+  min-height: 90px;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.cruzo-ui-component_textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+.cruzo-ui-component_textarea:hover:not(:disabled) {
+  border-color: var(--border-dark);
+}
+
+.cruzo-ui-component_textarea:focus {
+  outline: none;
+  box-shadow: var(--shadow-focus-soft);
+  border-color: var(--border-focus);
+  background: var(--surface);
+}
+
+.cruzo-ui-component_textarea:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  background: var(--surface-2);
+}
+
+.cruzo-ui-component_textarea-tooltip {
+  position: fixed;
+  z-index: 10000;
+  background: var(--tooltip-bg);
+  color: var(--tooltip-fg);
+  padding: var(--xs) var(--s);
+  border-radius: var(--radius-tooltip);
+  font-size: 13px;
+  font-family: var(--font);
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: min(300px, 100vw - var(--m));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: var(--shadow-dropdown);
+}

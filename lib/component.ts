@@ -1,6 +1,6 @@
 import { componentsRegistryService } from "./components-registry.service";
-import { BucketEvent, ComponentConnectedParams, ComponentsList } from "./interfaces";
-import type { IHttpClient } from "./http-types";
+import { BucketEvent, ComponentConnectedParams, ComponentsList } from "./types/interfaces";
+import type { IHttpClient } from "./types/http-types";
 import { Template } from "./template";
 
 import { Rx, RxFunc } from "./rx";
@@ -91,9 +91,11 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
         }
 
         if (!descriptor.config) {
-          throw new Error(
+          console.warn(
             `Config in descriptor not found for selector "${this.selector}" id "${this.id}" in bucket "${this.getBucketId()}"`
           );
+
+          this.outerBucket.setConfig(this.id, {});
         }
 
         this.setConfig()

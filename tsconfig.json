@@ -1,23 +1,6 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "types": ["node"],
-    "strict": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
-    "useDefineForClassFields": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": false,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "strictPropertyInitialization": false,
-    "strictNullChecks": false,
     "noEmit": true,
     "paths": {
       "cruzo": ["./lib/index.ts"]

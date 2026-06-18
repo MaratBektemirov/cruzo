@@ -7,6 +7,14 @@ export { RxBucket } from "./rx-bucket";
 
 export { componentsRegistryService } from "./components-registry.service";
 export { routerService, RouteUrlBucket } from "./router.service";
+export { toastService } from "./toast.service";
+export type {
+  ToastItem,
+  ToastKind,
+  ToastShowParams,
+  ToastAlignX,
+  ToastAlignY,
+} from "./toast.service";
 
 export { HttpClient, HttpError } from "./http";
 export type { HttpRequestOptions, Interceptors } from "./http";
@@ -17,10 +25,10 @@ export type {
   ComponentConnectedParams,
   BucketEvent,
   ComponentsList,
-} from "./interfaces";
+} from "./types/interfaces";
 
-export type { RuleCompleted } from "./router-types";
-export type { IHttpClient, HttpFactory, HttpMethod } from "./http-types";
+export type { RuleCompleted } from "./types/router-types";
+export type { IHttpClient, HttpFactory, HttpMethod } from "./types/http-types";
 
 export { Rx, RxFunc } from './rx';
 

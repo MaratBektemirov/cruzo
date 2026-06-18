@@ -4,7 +4,7 @@ import type {
   HttpRequestOptions,
   IHttpClient,
   QueryParams,
-} from "./http-types";
+} from "./types/http-types";
 
 export type {
   HttpMethod,
@@ -12,7 +12,7 @@ export type {
   QueryParams,
   HeaderParams,
   IHttpClient,
-} from "./http-types";
+} from "./types/http-types";
 
 type InterceptorParams = (
   method: HttpMethod,

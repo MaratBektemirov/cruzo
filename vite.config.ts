@@ -9,6 +9,8 @@ export default defineConfig({
         utils: "./lib/utils.ts",
         "ui-components/const": "./ui-components/const.ts",
         "ui-components/input": "./ui-components/input/input.component.ts",
+        "ui-components/textarea": "./ui-components/textarea/textarea.component.ts",
+        "ui-components/toast": "./ui-components/toast/toast.component.ts",
         "ui-components/button-group": "./ui-components/button-group/button-group.component.ts",
         "ui-components/router-link": "./ui-components/router-link/router-link.ts",
         "ui-components/select": "./ui-components/select/select.component.ts",

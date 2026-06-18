@@ -1,6 +1,6 @@
 {
   "name": "cruzo",
-  "version": "0.9.870",
+  "version": "0.9.888",
   "description": "Zero-dependency reactive framework with an expression VM",
   "license": "MIT",
   "type": "module",
@@ -21,6 +21,14 @@
     "./ui-components/input": {
       "types": "./dist/ui-components/input/input.component.d.ts",
       "default": "./dist/ui-components/input.js"
+    },
+    "./ui-components/textarea": {
+      "types": "./dist/ui-components/textarea/textarea.component.d.ts",
+      "default": "./dist/ui-components/textarea.js"
+    },
+    "./ui-components/toast": {
+      "types": "./dist/ui-components/toast/toast.component.d.ts",
+      "default": "./dist/ui-components/toast.js"
     },
     "./ui-components/button-group": {
       "types": "./dist/ui-components/button-group/button-group.component.d.ts",
@@ -55,6 +63,8 @@
     "./ui-components/button-group.css": "./dist/ui-components/button-group.css",
     "./ui-components/checkbox.css": "./dist/ui-components/checkbox.css",
     "./ui-components/input.css": "./dist/ui-components/input.css",
+    "./ui-components/textarea.css": "./dist/ui-components/textarea.css",
+    "./ui-components/toast.css": "./dist/ui-components/toast.css",
     "./ui-components/margin.css": "./dist/ui-components/margin.css",
     "./ui-components/modal.css": "./dist/ui-components/modal.css",
     "./ui-components/select.css": "./dist/ui-components/select.css",
@@ -69,7 +79,8 @@
     "typecheck": "tsc -p tsconfig.json",
     "build:lib": "vite build",
     "copy:css": "node scripts/copy-ui-css.mjs",
-    "build:types": "tsc -p tsconfig.build.json && tsc -p tsconfig.build.ui.json",
+    "clean:source-dts": "node scripts/clean-source-dts.mjs",
+    "build:types": "npm run clean:source-dts && tsc -p tsconfig.build.json && tsc -p tsconfig.build.ui.json && npm run clean:source-dts",
     "build": "npm run build:lib && npm run copy:css && npm run build:types",
     "prepublishOnly": "npm run build"
   },

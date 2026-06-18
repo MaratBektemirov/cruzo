@@ -10,6 +10,8 @@ const components = [
   "button-group",
   "checkbox",
   "input",
+  "textarea",
+  "toast",
   "modal",
   "select",
   "spinner",

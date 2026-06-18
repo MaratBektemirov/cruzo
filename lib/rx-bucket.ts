@@ -1,4 +1,4 @@
-import { BucketEvent, ComponentDescriptor } from "./interfaces";
+import { BucketEvent, ComponentDescriptor } from "./types/interfaces";
 import { Rx } from "./rx";
 
 export class RxBucket<A> {
@@ -33,6 +33,7 @@ export class RxBucket<A> {
     this.rx.valuesByIndex[id] = {};
     this.rx.statesByIndex[id] = {};
     this.rx.eventsByNames[id] = Object.create(null);
+
     this.values[id] = Object.create(null);
     this.states[id] = Object.create(null);
 
@@ -108,6 +109,7 @@ export class RxBucket<A> {
     }
 
     this.descriptors[id].config = value;
+    this.rx.configs[id] = this.rx.configs[id] || new Rx<any>([], (value) => value, value);
     this.rx.configs[id].update(value)
   }
 

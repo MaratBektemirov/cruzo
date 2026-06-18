@@ -6,3 +6,4 @@ node_modules/
 .env.*
 .tree-shake-out/
 .minify-compare/
+dist

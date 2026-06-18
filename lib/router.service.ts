@@ -1,10 +1,10 @@
 import { AbstractService } from "./service";
 import { componentsRegistryService } from "./components-registry.service";
-import type { HttpFactory } from "./http-types";
+import type { HttpFactory } from "./types/http-types";
 import { RouteUrl } from "./route-url";
-import type { RuleCompleted } from "./router-types";
+import type { RuleCompleted } from "./types/router-types";
 
-export type { RuleCompleted } from "./router-types";
+export type { RuleCompleted } from "./types/router-types";
 
 interface Rule {
   onLoadRoute?: () => any;
