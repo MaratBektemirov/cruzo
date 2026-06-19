@@ -1,6 +1,14 @@
-import { AbstractComponent, componentsRegistryService } from "cruzo";
+import { AbstractComponent, componentsRegistryService, toastService, Rx } from "cruzo";
 import { UI_KIT } from "../const";
-import { toastService, type ToastAlignX, type ToastAlignY, type ToastItem } from "cruzo";
+import type { ToastAlignX, ToastAlignY, ToastItem } from "./types";
+
+export type {
+  ToastItem,
+  ToastKind,
+  ToastShowParams,
+  ToastAlignX,
+  ToastAlignY,
+} from "./types";
 
 const TOAST_TX: Record<ToastAlignX, string> = {
   left: "0%",
@@ -30,7 +38,7 @@ function sameToastAnchor(a: ToastItem, b: ToastItem): boolean {
 export class ToastComponent extends AbstractComponent {
   static selector = "toast-component";
 
-  toasts$ = toastService.toasts$;
+  toasts$: Rx<ToastItem[], [v: ToastItem[]]> = toastService.toasts$;
   tick$ = this.newRx(0);
 
   getHTML() {

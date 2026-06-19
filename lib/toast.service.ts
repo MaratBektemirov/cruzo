@@ -1,35 +1,13 @@
 import { AbstractService } from "./service";
 import { Template } from "./template";
 import { componentsRegistryService } from "./components-registry.service";
-
-export type ToastKind = "info" | "success" | "error";
-
-export type ToastAlignX = "left" | "center" | "right";
-export type ToastAlignY = "top" | "center" | "bottom";
-
-export interface ToastShowParams {
-  title?: string;
-  message: string;
-  kind?: ToastKind;
-  timeoutMs?: number;
-  element?: Element | null;
-  anchor?: { x: number; y: number };
-  alignX?: ToastAlignX;
-  alignY?: ToastAlignY;
-}
-
-export interface ToastItem {
-  id: string;
-  title?: string;
-  message: string;
-  kind: ToastKind;
-  createdAt: number;
-  anchorX?: number;
-  anchorY?: number;
-  alignX?: ToastAlignX;
-  alignY?: ToastAlignY;
-  element?: Element | null;
-}
+import type {
+  ToastAlignX,
+  ToastAlignY,
+  ToastItem,
+  ToastKind,
+  ToastShowParams,
+} from "./types/toast-types";
 
 class ToastService extends AbstractService {
   public toasts$ = this.newRx<ToastItem[]>([]);

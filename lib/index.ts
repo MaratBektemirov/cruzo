@@ -8,13 +8,6 @@ export { RxBucket } from "./rx-bucket";
 export { componentsRegistryService } from "./components-registry.service";
 export { routerService, RouteUrlBucket } from "./router.service";
 export { toastService } from "./toast.service";
-export type {
-  ToastItem,
-  ToastKind,
-  ToastShowParams,
-  ToastAlignX,
-  ToastAlignY,
-} from "./toast.service";
 
 export { HttpClient, HttpError } from "./http";
 export type { HttpRequestOptions, Interceptors } from "./http";

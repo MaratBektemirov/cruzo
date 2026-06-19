@@ -1,6 +1,6 @@
 # C R U Z O
 
-<img src="./assets/cruzo.png" alt="cruzo" width="100" height="100" />
+<img src="https://github.com/MaratBektemirov/cruzo/raw/master/assets/cruzo.png" alt="cruzo" width="100" height="100" />
 
 > zero-dependency reactive framework + expression VM  
 > no vdom. no magic build step. just html + rx + bytecode.
@@ -19,6 +19,7 @@
 - shared data bus via `RxBucket`
 - built-in router (`RouteUrlBucket`, `routerService`)
 - built-in HTTP client (`HttpClient`) with interceptors, cache, abort
+- toast notifications via `toastService` (+ optional `ToastComponent`)
 - optional UI components as separate entrypoints
 
 If you want full control over DOM and a small runtime footprint, this is your lane.
@@ -74,6 +75,7 @@ import {
   routerService,
   RouteUrlBucket,
   HttpClient,
+  toastService,
 } from "cruzo";
 ```
 
@@ -175,7 +177,7 @@ Bucket data is keyed by **descriptor id**:
 
 Bulk helpers: `setValues`, `setValuesAtIndex`, `setStates`, `setStatesAtIndex`, `setConfig`.
 
-Events: `bucket.emitEvent(id, name, payload)`; subscribe with `newRxEventFromBucket` / `newRxEventFromBucketByIndex` on `AbstractComponent`.
+Events: `bucket.emitEvent(id, name, payload)`; subscribe with `newRxEventFromBucket` / `newRxEventFromBucketByIndex` on `AbstractComponent`. State streams: `newRxStateFromBucket`.
 
 ### Why RxBucket
 
@@ -248,6 +250,7 @@ routes.buildUrl("docs", { slug: "template-vm" }); // /docs/template-vm (history 
 - `pushHistory(href)`
 - `pushHistoryLink(event, href)`
 - `hrefIsActive(href, { startsWith, ignoreSearch })`
+- `setHashMode(value)` / `isHashMode()`
 - reactive URL streams: `pathname$`, `search$`, `resourcesLoading$` (true while `loadResources` pending)
 - optional `loadResources: () => import("...")` — lazy chunk before mount; whatever that module imports (ts, css, `define`) loads with it
 
@@ -300,23 +303,59 @@ Features:
 
 ---
 
+## // Toast
+
+```ts
+import { toastService } from "cruzo";
+import { ToastComponent } from "cruzo/ui-components/toast";
+import type { ToastShowParams } from "cruzo/ui-components/toast";
+import "cruzo/ui-components/toast.css";
+
+toastService.show({ message: "Saved", kind: "success" });
+
+toastService.show({
+  title: "Heads up",
+  message: "Check the form",
+  kind: "error",
+  timeoutMs: 5000,
+  element: document.querySelector("#save-btn"),
+  alignX: "center",
+  alignY: "bottom",
+});
+
+toastService.dismiss(id);
+toastService.clear();
+```
+
+`toastService.toasts$` is a reactive list of toasts. Kinds: `"info" | "success" | "error"`. Anchor via `element` (uses bounding rect) or `anchor: { x, y }`; `alignX` / `alignY` control placement relative to the anchor (default viewport center).
+
+---
+
 ## // UI Components (separate imports)
 
 `cruzo` now exposes UI components via dedicated subpaths:
 
 ```ts
 import { InputComponent, InputConfig } from "cruzo/ui-components/input";
+import { TextareaComponent, TextareaConfig } from "cruzo/ui-components/textarea";
 import { ButtonGroupComponent, ButtonGroupConfig } from "cruzo/ui-components/button-group";
 import { SelectComponent, SelectConfig } from "cruzo/ui-components/select";
 import { RouterLinkComponent, RouterLinkConfig } from "cruzo/ui-components/router-link";
 import { SpinnerComponent, SpinnerConfig, SpinnerValue } from "cruzo/ui-components/spinner";
 import { UploadComponent, UploadConfig } from "cruzo/ui-components/upload";
 import { ModalComponent, ModalConfig } from "cruzo/ui-components/modal";
+import { ToastComponent } from "cruzo/ui-components/toast";
+```
+
+Toast types (`ToastItem`, `ToastKind`, `ToastShowParams`, `ToastAlignX`, `ToastAlignY`) are exported from the same subpath:
+
+```ts
+import type { ToastShowParams } from "cruzo/ui-components/toast";
 ```
 
 CSS is per-component. Shared tokens live in **`vars.css`** (`:root`: typography, spacing, surfaces, accents, radii, …). Import **`vars.css` first**, then only the stylesheets you need. Optional **`margin.css`** adds spacing utilities (`.mt_*`, `.mb_*`, …). Override tokens on `:root` or a wrapper after `vars.css` to theme.
 
-**`UI_KIT`** — string prefix for all UI class names (same value as in the CSS files: `cruzo-ui-component`). It is defined in `ui-components/const.ts` and **re-exported from the root package** so your markup can stay aligned with the stylesheets without hardcoding the prefix:
+**`UI_KIT`** — string prefix for all UI class names (same value as in the CSS files: `cruzo-ui-component`). Import from the dedicated subpath so markup stays aligned with the stylesheets without hardcoding the prefix:
 
 ```ts
 import { UI_KIT } from "cruzo/ui-components/const";
@@ -327,11 +366,13 @@ const cls = `${UI_KIT}_button ${UI_KIT}_button-s ${UI_KIT}_button-primary`;
 
 Use **`${UI_KIT}_…`** for element classes and **`${UI_KIT}--…`** for modifiers. The value must match the prefix used in the bundled `.css` files (see `ui-components/const.ts`).
 
-**Stylesheet index (pick what you use):** `checkbox.css` (multi-select), `margin.css`, `button.css`, `button-group.css`, `input.css`, `select.css`, `spinner.css`, `modal.css`, `upload.css`.
+**Stylesheet index (pick what you use):** `checkbox.css` (multi-select), `margin.css`, `button.css`, `button-group.css`, `input.css`, `textarea.css`, `select.css`, `spinner.css`, `modal.css`, `upload.css`, `toast.css`.
 
-`InputComponent` reads attributes from **`config$`** (descriptor / `setConfig`). Optional extra classes come from bucket **`state.cls`** (`setState` on the same id).
+`InputComponent` and `TextareaComponent` read attributes from **`config$`** (descriptor / `setConfig`). Optional extra classes come from bucket **`state.cls`** (`setState` on the same id).
 
 Other UI components (`select`, `spinner`, `button-group`, `modal`, `upload`) bind template fields to **`root.config$::rx`** so config changes propagate reactively.
+
+**Toast** — driven by `toastService` (see above). Import `ToastComponent` once so it registers; the host mounts on first `show()`. Click a toast or its close button to dismiss.
 
 `SelectComponent` loads options via **`getItems(value, isOpen)`** in config — called when bucket **value** or **config** changes (static lists can ignore both args). Concurrent responses are dropped with an internal load token.
 
@@ -365,6 +406,7 @@ close() {
 ```ts
 import "cruzo/ui-components/vars.css";
 import "cruzo/ui-components/input.css";
+import "cruzo/ui-components/textarea.css";
 import "cruzo/ui-components/button.css";
 import "cruzo/ui-components/checkbox.css";
 import "cruzo/ui-components/margin.css";
@@ -373,6 +415,7 @@ import "cruzo/ui-components/select.css";
 import "cruzo/ui-components/spinner.css";
 import "cruzo/ui-components/modal.css";
 import "cruzo/ui-components/upload.css";
+import "cruzo/ui-components/toast.css";
 ```
 
 ---
@@ -390,8 +433,11 @@ import {
   componentsRegistryService,
   routerService,
   RouteUrlBucket,
+  toastService,
   HttpClient,
   HttpError,
+  Rx,
+  RxFunc,
   delay,
   debounce,
   arrayToHash,
@@ -410,13 +456,28 @@ Also exported types:
 import type {
   HttpRequestOptions,
   Interceptors,
+  HttpMethod,
+  IHttpClient,
+  HttpFactory,
   AbstractComponentConstructor,
   ComponentDescriptor,
   ComponentConnectedParams,
   BucketEvent,
-  Rx,
-  RxFunc,
+  ComponentsList,
+  RuleCompleted,
 } from "cruzo";
+```
+
+Toast types (via UI subpath):
+
+```ts
+import type {
+  ToastItem,
+  ToastKind,
+  ToastShowParams,
+  ToastAlignX,
+  ToastAlignY,
+} from "cruzo/ui-components/toast";
 ```
 
 ---
