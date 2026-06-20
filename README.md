@@ -327,6 +327,8 @@ toastService.dismiss(id);
 toastService.clear();
 ```
 
+`ToastComponent` must be imported as a value (not only `toastService`) — production bundlers can drop side-effect-only UI modules because `sideEffects` in this package marks `*.css` only.
+
 `toastService.toasts$` is a reactive list of toasts. Kinds: `"info" | "success" | "error"`. Anchor via `element` (uses bounding rect) or `anchor: { x, y }`; `alignX` / `alignY` control placement relative to the anchor (default viewport center).
 
 ---
