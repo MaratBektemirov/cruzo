@@ -19,7 +19,6 @@
 - shared data bus via `RxBucket`
 - built-in router (`RouteUrlBucket`, `routerService`)
 - built-in HTTP client (`HttpClient`) with interceptors, cache, abort
-- toast notifications via `toastService` (+ optional `ToastComponent`)
 - optional UI components as separate entrypoints
 
 If you want full control over DOM and a small runtime footprint, this is your lane.
