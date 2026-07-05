@@ -1,6 +1,6 @@
 # C R U Z O
 
-<img src="assets/cruzo.png" alt="cruzo" width="100" height="100" />
+<img src="https://raw.githubusercontent.com/MaratBektemirov/cruzo/refs/heads/master/assets/cruzo.png" alt="cruzo" width="100" height="100" />
 
 > Zero-dependency reactive framework + expression VM.  
 > No VDOM. No magic build step. Just HTML + Rx + bytecode.
