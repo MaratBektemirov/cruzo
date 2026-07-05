@@ -1,6 +1,6 @@
 {
   "name": "cruzo",
-  "version": "0.9.889",
+  "version": "1.0.0",
   "description": "Zero-dependency reactive framework with an expression VM",
   "license": "MIT",
   "type": "module",
@@ -11,6 +11,7 @@
     "dist",
     "assets",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "exports": {
@@ -76,6 +77,9 @@
     }
   },
   "scripts": {
+    "test": "vitest run",
+    "test:heap": "vitest run lib/lifecycle.heap.test.ts",
+    "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json",
     "build:lib": "vite build",
     "copy:css": "node scripts/copy-ui-css.mjs",
@@ -88,6 +92,8 @@
     "@types/node": "20.0.0",
     "typed-css-modules": "0.9.0",
     "typescript": "6.0.2",
-    "vite": "6.0.0"
+    "vite": "6.0.0",
+    "vitest": "3.2.4",
+    "happy-dom": "18.0.1"
   }
 }

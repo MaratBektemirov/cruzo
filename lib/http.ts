@@ -6,6 +6,12 @@ import type {
   QueryParams,
 } from "./types/http-types";
 
+const CACHEABLE_HTTP_METHODS = new Set<HttpMethod>(["GET", "HEAD"]);
+
+function isCacheableHttpMethod(method: HttpMethod): boolean {
+  return CACHEABLE_HTTP_METHODS.has(method.toUpperCase() as HttpMethod);
+}
+
 export type {
   HttpMethod,
   HttpRequestOptions,
@@ -109,6 +115,28 @@ export class HttpClient {
     else bodyKey = this.stable(body);
 
     return `${method}:${fullUrl}|${bodyKey}`;
+  }
+
+  private resolveCache(
+    method: HttpMethod,
+    url: string,
+    options: HttpRequestOptions
+  ): { enabled: boolean; key: string } {
+    const upper = method.toUpperCase() as HttpMethod;
+
+    if (!isCacheableHttpMethod(upper)) {
+      return { enabled: false, key: "" };
+    }
+
+    const wanted = Boolean((options.useCache ?? false) || this.cacheTime);
+    if (!wanted) {
+      return { enabled: false, key: "" };
+    }
+
+    return {
+      enabled: true,
+      key: this.getKeyForCache(upper, url, options.body),
+    };
   }
 
   private getBodyForForm(body: Record<string, any>): string {
@@ -220,6 +248,9 @@ export class HttpClient {
   }
 
   async clearCache(method: HttpMethod, path: string, options: HttpRequestOptions = {}) {
+    const upper = method.toUpperCase() as HttpMethod;
+    if (!isCacheableHttpMethod(upper)) return;
+
     const query = options.query ?? {};
     const url = this.rootUrl + path + HttpClient.getQueryString(query);
 
@@ -230,7 +261,7 @@ export class HttpClient {
       await this.interceptors.params(method, url, safeOptions);
     }
 
-    const cacheKey = this.getKeyForCache(method, url, options.body);
+    const cacheKey = this.getKeyForCache(upper, url, options.body);
     delete this.cache[cacheKey];
   }
 
@@ -256,8 +287,7 @@ export class HttpClient {
       throw new HttpError(`Body is not allowed for ${upper}`, 0, url);
     }
 
-    const cacheEnabled = Boolean((options.useCache ?? false) || this.cacheTime);
-    const cacheKey = cacheEnabled ? this.getKeyForCache(upper, url, options.body) : "";
+    const { enabled: cacheEnabled, key: cacheKey } = this.resolveCache(upper, url, options);
 
     if (cacheEnabled && this.cache[cacheKey]) {
       return this.cache[cacheKey] as Promise<A>;

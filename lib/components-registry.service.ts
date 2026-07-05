@@ -113,26 +113,30 @@ class ComponentsRegistryService {
     delete this.buckets[bucket.id];
   }
 
+  clearInstancesForTests(): void {
+    this.instancesBySelector = {};
+  }
+
   private errorsHandled = false;
 
   handleErrors() {
-    if (this.errorsHandled || typeof window === "undefined") return;
+    if (this.errorsHandled) return;
 
     this.errorsHandled = true;
 
     window.addEventListener("error", (e) => {
-      this.hintIfSelectorTdz(e.message, e.error, e.filename, e.lineno);
+      this.handleError(e.message, e.error, e.filename, e.lineno);
     });
 
     window.addEventListener("unhandledrejection", (e) => {
       const reason = e.reason;
       const message = reason instanceof Error ? reason.message : String(reason ?? "");
 
-      this.hintIfSelectorTdz(message, reason);
+      this.handleError(message, reason);
     });
   }
 
-  private async hintIfSelectorTdz(message: string, error: unknown, file?: string, line?: number) {
+  private async handleError(message: string, error: unknown, file?: string, line?: number) {
     if (!/before initialization|Cannot access uninitialized variable/i.test(message)) return;
 
     const stack = error instanceof Error ? error.stack : "";
@@ -159,6 +163,8 @@ class ComponentsRegistryService {
 
 export const componentsRegistryService = new ComponentsRegistryService();
 
-if (typeof window !== "undefined") {
-  componentsRegistryService.handleErrors();
+componentsRegistryService.handleErrors();
+
+export function clearRegistryInstancesForTests() {
+  componentsRegistryService.clearInstancesForTests();
 }

@@ -370,7 +370,9 @@ class RouterService extends AbstractService {
 
     step
       .then(commit)
-      .catch(() => {})
+      .catch((error) => {
+        console.error("[cruzo/router] Failed to mount route:", error);
+      })
       .finally(() => {
         if (hasLoad) this.resourcesLoading$.update(false);
       });
@@ -385,6 +387,10 @@ class RouterService extends AbstractService {
 }
 
 export const routerService = new RouterService();
+
+export function clearRouterRulesForTests(): void {
+  routerRules.clear();
+}
 
 export class RouteUrlBucket<A> {
   private routerLayoutIdx = 0;

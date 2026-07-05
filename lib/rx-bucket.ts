@@ -242,7 +242,7 @@ export class RxBucket<A> {
 
       for (let index in value) {
         this.values[id][index] = value[index];
-        this.execRxs(this.rx.valuesByIndex[id][index], value, index+'', byUser);
+        this.execRxs(this.rx.valuesByIndex[id][index], value[index], index + "", byUser);
       }
     }
   }

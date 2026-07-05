@@ -7,6 +7,7 @@ export interface HttpRequestOptions {
   query?: QueryParams;
   headers?: HeaderParams;
   body?: any;
+  /** Opt-in cache for this request; applies to GET/HEAD only. */
   useCache?: boolean;
   signal?: AbortSignal;
 }

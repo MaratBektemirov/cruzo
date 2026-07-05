@@ -562,6 +562,7 @@ export class Template {
     if (this.innerHTMLValue !== html) {
       this.node.innerHTML = html;
       this.innerHTMLValue = html;
+      this.markDomStructureChanged();
     }
   }
 
@@ -929,6 +930,11 @@ export class Template {
   }
 
   public getRxValue(ctx: CONTEXT_TYPE, rx: Rx<any>, linkIndex: number, allowRxLink: boolean, onceMod: boolean) {
+    if (!(rx instanceof Rx)) {
+      const kind = rx === null || rx === undefined ? String(rx) : typeof rx;
+      throw new Error(`::rx is only for Rx values. Got ${kind}.`);
+    }
+
     if (ctx === CONTEXT_TYPE.EVENT || onceMod) return rx.actual;
     if (allowRxLink) this.linkRxToTemplate(ctx, rx, linkIndex);
 

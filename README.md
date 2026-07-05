@@ -1,103 +1,57 @@
 # C R U Z O
 
-<img src="https://github.com/MaratBektemirov/cruzo/raw/master/assets/cruzo.png" alt="cruzo" width="100" height="100" />
+<img src="assets/cruzo.png" alt="cruzo" width="100" height="100" />
 
-> zero-dependency reactive framework + expression VM  
-> no vdom. no magic build step. just html + rx + bytecode.
+> Zero-dependency reactive framework + expression VM.  
+> No VDOM. No magic build step. Just HTML + Rx + bytecode.
 
 [![npm version](https://img.shields.io/npm/v/cruzo.svg)](https://www.npmjs.com/package/cruzo)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 ---
 
-## // What Is This
+## Contents
 
-`cruzo` is a tiny UI framework with:
-
-- reactive primitives (`newRx`, `newRxFunc`) inside components
-- template engine with `{{ }}` expressions compiled to bytecode VM (not `eval`, not `new Function`. Strict CSP-friendly)
-- shared data bus via `RxBucket`
-- built-in router (`RouteUrlBucket`, `routerService`)
-- built-in HTTP client (`HttpClient`) with interceptors, cache, abort
-- optional UI components as separate entrypoints
-
-If you want full control over DOM and a small runtime footprint, this is your lane.
+| | |
+| --- | --- |
+| **Start here** | [Overview](#overview) · [Install](#install) · [First component](#first-component) |
+| **Core** | [Templates](#templates) · [Components](#components) · [RxBucket](#rxbucket) |
+| **Services** | [Router](#router) · [HTTP](#http) |
+| **UI kit** | [Imports & CSS](#imports--css) · [Components](#ui-components) · [Toast](#toast) |
+| **Reference** | [Bundle size](#bundle-size) · [Public API](#public-api) · [Development](#development) · [Changelog](./CHANGELOG.md) |
 
 ---
 
-## // Install
+## Overview
+
+`cruzo` is a tiny browser UI framework:
+
+| Layer | What you get |
+| --- | --- |
+| **Reactivity** | `newRx`, `newRxFunc` on components and services |
+| **Templates** | `{{ }}` expressions compiled to a bytecode VM (CSP-safe — no `eval`) |
+| **State wiring** | `RxBucket` — shared config/value/state/events without prop drilling |
+| **Routing** | `RouteUrlBucket`, `routerService`, lazy `loadResources` |
+| **HTTP** | `HttpClient` — interceptors, abort, GET/HEAD cache |
+| **UI kit** | Optional subpath imports (`cruzo/ui-components/*`) |
+
+Full control over the DOM and a small runtime footprint — that is the trade-off Cruzo optimizes for.
+
+**Resources:** [cruzo.org](https://cruzo.org) · [VSCode syntax](https://marketplace.visualstudio.com/items?itemName=cruzo.cruzo-syntax) · [Vite starter](https://github.com/MaratBektemirov/cruzo-starter)
+
+---
+
+## Install
 
 ```bash
 npm i cruzo
 ```
-- Official site and examples: [cruzo.org](https://cruzo.org)
-- VSCode extension (syntax): [cruzo-syntax](https://marketplace.visualstudio.com/items?itemName=cruzo.cruzo-syntax)
-- Cruzo starter (Vite) https://github.com/MaratBektemirov/cruzo-starter
+
+Register components, call `initApp()`, place tags in HTML — no framework-specific build step required (works with Vite, Rollup, Webpack).
 
 ---
 
-## // footprint
-
-```
-tree-shakeable ESM · preserveModules · zero runtime deps
-numbers below = your app bundle after vite/rollup/webpack (production, gzip)
-not the sum of every file in node_modules/cruzo/dist
-```
-
-```text
-import profile                      minified    gzip
-─────────────────────────────────────────────────────
-Template only                       31.1 KB     9.7 KB
-Template + AbstractComponent        38.4 KB    11.5 KB
-full core (router, http, rx…)       44.3 KB    13.6 KB
-```
-
-**tier 1 — templates only** (~10 KB gzip). VM + compiler. no component base, no router, no http.
-
-```ts
-import { Template } from "cruzo";
-```
-
-**tier 2 — components** (~12 KB gzip). add `AbstractComponent`, registry, reactive shell.
-
-```ts
-import { Template, AbstractComponent, componentsRegistryService } from "cruzo";
-```
-
-**tier 3 — full core** (~14 KB gzip). everything from root `"cruzo"` when you actually use it.
-
-```ts
-import {
-  Template,
-  AbstractComponent,
-  RxBucket,
-  routerService,
-  RouteUrlBucket,
-  HttpClient,
-  toastService,
-} from "cruzo";
-```
-
-**ui-kit is extra.** subpath imports — not in core numbers above.
-
-```ts
-import { InputComponent } from "cruzo/ui-components/input";
-import "cruzo/ui-components/vars.css";
-import "cruzo/ui-components/input.css";
-```
-
-rules of the road:
-
-- import symbols you use — bundler drops the rest (`sideEffects` only on `*.css`)
-- production build + gzip/brotli on the wire
-- lazy routes: `loadResources: () => import("./page.js")` — page code stays out until navigation
-- utils on a separate subpath if you want zero main-package coupling: `import { delay } from "cruzo/utils"`
-
-reproduce locally: `node scripts/measure-tree-shake.mjs` (after `npm run build`).
-
----
-
-## // Fast Start
+## First component
 
 ```ts
 import { AbstractComponent, componentsRegistryService } from "cruzo";
@@ -120,11 +74,148 @@ componentsRegistryService.define(CounterComponent);
 componentsRegistryService.initApp();
 ```
 
-Place `<counter-component></counter-component>` in HTML and it works.
+```html
+<counter-component></counter-component>
+```
+
+**Typical flow:** `define()` every component class → `initApp()` once → Cruzo connects tags already in the DOM and keeps templates reactive.
 
 ---
 
-## // RxBucket: shared config/state/value/events
+## Core concepts
+
+### Templates
+
+Templates are HTML strings (usually from `getHTML()`). Cruzo scans them for **`{{ … }}`** — every match is one expression.
+
+**The rule:** whatever sits inside the braces is Cruzo syntax — text interpolation, `onclick`, `repeat`, `attached`, `inner-html`, `value`, `let-*`, all the same. Each expression compiles once to bytecode and runs in a small VM (CSP-safe, no `eval`).
+
+Outside `{{ }}` is plain HTML: tags, classes, static attributes. Logic stays in braces and on `root` (your component or `self`). No JSX, no second template language — **`::rx`, `once::`, method calls, operators: all live inside `{{ }}`, nowhere else.**
+
+**Reactive read (`::rx`):** inside an expression, `field$::rx` reads an `Rx` and re-runs the expression when it changes — same operator in text, `repeat`, `attached`, attributes:
+
+```html
+{{ root.count$::rx }}
+repeat="{{ root.items$::rx }}"
+attached="{{ root.open$::rx }}"
+value="{{ root.name$::rx }}"
+```
+
+Plain `{{ root.title }}` (no `::rx`) reads the current value when the template updates; `::rx` wires auto-updates.
+
+| Feature | Syntax |
+| --- | --- |
+| Text | `{{ root.title$::rx }}` |
+| Event | `onclick="{{ root.save() }}"` |
+| Reactive read | `{{ root.field$::rx }}` |
+| One-time | `{{ once::root.version }}` |
+| Loop | `repeat="{{ root.items$::rx }}"` |
+| Loop scope | `let-label="{{ this.label }}"` |
+| Conditional DOM | `attached="{{ root.open$::rx }}"` |
+| Raw HTML | `inner-html="{{ root.html$::rx }}"` |
+
+**Context inside `{{ }}`:** `root` is the component instance (or `self` in standalone `Template`); `this` is the current `repeat` item.
+
+```html
+<ul repeat="{{root.items$::rx}}" let-label="{{this.label}}" let-id="{{this.id}}">
+  <li onclick="{{root.pick(id)}}">{{label}}</li>
+</ul>
+
+<section attached="{{root.open$::rx}}">
+  selected: {{root.selected$::rx ?? "none"}}
+</section>
+```
+
+#### Standalone `Template` (no component base)
+
+Import only `Template` for ~10 KB gzip (see [Bundle size](#bundle-size)):
+
+```ts
+import { Template } from "cruzo";
+
+const node = document.querySelector("#panel") as HTMLElement;
+
+let tpl: Template;
+
+const self = {
+  title: "hello",
+  bump() {
+    this.title += "!";
+    tpl.detectChanges();
+  },
+};
+
+node.innerHTML = `<h2>{{root.title}}</h2><button onclick="{{root.bump()}}">+</button>`;
+
+tpl = new Template({ node, self: () => self });
+tpl.detectChanges();
+```
+
+Call `tpl.fullDestroy()` when removing the node from the DOM. For auto-updates, use `Rx` on `root` and read it with `{{ root.field$::rx }}` (in components — `this.newRx()`).
+
+---
+
+### Components
+
+Custom elements extend `AbstractComponent`. Tag name **must equal** `static selector`.
+
+#### Lifecycle
+
+| Phase | What happens |
+| --- | --- |
+| `define(Cls)` | Registers selector → constructor |
+| `initApp()` | Scans DOM, connects buckets, runs router |
+| `connectedCallback` | Wires bucket, `routeParams$`, route `httpFactory` → `this.http`, builds template |
+| `disconnectedCallback` | Aborts HTTP, destroys template, unsubscribes Rx, clears `routeParams$` |
+
+Guard async work with `this.destroyed` after disconnect.
+
+#### Nested tags (`dependencies`)
+
+Every Cruzo tag in `getHTML()` must appear in `dependencies` so the registry connects child components:
+
+```ts
+import { ChildComponent } from "./child.component";
+
+class ParentComponent extends AbstractComponent {
+  static selector = "parent-component";
+  dependencies = new Set([ChildComponent.selector]);
+
+  getHTML() {
+    return `<child-component></child-component>`;
+  }
+}
+
+componentsRegistryService.define(ParentComponent);
+componentsRegistryService.define(ChildComponent);
+```
+
+Use a **string selector** for Modal `bodyContent`, dynamic `inner-html`, or circular imports: `new Set(["child-component"])`.
+
+#### Reactive `inner-html`
+
+When `inner-html` changes at runtime, Cruzo reconnects only selectors listed in `dependencies`. Other custom element tags stay inert.
+
+```ts
+class PanelComponent extends AbstractComponent {
+  static selector = "panel-component";
+  dependencies = new Set(["detail-component"]);
+
+  body$ = this.newRx("<detail-component></detail-component>");
+
+  getHTML() {
+    return `<div inner-html="{{root.body$::rx}}"></div>`;
+  }
+}
+```
+
+`{{ }}` inside the inserted HTML string is **not** scanned — only the attribute expression runs. Put interactive UI in a child component.
+
+---
+
+### RxBucket
+
+Share config, value, state, and events across nested UI via `bucket-id` + `component-id` — no prop drilling through layout wrappers.
 
 ```ts
 import { AbstractComponent, RxBucket } from "cruzo";
@@ -139,7 +230,7 @@ class SearchPanelComponent extends AbstractComponent {
     sortSelect: {
       config: SelectConfig({
         placeholder: "Sort by...",
-        getItems: async (_value, _isOpen) => [
+        getItems: async () => [
           { label: "Newest", value: "new" },
           { label: "Oldest", value: "old" },
         ],
@@ -153,12 +244,10 @@ class SearchPanelComponent extends AbstractComponent {
   getHTML() {
     return `
       <section>
-        <!-- `toolbar-layout` is just layout wrapper: no props relay needed -->
         <toolbar-layout>
           <input-component component-id="searchInput" bucket-id="${this.innerBucket.id}"></input-component>
           <select-component component-id="sortSelect" bucket-id="${this.innerBucket.id}"></select-component>
         </toolbar-layout>
-
         <pre>query: {{root.query$::rx}}</pre>
         <pre>sort: {{root.sort$::rx}}</pre>
       </section>
@@ -167,59 +256,26 @@ class SearchPanelComponent extends AbstractComponent {
 }
 ```
 
-Use `bucket-id` + `component-id` to route descriptor/config/value into components. Even if UI is nested through layout wrappers, components share state via bucket directly (no prop drilling through every level).
+**Data model** (keyed by descriptor id):
 
-Bucket data is keyed by **descriptor id**:
+| Slot | Scope | API |
+| --- | --- | --- |
+| **config** | One object per id | `bucket.setConfig(id, value)` → child `config$` |
+| **value** / **state** | Per id + `component-index` | `setValues`, `setStates`, `*AtIndex` helpers |
+| **events** | Per id | `bucket.emitEvent(id, name, payload)`; subscribe via `newRxEventFromBucket` |
 
-- **config** — one object per id (from descriptor); UI components expose it as `config$` and update when you call `bucket.setConfig(id, value)`
-- **value** / **state** — per id and `component-index` (for `repeat` and multiple instances on the same id)
-
-Bulk helpers: `setValues`, `setValuesAtIndex`, `setStates`, `setStatesAtIndex`, `setConfig`.
-
-Events: `bucket.emitEvent(id, name, payload)`; subscribe with `newRxEventFromBucket` / `newRxEventFromBucketByIndex` on `AbstractComponent`. State streams: `newRxStateFromBucket`.
-
-### Why RxBucket
-
-- avoids prop drilling by passing context through `bucket-id`/`component-id` instead of multi-level props relay
-- keeps state local to feature boundaries without forcing a single global store
-- works with existing `newRx`/`newRxFunc` primitives, so no extra architecture layer is required
-- lower boilerplate than `redux`/`flux`/`ngrx` (no action constants, reducers, effects setup for simple shared state)
-- predictable reactive updates without VDOM diffing and without store ceremony for component-level flows
-- easy incremental adoption: use `RxBucket` only where cross-component state/config sharing is needed
+Use buckets incrementally — only where cross-component wiring is needed; same `newRx` primitives everywhere else.
 
 ---
 
-## // Template Syntax Cheatsheet
+## Built-in services
 
-Supported in templates:
-
-- text interpolation: `{{ expr }}`
-- events: `onclick="{{ root.doStuff() }}"`
-- reactive read: `rxValue$::rx`
-- one-time evaluation: `once::expr`
-- loop: `repeat="{{ root.list$::rx }}"`
-- conditional mount: `attached="{{ root.flag$::rx }}"`
-- lexical vars: `let-item="{{ this::rx }}"`
-- raw html: `inner-html="{{ root.html$::rx }}"` — only the **attribute** expression is compiled; `{{ }}` inside the inserted HTML string is **not** (use a child component there if you need events/bindings)
-
-Example:
-
-```html
-<div repeat="{{root.items$::rx}}" let-name="{{this::rx.name}}">
-  <button onclick="{{root.select(this::rx.id)}}">{{name}}</button>
-</div>
-
-<section attached="{{root.open$::rx}}">
-  selected: {{root.selected$::rx ?? "none"}}
-</section>
-```
-
----
-
-## // Router
+### Router
 
 ```ts
-import { RouteUrlBucket } from "cruzo";
+import { RouteUrlBucket, routerService, HttpClient } from "cruzo";
+
+const api = new HttpClient("https://api.example.com");
 
 const routes = new RouteUrlBucket({
   home: {
@@ -231,7 +287,10 @@ const routes = new RouteUrlBucket({
     url: "/docs/:slug",
     componentSelectorUnbox: () => "docs-page",
     routeSelectorUnbox: () => "#app",
-    // loadResources: () => import("./pages/docs.page.js"),
+    loadResources: () => import("./pages/docs.page.js"),
+    httpFactory: {
+      api: (signal) => api.factory(signal),
+    },
   },
   oldDocs: {
     url: "/guide/*rest",
@@ -239,42 +298,43 @@ const routes = new RouteUrlBucket({
   },
 });
 
-routes.buildUrl("docs", { slug: "template-vm" }); // /docs/template-vm (history mode)
-// With routerService.setHashMode(true): "#/docs/template-vm"
-// Optional: buildUrl(key, params, query?)
+routes.buildUrl("docs", { slug: "template-vm" }); // → /docs/template-vm
+routerService.pushHistory(routes.buildUrl("docs", { slug: "intro" }));
 ```
 
-`routerService` also provides:
+**`routerService` helpers**
 
-- `pushHistory(href)`
-- `pushHistoryLink(event, href)`
-- `hrefIsActive(href, { startsWith, ignoreSearch })`
-- `setHashMode(value)` / `isHashMode()`
-- reactive URL streams: `pathname$`, `search$`, `resourcesLoading$` (true while `loadResources` pending)
-- optional `loadResources: () => import("...")` — lazy chunk before mount; whatever that module imports (ts, css, `define`) loads with it
+| API | Role |
+| --- | --- |
+| `pathname$`, `search$` | Reactive URL (virtual path in hash mode) |
+| `resourcesLoading$` | `true` while `loadResources` pending |
+| `pushHistory(href)`, `pushHistoryLink(event, href)` | Navigation |
+| `hrefIsActive(href, opts)` | Active link checks |
+| `setHashMode` / `isHashMode` | Hash routing for static hosts |
+| `routeParams$` on page | Route params, e.g. `{{root.routeParams$::rx.slug}}` |
+| `httpFactory` on rule | `this.http.api` on page — aborted on unmount |
+| `loadResources` | Lazy chunk + `define()` before mount |
 
-### Hash mode (`#/path?query`)
+#### Hash mode
 
-For static hosting without server-side fallback to `index.html`, enable hash routing so the real page path stays fixed (for example `/` or `/app.html`) while the SPA path lives in the fragment:
+For static hosting without SPA fallback on the server:
 
 ```ts
-import { routerService } from "cruzo";
-
 routerService.setHashMode(true);
 routerService.update();
 ```
 
-Behavior when hash mode is on:
-
-- **Matching** — route patterns such as `/docs/:slug` are matched against the path parsed from `location.hash`, not `location.pathname`. The expected shape is `#/path/to/page` with an optional query inside the hash: `#/docs/intro?tab=api`.
-- **`pathname$` / `search$`** — reflect that virtual path and query string (the part after `#`), not the browser pathname/search.
-- **`pushHistory`** — you can pass either a normal path (`/docs/intro?tab=api`) or a hash URL (`#/docs/intro?tab=api`); both are normalized to the same `location.hash`.
-- **`routes.buildUrl`** — returns `#/path?query` in the same shape as `pushHistory` expects (no leading document pathname). Optional `URLSearchParams` builds the query string; append a fragment yourself if you need `#section` in history mode.
-- **`redirectTo`** — still written as a path (e.g. `/docs/intro`); it is applied as the corresponding `#/…` entry on the current document URL.
+| Topic | Behavior |
+| --- | --- |
+| Matching | Patterns match path inside `location.hash` (`#/docs/intro?tab=api`) |
+| `pathname$` / `search$` | Virtual path after `#`, not document pathname |
+| `pushHistory` | Accepts `/path` or `#/path` — normalized to same hash |
+| `buildUrl` | Returns `#/path?query` in hash mode |
+| `redirectTo` | Written as path; applied as `#/…` on current document URL |
 
 ---
 
-## // HTTP
+### HTTP
 
 ```ts
 import { HttpClient } from "cruzo";
@@ -293,16 +353,51 @@ const me = await api.get("/me", { useCache: true });
 await api.clearCache("GET", "/me");
 ```
 
-Features:
-
-- auto `content-type` inference
-- JSON/text/form-urlencoded body normalization
-- AbortSignal support (`factory(signal)`)
-- in-memory request cache (`cacheTime` + `useCache`)
+| Feature | Detail |
+| --- | --- |
+| Body / headers | Auto `content-type`; JSON, text, form-urlencoded |
+| Abort | `api.factory(signal)` — used by route `httpFactory` |
+| Cache | In-memory, **GET / HEAD only** (`cacheTime` TTL, per-request `useCache`) |
 
 ---
 
-## // Toast
+## UI kit
+
+Optional components via subpath imports — not included in core bundle numbers.
+
+### Imports & CSS
+
+```ts
+import { InputComponent, InputConfig } from "cruzo/ui-components/input";
+import { SelectComponent, SelectConfig } from "cruzo/ui-components/select";
+import { ModalComponent, ModalConfig } from "cruzo/ui-components/modal";
+import { ToastComponent } from "cruzo/ui-components/toast";
+import { RouterLinkComponent, RouterLinkConfig } from "cruzo/ui-components/router-link";
+import { UI_KIT } from "cruzo/ui-components/const";
+
+import "cruzo/ui-components/vars.css";   // always first — design tokens
+import "cruzo/ui-components/input.css";  // only what you use
+```
+
+**Available subpaths:** `input`, `textarea`, `select`, `spinner`, `button-group`, `modal`, `upload`, `toast`, `router-link`, `const`.  
+**Stylesheets:** `vars.css`, `input.css`, `textarea.css`, `select.css`, `spinner.css`, `button-group.css`, `modal.css`, `upload.css`, `toast.css`, `button.css`, `checkbox.css`, `margin.css`.
+
+Override tokens on `:root` after `vars.css`. Use `${UI_KIT}_…` for classes, `${UI_KIT}--…` for modifiers (prefix = `cruzo-ui-component`).
+
+### UI components
+
+| Component | Notes |
+| --- | --- |
+| **Input / Textarea** | `config$` from bucket descriptor; extra classes via `state.cls` |
+| **Select** | `getItems(value, isOpen)` in config; concurrent loads deduped |
+| **Spinner, Button group, Upload** | Template binds `root.config$::rx` |
+| **Router link** | Active state via `routerService.hrefIsActive` |
+| **Modal** | `ModalComponent.attach(id, bucketId)`; body via `inner-html` + `dependencies` |
+| **Button** | No component — native `<button>` + `button.css` classes |
+
+### Toast
+
+`toastService` lives in the core package; **`ToastComponent`** and CSS come from the UI kit subpath. Import the component as a **value** (bundlers may drop side-effect-only modules).
 
 ```ts
 import { toastService } from "cruzo";
@@ -326,77 +421,21 @@ toastService.dismiss(id);
 toastService.clear();
 ```
 
-`ToastComponent` must be imported as a value (not only `toastService`) — production bundlers can drop side-effect-only UI modules because `sideEffects` in this package marks `*.css` only.
+Kinds: `"info" | "success" | "error"`. Reactive list: `toastService.toasts$`. Anchor via `element` (bounding rect) or `anchor: { x, y }`; `alignX` / `alignY` for placement (default viewport center).
 
-`toastService.toasts$` is a reactive list of toasts. Kinds: `"info" | "success" | "error"`. Anchor via `element` (uses bounding rect) or `anchor: { x, y }`; `alignX` / `alignY` control placement relative to the anchor (default viewport center).
-
----
-
-## // UI Components (separate imports)
-
-`cruzo` now exposes UI components via dedicated subpaths:
-
-```ts
-import { InputComponent, InputConfig } from "cruzo/ui-components/input";
-import { TextareaComponent, TextareaConfig } from "cruzo/ui-components/textarea";
-import { ButtonGroupComponent, ButtonGroupConfig } from "cruzo/ui-components/button-group";
-import { SelectComponent, SelectConfig } from "cruzo/ui-components/select";
-import { RouterLinkComponent, RouterLinkConfig } from "cruzo/ui-components/router-link";
-import { SpinnerComponent, SpinnerConfig, SpinnerValue } from "cruzo/ui-components/spinner";
-import { UploadComponent, UploadConfig } from "cruzo/ui-components/upload";
-import { ModalComponent, ModalConfig } from "cruzo/ui-components/modal";
-import { ToastComponent } from "cruzo/ui-components/toast";
-```
-
-Toast types (`ToastItem`, `ToastKind`, `ToastShowParams`, `ToastAlignX`, `ToastAlignY`) are exported from the same subpath:
-
-```ts
-import type { ToastShowParams } from "cruzo/ui-components/toast";
-```
-
-CSS is per-component. Shared tokens live in **`vars.css`** (`:root`: typography, spacing, surfaces, accents, radii, …). Import **`vars.css` first**, then only the stylesheets you need. Optional **`margin.css`** adds spacing utilities (`.mt_*`, `.mb_*`, …). Override tokens on `:root` or a wrapper after `vars.css` to theme.
-
-**`UI_KIT`** — string prefix for all UI class names (same value as in the CSS files: `cruzo-ui-component`). Import from the dedicated subpath so markup stays aligned with the stylesheets without hardcoding the prefix:
-
-```ts
-import { UI_KIT } from "cruzo/ui-components/const";
-
-const cls = `${UI_KIT}_button ${UI_KIT}_button-s ${UI_KIT}_button-primary`;
-// → "cruzo-ui-component_button cruzo-ui-component_button-s cruzo-ui-component_button-primary"
-```
-
-Use **`${UI_KIT}_…`** for element classes and **`${UI_KIT}--…`** for modifiers. The value must match the prefix used in the bundled `.css` files (see `ui-components/const.ts`).
-
-**Stylesheet index (pick what you use):** `checkbox.css` (multi-select), `margin.css`, `button.css`, `button-group.css`, `input.css`, `textarea.css`, `select.css`, `spinner.css`, `modal.css`, `upload.css`, `toast.css`.
-
-`InputComponent` and `TextareaComponent` read attributes from **`config$`** (descriptor / `setConfig`). Optional extra classes come from bucket **`state.cls`** (`setState` on the same id).
-
-Other UI components (`select`, `spinner`, `button-group`, `modal`, `upload`) bind template fields to **`root.config$::rx`** so config changes propagate reactively.
-
-**Toast** — driven by `toastService` (see above). Import `ToastComponent` once so it registers; the host mounts on first `show()`. Click a toast or its close button to dismiss.
-
-`SelectComponent` loads options via **`getItems(value, isOpen)`** in config — called when bucket **value** or **config** changes (static lists can ignore both args). Concurrent responses are dropped with an internal load token.
-
-**Modal** — open with `ModalComponent.attach(componentId, bucketId)`. Body is **`bodyContent`** rendered via `inner-html`, so put a **child component** in that string (not raw `onclick="{{ ... }}"`). List it in `ModalConfig({ dependencies })`. Close from the body with `bucket.emitEvent(id, "closeModal", { data: { isOK: boolean } })`; subscribe via `newRxEventFromBucketByIndex`. Backdrop click also emits `closeModal` with `isOK: false`.
+**Modal example**
 
 ```ts
 ModalConfig({
   bodyContent: `<my-modal-body-component></my-modal-body-component>`,
-  dependencies: new Set([MyModalBodyComponent.selector]),
+  dependencies: new Set(["my-modal-body-component"]),
 });
 
-close() {
-  bucket.emitEvent("myModal", "closeModal", { data: { isOK: true } });
-}
+// close from body:
+bucket.emitEvent("myModal", "closeModal", { data: { isOK: true } });
 ```
 
-**Standalone button (`button.css`)** — there is no `<button>` component; apply classes to a normal `<button type="button">`. Combine **one** size modifier with **one** variant (or neither for default look).
-
-| Modifier | Class |
-| --- | --- |
-| (default) | `.cruzo-ui-component_button` |
-| Size | `_xxs`, `_xs`, `_s`, `_m`, `_l`, `_xl`, `_xxl` → e.g. `.cruzo-ui-component_button-s` |
-| Variant | `.cruzo-ui-component_button-primary`, `.cruzo-ui-component_button-secondary` |
+**Standalone button**
 
 ```html
 <button type="button" class="cruzo-ui-component_button cruzo-ui-component_button-s cruzo-ui-component_button-primary">
@@ -404,26 +443,46 @@ close() {
 </button>
 ```
 
+---
+
+## Reference
+
+### Bundle size
+
+Tree-shakeable ESM · `preserveModules` · zero runtime deps.  
+Numbers = production gzip in **your app bundle** after Vite/Rollup/Webpack — not the sum of all files in `node_modules/cruzo/dist`.
+
+| Import profile | minified | gzip |
+| --- | --- | --- |
+| `Template` only | 31.1 KB | 9.7 KB |
+| + `AbstractComponent` | 38.4 KB | 11.5 KB |
+| Full core (router, http, …) | 44.3 KB | 13.6 KB |
+| UI kit subpaths | extra | per import |
+
+**Import tiers**
+
 ```ts
-import "cruzo/ui-components/vars.css";
-import "cruzo/ui-components/input.css";
-import "cruzo/ui-components/textarea.css";
-import "cruzo/ui-components/button.css";
-import "cruzo/ui-components/checkbox.css";
-import "cruzo/ui-components/margin.css";
-import "cruzo/ui-components/button-group.css";
-import "cruzo/ui-components/select.css";
-import "cruzo/ui-components/spinner.css";
-import "cruzo/ui-components/modal.css";
-import "cruzo/ui-components/upload.css";
-import "cruzo/ui-components/toast.css";
+// Tier 1 — templates (~10 KB gzip)
+import { Template } from "cruzo";
+
+// Tier 2 — components (~12 KB gzip)
+import { AbstractComponent, componentsRegistryService } from "cruzo";
+
+// Tier 3 — full core (~14 KB gzip)
+import { RxBucket, routerService, RouteUrlBucket, HttpClient, toastService } from "cruzo";
+
+// Utils — decoupled from main entry
+import { delay } from "cruzo/utils";
 ```
+
+**Tips:** import only symbols you use (`sideEffects` covers `*.css` only); lazy routes via `loadResources`; reproduce locally: `node scripts/measure-tree-shake.mjs` after `npm run build`.
 
 ---
 
-## // Public API (current)
+### Public API
 
-Root import:
+<details>
+<summary><strong>Root export</strong> — <code>import { … } from "cruzo"</code></summary>
 
 ```ts
 import {
@@ -445,51 +504,40 @@ import {
 } from "cruzo";
 ```
 
-Also available via dedicated subpath:
+Types: `HttpRequestOptions`, `Interceptors`, `HttpMethod`, `IHttpClient`, `HttpFactory`, `AbstractComponentConstructor`, `ComponentDescriptor`, `ComponentConnectedParams`, `BucketEvent`, `ComponentsList`, `RuleCompleted`.
+
+</details>
+
+<details>
+<summary><strong>Subpaths</strong></summary>
 
 ```ts
 import { delay, debounce, arrayToHash } from "cruzo/utils";
+import { InputComponent, InputConfig } from "cruzo/ui-components/input";
+import type { ToastShowParams } from "cruzo/ui-components/toast";
 ```
 
-Also exported types:
+</details>
 
-```ts
-import type {
-  HttpRequestOptions,
-  Interceptors,
-  HttpMethod,
-  IHttpClient,
-  HttpFactory,
-  AbstractComponentConstructor,
-  ComponentDescriptor,
-  ComponentConnectedParams,
-  BucketEvent,
-  ComponentsList,
-  RuleCompleted,
-} from "cruzo";
-```
+**Design constraints**
 
-Toast types (via UI subpath):
-
-```ts
-import type {
-  ToastItem,
-  ToastKind,
-  ToastShowParams,
-  ToastAlignX,
-  ToastAlignY,
-} from "cruzo/ui-components/toast";
-```
+- No default export · no runtime dependencies · no bundled CSS reset
+- UI components are opt-in by import path
+- Template expressions run in Cruzo VM — not `eval`
 
 ---
 
-## // Notes For Night Shift
+### Development
 
-- no default export
-- no runtime deps
-- no global css reset bundled
-- UI components are opt-in by import path
-- template expressions run in Cruzo VM (not eval)
+```bash
+npm ci
+npm run typecheck   # tsc
+npm test            # vitest
+npm run build       # dist + .d.ts
+```
+
+CI (`.github/workflows/ci.yml`): `typecheck` + `test` on push/PR.  
+Release notes: [CHANGELOG.md](./CHANGELOG.md)
 
 ---
 

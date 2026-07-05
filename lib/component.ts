@@ -12,6 +12,7 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
   public selector = '';
   public node: HTMLElement = null;
   public http: { [key: string]: IHttpClient } = null;
+  public routeParams$: Rx<Record<string, string>> = null;
 
   public outerBucket: RxBucket<any> = null;
   public innerBucket: RxBucket<any> = null;
@@ -47,7 +48,10 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
 
     if (this.ac) this.ac.abort()
 
-    if (this.template) this.template.fullDestroy()
+    if (this.template) {
+      this.template.fullDestroy();
+      this.template = null;
+    }
 
     if (removeFromDom && this.node && !this.isDirective) this.node.remove()
 
@@ -56,6 +60,8 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
     if (this.rxList) while (this.rxList.length) this.rxList.pop().unsubscribe()
 
     if (this.innerBucket) componentsRegistryService.disconnectBucket(this.innerBucket)
+
+    this.routeParams$ = null;
   }
 
   getBucket() {
@@ -77,6 +83,10 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
     this.id = this.getId();
     this.index = this.getIndex() || "0";
     this.outerBucket = this.getBucket();
+
+    if (params?.routeParams$) {
+      this.routeParams$ = params.routeParams$;
+    }
 
     if (this.hasOuterBucket && this.outerBucket) {
       this.rxList ??= [];
