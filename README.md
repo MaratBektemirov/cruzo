@@ -261,7 +261,8 @@ class SearchPanelComponent extends AbstractComponent {
 | Slot | Scope | API |
 | --- | --- | --- |
 | **config** | One object per id | `bucket.setConfig(id, value)` → child `config$` |
-| **value** / **state** | Per id + `component-index` | `setValues`, `setStates`, `*AtIndex` helpers |
+| **value** / **state** | Per id + `component-index` | `setValues`, `setStates`, `*AtIndex` helpers; subscribe with `newRxValueFromBucket` / `newRxStateFromBucket` |
+| **value** / **state** (all indexes) | Per id — full `{ [index]: … }` map | `newRxValueAll` / `newRxStateAll`, or `newRxValueAllFromBucket` / `newRxStateAllFromBucket` |
 | **events** | Per id | `bucket.emitEvent(id, name, payload)`; subscribe via `newRxEventFromBucket` |
 
 Use buckets incrementally — only where cross-component wiring is needed; same `newRx` primitives everywhere else.

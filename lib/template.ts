@@ -51,6 +51,7 @@ interface TemplateParams extends TemplateDebug {
   parent?: Template;
   root?: Template;
   cloneIndex?: number;
+  repeatItemRef?: unknown;
   domStructureChanged?: (...args: any[]) => any;
 }
 
@@ -100,11 +101,15 @@ export class Template {
 
   private pointer: Comment = null;
   private cloneIndex: number = null;
+  private repeatItemRef: unknown = undefined;
   private parentNode: ParentNode = null;
   private attached = true;
   private detecting = false;
 
   private repeatBC: Bytecode = null;
+  private repeatItemsSelfFn: SelfFunction = null;
+  /** null = refresh every clone; otherwise per-index mask after structural patch */
+  private repeatRefreshMask: boolean[] | null = null;
   private attachedBC: Bytecode = null;
   private templateNodeForClone: HTMLElement = null;
   private innerHtmlTemplateBC: Bytecode = null;
@@ -255,13 +260,16 @@ export class Template {
   }
 
   private destroyAllClones() {
-    if (!this.clones) return;
+    if (!this.clones?.length) return;
 
-    while (this.clones.length) {
-      this.destroyLastClone();
-    }
-
+    this.clearRepeatClones();
     this.markDomStructureChanged();
+  }
+
+  private clearRepeatClones() {
+    while (this.clones.length) {
+      this.unmountRepeatClone(this.clones.pop()!);
+    }
   }
 
   private locallyDestroyAllChildren() {
@@ -282,9 +290,7 @@ export class Template {
     }
   }
 
-  private destroyLastClone() {
-    const clone = this.clones.pop();
-
+  private unmountRepeatClone(clone: Template) {
     if (clone.node) clone.node.remove();
     clone.locallyDestroy();
     clone.removePointer();
@@ -374,38 +380,175 @@ export class Template {
     return result;
   }
 
-  private rebuildClones(allowRxLink = false) {
-    const arr = this.execRepeatExpr(allowRxLink);
-    const diff = arr.length - this.clones.length;
+  private reconcileClones(allowRxLink = false) {
+    this.repeatRefreshMask = null;
 
-    if (diff === 0) return;
+    const items = this.execRepeatExpr(allowRxLink);
+    const count = items.length;
 
-    if (diff > 0) {
-      const start = this.clones.length;
+    if (count === 0) {
+      if (this.clones.length) this.destroyAllClones();
+      return;
+    }
 
-      const anchor =
-        start === 0 ? this.getPointer() : this.clones[start - 1].node;
+    if (!this.clones.length) {
+      this.mountRepeatClones(items);
+      return;
+    }
 
-      const frag = document.createDocumentFragment();
+    if (this.repeatStructureMatches(items)) return;
 
-      const cloneSelf = (allowRxLink: boolean) => this.execRepeatExpr(allowRxLink);
+    const pool = this.indexRepeatClonesByItem(this.clones);
 
-      for (let i = 0; i < diff; i++) {
-        const n = this.templateNodeForClone.cloneNode(true) as HTMLElement;
-        frag.appendChild(n);
-        this.addClone(n, cloneSelf, start + i);
+    if (!this.repeatPoolMatchesAnyItem(pool, items)) {
+      this.remountRepeatClones(items);
+      return;
+    }
+
+    const nextClones = new Array<Template>(count);
+    const touch = new Array<boolean>(count);
+    let created = 0;
+
+    for (let i = 0; i < count; i++) {
+      const item = items[i];
+      const reused = this.takeRepeatCloneFromPool(pool, item);
+
+      if (reused) {
+        touch[i] = reused.cloneIndex !== i;
+        reused.cloneIndex = i;
+        nextClones[i] = reused;
+      } else {
+        touch[i] = true;
+        nextClones[i] = this.instantiateRepeatClone(
+          this.templateNodeForClone.cloneNode(true) as HTMLElement,
+          i,
+          item,
+        );
+        created++;
       }
+    }
 
-      this.insertFragmentAfter(anchor, frag);
+    let removed = 0;
 
-      this.markDomStructureChanged();
-    } else {
-      while (this.clones.length > arr.length) {
-        this.destroyLastClone();
+    for (const bucket of pool.values()) {
+      for (let i = 0; i < bucket.length; i++) {
+        this.unmountRepeatClone(bucket[i]);
+        removed++;
       }
+    }
 
+    this.clones = nextClones;
+    this.repeatRefreshMask = touch;
+
+    const reordered = this.syncRepeatCloneDomOrder();
+
+    if (created || removed || reordered) {
       this.markDomStructureChanged();
     }
+  }
+
+  private repeatStructureMatches(items: unknown[]) {
+    if (items.length !== this.clones.length) return false;
+
+    for (let i = 0; i < items.length; i++) {
+      if (this.clones[i].repeatItemRef !== items[i]) return false;
+    }
+
+    return true;
+  }
+
+  private indexRepeatClonesByItem(clones: Template[]) {
+    const pool = new Map<unknown, Template[]>();
+
+    for (let i = 0; i < clones.length; i++) {
+      const item = clones[i].repeatItemRef;
+      let bucket = pool.get(item);
+
+      if (!bucket) {
+        bucket = [];
+        pool.set(item, bucket);
+      }
+
+      bucket.push(clones[i]);
+    }
+
+    return pool;
+  }
+
+  private repeatPoolMatchesAnyItem(pool: Map<unknown, Template[]>, items: unknown[]) {
+    for (let i = 0; i < items.length; i++) {
+      const bucket = pool.get(items[i]);
+      if (bucket?.length) return true;
+    }
+
+    return false;
+  }
+
+  private takeRepeatCloneFromPool(pool: Map<unknown, Template[]>, item: unknown) {
+    const bucket = pool.get(item);
+    if (!bucket?.length) return null;
+
+    return bucket.shift()!;
+  }
+
+  private appendRepeatClones(items: unknown[]) {
+    const clones = new Array<Template>(items.length);
+    const frag = document.createDocumentFragment();
+
+    for (let i = 0; i < items.length; i++) {
+      const node = this.templateNodeForClone.cloneNode(true) as HTMLElement;
+      frag.appendChild(node);
+      clones[i] = this.instantiateRepeatClone(node, i, items[i]);
+    }
+
+    this.clones = clones;
+    this.insertFragmentAfter(this.getPointer(), frag);
+  }
+
+  private mountRepeatClones(items: unknown[]) {
+    this.appendRepeatClones(items);
+    this.markDomStructureChanged();
+  }
+
+  private remountRepeatClones(items: unknown[]) {
+    this.clearRepeatClones();
+    this.appendRepeatClones(items);
+    this.markDomStructureChanged();
+  }
+
+  private instantiateRepeatClone(node: HTMLElement, index: number, item: unknown) {
+    return new Template({
+      parent: this.parent,
+      node,
+      self: this.repeatItemsSelfFn,
+      root: this.root,
+      cloneIndex: index,
+      repeatItemRef: item,
+    });
+  }
+
+  private syncRepeatCloneDomOrder() {
+    let anchor: ChildNode = this.getPointer();
+    let moved = false;
+
+    for (let i = 0; i < this.clones.length; i++) {
+      if (this.insertNodeAfter(anchor, this.clones[i].node)) moved = true;
+      anchor = this.clones[i].node;
+    }
+
+    return moved;
+  }
+
+  private insertNodeAfter(anchor: ChildNode, node: ChildNode) {
+    const next = anchor.nextSibling;
+    if (node === next) return false;
+
+    const parent = anchor.parentNode!;
+
+    if (next) parent.insertBefore(node, next);
+    else parent.appendChild(node);
+
+    return true;
   }
 
   private updateAttributes(allowRxLink: boolean) {
@@ -463,7 +606,18 @@ export class Template {
   }
 
   private updateRepeat(allowRxLink = false) {
-    this.rebuildClones(allowRxLink);
+    this.reconcileClones(allowRxLink);
+
+    const mask = this.repeatRefreshMask;
+    this.repeatRefreshMask = null;
+
+    if (mask) {
+      for (let i = 0; i < this.clones.length; i++) {
+        if (mask[i]) this.clones[i].internalDetectChanges(allowRxLink);
+      }
+      return;
+    }
+
     this.updateAllClones(allowRxLink);
   }
 
@@ -746,19 +900,6 @@ export class Template {
     return out.join('');
   }
 
-  private addClone(node: HTMLElement, self: SelfFunction, cloneIndex: number) {
-    const clone = new Template({
-      parent: this.parent,
-      node,
-      self,
-      root: this.root,
-      cloneIndex,
-    });
-
-    this.clones.push(clone);
-    return clone;
-  }
-
   private addChildren(node: HTMLElement) {
     return new Template({
       node,
@@ -1001,6 +1142,7 @@ export class Template {
       this.setPointer();
 
       this.repeatBC = this.getTemplateBytecode(repeatExpr, true, 'repeat') as Bytecode;
+      this.repeatItemsSelfFn = (allowRxLink) => this.execRepeatExpr(allowRxLink);
 
       this.templateNodeForClone = this.node.cloneNode(true) as HTMLElement;
       this.templateNodeForClone.removeAttribute("repeat");

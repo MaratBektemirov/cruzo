@@ -308,4 +308,16 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
       return acc;
     }, this.rxList)
   }
+
+  public newRxValueAllFromBucket<A>(bucket: RxBucket<A>, id: keyof A) {
+    this.rxList ??= [];
+
+    return bucket.newRxValueAll(id, (value) => value, this.rxList)
+  }
+
+  public newRxStateAllFromBucket<A>(bucket: RxBucket<A>, id: keyof A) {
+    this.rxList ??= [];
+
+    return bucket.newRxStateAll(id, (value) => value, this.rxList)
+  }
 }

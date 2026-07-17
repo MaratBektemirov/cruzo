@@ -116,6 +116,73 @@ describe("RxBucket", () => {
     expect(() => bucket.setValue("missing" as keyof TestBucket, 1)).toThrow(/unknown id/);
     expect(() => bucket.newRxValue("missing" as keyof TestBucket, (v) => v, [])).toThrow(/unknown id/);
     expect(() => bucket.emitEvent("missing" as keyof TestBucket, "testEvent", {})).toThrow(/unknown id/);
+    expect(() => bucket.removeIndex("missing" as keyof TestBucket, "0")).toThrow(/unknown id/);
+  });
+
+  it("removeIndex drops value, state, and per-index rx lists for one id", () => {
+    const bucket = makeBucket();
+    const rxList: Rx<any>[] = [];
+    const value$ = bucket.newRxValue("input", (v) => v, rxList, null, "1");
+    const state$ = bucket.newRxState("input", (v) => v, rxList, "idle", "1");
+
+    bucket.setValue("input", "a", "0");
+    bucket.setValue("input", "b", "1");
+    bucket.setState("input", "busy", "1");
+
+    bucket.removeIndex("input", "1");
+
+    expect(bucket.getValue("input", "0")).toBe("a");
+    expect(bucket.getValue("input", "1")).toBeUndefined();
+    expect(bucket.getState("input", "1")).toBeUndefined();
+    expect(value$.actual).toBe("b");
+    expect(state$.actual).toBe("busy");
+  });
+});
+
+describe("RxBucket.newRxValueAll / newRxStateAll", () => {
+  it("newRxValueAll receives the full map from setValue", () => {
+    const bucket = makeBucket();
+    const rxList: Rx<any>[] = [];
+    const all$ = bucket.newRxValueAll("input", (v) => v, rxList);
+
+    bucket.setValue("input", "a", "0");
+    bucket.setValue("input", "b", "1");
+
+    expect(all$.actual).toEqual({ "0": "a", "1": "b" });
+  });
+
+  it("newRxValueAll receives the full map from setValues, not only the batch delta", () => {
+    const bucket = makeBucket();
+    const rxList: Rx<any>[] = [];
+    const all$ = bucket.newRxValueAll("input", (v) => v, rxList);
+
+    bucket.setValue("input", "keep", "0");
+    bucket.setValues({ input: { "1": "added" } });
+
+    expect(all$.actual).toEqual({ "0": "keep", "1": "added" });
+  });
+
+  it("newRxStateAll receives updates from setState and setStates", () => {
+    const bucket = makeBucket();
+    const rxList: Rx<any>[] = [];
+    const all$ = bucket.newRxStateAll("input", (v) => v, rxList);
+
+    bucket.setState("input", "loading", "0");
+    expect(all$.actual).toEqual({ "0": "loading" });
+
+    bucket.setStates({ input: { "1": "done" } });
+    expect(all$.actual).toEqual({ "0": "loading", "1": "done" });
+  });
+
+  it("throws on unknown id", () => {
+    const bucket = makeBucket();
+
+    expect(() =>
+      bucket.newRxValueAll("missing" as keyof TestBucket, (v) => v, []),
+    ).toThrow(/unknown id/);
+    expect(() =>
+      bucket.newRxStateAll("missing" as keyof TestBucket, (v) => v, []),
+    ).toThrow(/unknown id/);
   });
 });
 

@@ -121,6 +121,136 @@ describe("Template + VM integration", () => {
     expect(comp.node.textContent).toContain("solo");
   });
 
+  it("reconciles repeat clones by object reference on middle delete", async () => {
+    const a = { label: "a", id: "a" };
+    const b = { label: "b", id: "b" };
+    const c = { label: "c", id: "c" };
+
+    class ListComponent extends AbstractComponent {
+      static selector = "ref-repeat-delete-component";
+
+      items$ = this.newRx([a, b, c]);
+
+      getHTML() {
+        return `
+          <ul repeat="{{root.items$::rx}}" let-label="{{this.label}}" let-id="{{this.id}}">
+            <li class="item" data-id="{{id}}">{{label}}</li>
+          </ul>
+        `;
+      }
+    }
+
+    const comp = mountComponent(ListComponent);
+    const nodesBefore = [...comp.node.querySelectorAll(".item")];
+
+    const items = comp.items$.actual;
+    items.splice(1, 1);
+    comp.items$.update(items);
+    await flushMicrotasks();
+
+    expect(comp.node.querySelectorAll(".item")).toHaveLength(2);
+    expect(comp.node.querySelector('[data-id="a"]')).toBe(nodesBefore[0]);
+    expect(comp.node.querySelector('[data-id="c"]')).toBe(nodesBefore[2]);
+    expect(comp.node.querySelector('[data-id="b"]')).toBeNull();
+  });
+
+  it("reconciles repeat clones by object reference on insert and reorder", async () => {
+    const a = { label: "a", id: "a" };
+    const c = { label: "c", id: "c" };
+
+    class ListComponent extends AbstractComponent {
+      static selector = "ref-repeat-insert-component";
+
+      items$ = this.newRx([a, c]);
+
+      getHTML() {
+        return `
+          <ul repeat="{{root.items$::rx}}" let-label="{{this.label}}" let-id="{{this.id}}">
+            <li class="item" data-id="{{id}}">{{label}}</li>
+          </ul>
+        `;
+      }
+    }
+
+    const comp = mountComponent(ListComponent);
+    const nodeA = comp.node.querySelector('[data-id="a"]')!;
+    const nodeC = comp.node.querySelector('[data-id="c"]')!;
+
+    const b = { label: "b", id: "b" };
+    comp.items$.update([a, b, c]);
+    await flushMicrotasks();
+
+    expect(comp.node.querySelectorAll(".item")).toHaveLength(3);
+    expect(comp.node.querySelector('[data-id="a"]')).toBe(nodeA);
+    expect(comp.node.querySelector('[data-id="c"]')).toBe(nodeC);
+
+    comp.items$.update([c, a]);
+    await flushMicrotasks();
+
+    const items = [...comp.node.querySelectorAll(".item")];
+    expect(items).toHaveLength(2);
+    expect(items[0]).toBe(nodeC);
+    expect(items[1]).toBe(nodeA);
+  });
+
+  it("rebuilds all repeat clones when array items are replaced with new objects", async () => {
+    const a = { label: "a" };
+    const b = { label: "b" };
+
+    class ListComponent extends AbstractComponent {
+      static selector = "ref-repeat-spread-component";
+
+      items$ = this.newRx([a, b]);
+
+      getHTML() {
+        return `
+          <ul repeat="{{root.items$::rx}}" let-label="{{this.label}}">
+            <li class="item">{{label}}</li>
+          </ul>
+        `;
+      }
+    }
+
+    const comp = mountComponent(ListComponent);
+    const nodesBefore = [...comp.node.querySelectorAll(".item")];
+
+    comp.items$.update([{ label: "a" }, { label: "b" }]);
+    await flushMicrotasks();
+
+    const nodesAfter = [...comp.node.querySelectorAll(".item")];
+    expect(nodesAfter).toHaveLength(2);
+    expect(nodesAfter[0]).not.toBe(nodesBefore[0]);
+    expect(nodesAfter[1]).not.toBe(nodesBefore[1]);
+  });
+
+  it("updates repeat clone content when item object is mutated in place", async () => {
+    const a = { label: "before" };
+
+    class ListComponent extends AbstractComponent {
+      static selector = "ref-repeat-mutate-component";
+
+      items$ = this.newRx([a]);
+
+      getHTML() {
+        return `
+          <ul repeat="{{root.items$::rx}}" let-label="{{this.label}}">
+            <li class="item">{{label}}</li>
+          </ul>
+        `;
+      }
+    }
+
+    const comp = mountComponent(ListComponent);
+    const node = comp.node.querySelector(".item")!;
+
+    a.label = "after";
+    comp.items$.update(comp.items$.actual);
+    await flushMicrotasks();
+
+    expect(node.textContent).toBe("after");
+    expect(comp.node.querySelector(".item")).toBe(node);
+  });
+
   it("throws when ::rx is applied to a non-Rx repeat item", () => {
     class BadListComponent extends AbstractComponent {
       static selector = "bad-list-component";

@@ -12,6 +12,8 @@ export class RxBucket<A> {
     eventsByNames: {} as Record<keyof A, Record<string, Rx<BucketEvent<any>>[]>>,
     valuesByIndex: {} as Record<keyof A, Record<string, Rx<any>[]>>,
     statesByIndex: {} as Record<keyof A, Record<string, Rx<any>[]>>,
+    valuesAll: {} as Record<keyof A, Rx<any>[]>,
+    statesAll: {} as Record<keyof A, Rx<any>[]>,
     configs: {} as Record<keyof A, Rx<any>>,
   };
 
@@ -80,6 +82,7 @@ export class RxBucket<A> {
 
     (this.values[id] as { [index: string]: any })[index] = value;
     this.execRxs(this.rx.valuesByIndex[id][index], value, index+'', byUser);
+    this._updateRxValuesAll(id, this.values[id])
   }
 
   public setState(
@@ -96,6 +99,7 @@ export class RxBucket<A> {
 
     (this.states[id] as { [index: string]: any })[index] = value;
     this.execRxs(this.rx.statesByIndex[id][index], value, index+'', byUser);
+    this._updateRxStatesAll(id, this.states[id])
   }
 
   public setConfig(
@@ -141,6 +145,25 @@ export class RxBucket<A> {
     byUser = false
   ) {
     return this._setStates(RxBucket.wrapAtIndex(states, index), byUser);
+  }
+
+  public removeIndex(id: keyof A, index: string): void {
+    if (!this.values[id]) {
+      throw new Error(
+        `Cannot remove index for unknown id "${id as string}" (descriptor not found)`,
+      );
+    }
+
+    const key = String(index);
+
+    delete this.values[id][key];
+    delete this.states[id][key];
+
+    const valuesByIndex = this.rx.valuesByIndex[id];
+    if (valuesByIndex?.[key]) delete valuesByIndex[key]
+
+    const statesByIndex = this.rx.statesByIndex[id];
+    if (statesByIndex?.[key]) delete statesByIndex[key]
   }
 
   public newRxEvent<K extends keyof BucketEventMap, B>(
@@ -210,6 +233,44 @@ export class RxBucket<A> {
     return rxIndex;
   }
 
+  public newRxValueAll<B>(
+    id: keyof A,
+    fn: (value: { [index: string]: any }) => B,
+    rxList: Rx<any>[]
+  ) {
+    if (!this.values[id]) {
+      throw new Error(
+        `Cannot create value rx for unknown id "${id as string}" (descriptor not found)`
+      );
+    }
+
+    if (!this.rx.valuesAll[id]) this.rx.valuesAll[id] = [];
+
+    const rxIndex = new Rx<any>(this.rx.valuesAll[id], fn, this.values[id]);
+    rxList.push(rxIndex);
+
+    return rxIndex;
+  }
+
+  public newRxStateAll<B>(
+    id: keyof A,
+    fn: (value: { [index: string]: any }) => B,
+    rxList: Rx<any>[]
+  ) {
+    if (!this.states[id]) {
+      throw new Error(
+        `Cannot create state rx for unknown id "${id as string}" (descriptor not found)`
+      );
+    }
+
+    if (!this.rx.statesAll[id]) this.rx.statesAll[id] = [];
+
+    const rxIndex = new Rx<any>(this.rx.statesAll[id], fn, this.states[id]);
+    rxList.push(rxIndex);
+
+    return rxIndex;
+  }
+
   public emitEvent<K extends keyof BucketEventMap>(
     id: keyof A,
     name: K,
@@ -244,7 +305,15 @@ export class RxBucket<A> {
         this.values[id][index] = value[index];
         this.execRxs(this.rx.valuesByIndex[id][index], value[index], index + "", byUser);
       }
+
+      this._updateRxValuesAll(id, this.values[id])
     }
+  }
+
+  private _updateRxValuesAll(id: keyof A, values: {[index: string]: any}) {
+    const rxValuesAllForId = this.rx.valuesAll[id];
+
+    if (rxValuesAllForId) for (let i = 0; i < rxValuesAllForId.length; i++) rxValuesAllForId[i].update(values)
   }
 
   private _setStates(
@@ -264,7 +333,15 @@ export class RxBucket<A> {
         this.states[id][index] = state[index];
         this.execRxs(this.rx.statesByIndex[id][index], state[index], index, byUser);
       }
+
+      this._updateRxStatesAll(id, this.states[id])
     }
+  }
+
+  private _updateRxStatesAll(id: keyof A, states: {[index: string]: any}) {
+    const rxStatesAllForId = this.rx.statesAll[id];
+
+    if (rxStatesAllForId) for (let i = 0; i < rxStatesAllForId.length; i++) rxStatesAllForId[i].update(states)
   }
 
   private execRxs(
