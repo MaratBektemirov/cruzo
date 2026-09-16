@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0
+
+- `i18nService` — `lang$`, `setLang`, `connect(component, messages)` → `i18n$`, and `plural` via `Intl.PluralRules`
+- Locale JSON shape: `{ "en": { "title": "…", "files": { "one": "{{n}} file", "other": "{{n}} files" } } }`
+- UI kit built-in copy (`select` empty state, `toast` close aria-label) ships with `en` / `ru` / `fr`
+
 ## 1.1.0
 
 - `RxBucket.removeIndex(id, index)` — drop value, state, and per-index subscriptions for one component slot

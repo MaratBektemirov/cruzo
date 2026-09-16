@@ -1,5 +1,6 @@
-import { AbstractComponent, componentsRegistryService } from "cruzo";
+import { AbstractComponent, componentsRegistryService, i18nService } from "cruzo";
 import { UI_KIT } from "../const";
+import messages from "./select-component.json";
 
 export interface SelectItem {
   label: string;
@@ -24,6 +25,7 @@ export class SelectComponent extends AbstractComponent<SelectConfigParams, Recor
   open$ = this.newRx(false);
   items$ = this.newRx<SelectItem[]>(null);
   selectedLabel$ = this.newRx("");
+  i18n$ = i18nService.connect(this, messages);
 
   private itemsLoadToken: symbol = Symbol();
 
@@ -105,7 +107,7 @@ export class SelectComponent extends AbstractComponent<SelectConfigParams, Recor
               <span class="${UI_KIT}_option-label">{{this.label}}</span>
             </div>
           </div>
-          <div class="${UI_KIT}_empty" style="{{root.items$::rx && root.items$::rx.length ? 'display:none' : ''}}">Нет вариантов</div>
+          <div class="${UI_KIT}_empty" style="{{root.items$::rx && root.items$::rx.length ? 'display:none' : ''}}">{{root.i18n$::rx.noOptions}}</div>
         </div>
       </div>`;
   }

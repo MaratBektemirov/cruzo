@@ -1,6 +1,7 @@
-import { AbstractComponent, componentsRegistryService, toastService, Rx } from "cruzo";
+import { AbstractComponent, componentsRegistryService, toastService, Rx, i18nService } from "cruzo";
 import { UI_KIT } from "../const";
 import type { ToastAlignX, ToastAlignY, ToastItem } from "./types";
+import messages from "./toast-component.json";
 
 export type {
   ToastItem,
@@ -40,6 +41,7 @@ export class ToastComponent extends AbstractComponent {
 
   toasts$: Rx<ToastItem[], [v: ToastItem[]]> = toastService.toasts$;
   tick$ = this.newRx(0);
+  i18n$ = i18nService.connect(this, messages);
 
   getHTML() {
     return `<div class="${UI_KIT}_toast-host" attached="{{root.toasts$::rx && root.toasts$::rx.length}}">
@@ -55,7 +57,7 @@ export class ToastComponent extends AbstractComponent {
             <div class="${UI_KIT}_toast-title" attached="{{this.title}}">{{this.title}}</div>
             <div class="${UI_KIT}_toast-message">{{this.message}}</div>
           </div>
-          <button type="button" class="${UI_KIT}_toast-close" aria-label="Close">×</button>
+          <button type="button" class="${UI_KIT}_toast-close" aria-label="{{root.i18n$::rx.close}}">×</button>
         </div>
       </div>`;
   }

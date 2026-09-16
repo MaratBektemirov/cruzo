@@ -11,6 +11,6 @@
       "cruzo": ["./dist/index.d.ts"]
     }
   },
-  "include": ["ui-components/**/*.ts"],
+  "include": ["ui-components/**/*.ts", "ui-components/**/*.json"],
   "exclude": ["dist", "node_modules"]
 }

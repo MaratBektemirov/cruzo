@@ -15,7 +15,7 @@
 | | |
 | --- | --- |
 | **Start here** | [Overview](#overview) · [Install](#install) · [First component](#first-component) |
-| **Core** | [Templates](#templates) · [Components](#components) · [RxBucket](#rxbucket) |
+| **Core** | [Templates](#templates) · [Components](#components) · [RxBucket](#rxbucket) · [i18n](#i18n) |
 | **Services** | [Router](#router) · [HTTP](#http) |
 | **UI kit** | [Imports & CSS](#imports--css) · [Components](#ui-components) · [Toast](#toast) |
 | **Reference** | [Bundle size](#bundle-size) · [Public API](#public-api) · [Development](#development) · [Changelog](./CHANGELOG.md) |
@@ -269,6 +269,58 @@ Use buckets incrementally — only where cross-component wiring is needed; same 
 
 ---
 
+### i18n
+
+`i18nService` connects a locale JSON dictionary to a component. Put messages next to the component (e.g. `demo-toast-component.json`):
+
+```json
+{
+  "en": {
+    "title": "Files",
+    "files": {
+      "one": "{{n}} file",
+      "other": "{{n}} files"
+    }
+  },
+  "ru": {
+    "title": "Файлы",
+    "files": {
+      "one": "{{n}} файл",
+      "few": "{{n}} файла",
+      "many": "{{n}} файлов",
+      "other": "{{n}} файла"
+    }
+  }
+}
+```
+
+```ts
+import { AbstractComponent, i18nService } from "cruzo";
+import messages from "./demo-toast-component.json";
+
+class DemoToastComponent extends AbstractComponent {
+  static selector = "demo-toast-component";
+
+  count$ = this.newRx(1);
+  i18n$ = i18nService.connect(this, messages);
+
+  getHTML() {
+    return `
+      <h3>{{ root.i18n$::rx.title }}</h3>
+      <p>{{ root.i18n$::rx.plural("files", root.count$::rx) }}</p>
+    `;
+  }
+}
+
+i18nService.setLang("ru");
+```
+
+`plural` uses `Intl.PluralRules` for the active locale. `{{n}}` in forms is replaced with the number.
+
+Built-in UI kit strings follow the same service: `select` (`noOptions`) and `toast` (`close` aria-label) ship with `en` / `ru` / `fr`. Switch via `i18nService.setLang("fr")`.
+
+---
+
 ## Built-in services
 
 ### Router
@@ -470,7 +522,7 @@ import { Template } from "cruzo";
 import { AbstractComponent, componentsRegistryService } from "cruzo";
 
 // Tier 3 — full core (~14 KB gzip)
-import { RxBucket, routerService, RouteUrlBucket, HttpClient, toastService } from "cruzo";
+import { RxBucket, routerService, RouteUrlBucket, HttpClient, toastService, i18nService } from "cruzo";
 
 // Utils — decoupled from main entry
 import { delay } from "cruzo/utils";
@@ -495,6 +547,7 @@ import {
   routerService,
   RouteUrlBucket,
   toastService,
+  i18nService,
   HttpClient,
   HttpError,
   Rx,
@@ -505,7 +558,7 @@ import {
 } from "cruzo";
 ```
 
-Types: `HttpRequestOptions`, `Interceptors`, `HttpMethod`, `IHttpClient`, `HttpFactory`, `AbstractComponentConstructor`, `ComponentDescriptor`, `ComponentConnectedParams`, `BucketEvent`, `ComponentsList`, `RuleCompleted`.
+Types: `HttpRequestOptions`, `Interceptors`, `HttpMethod`, `IHttpClient`, `HttpFactory`, `AbstractComponentConstructor`, `ComponentDescriptor`, `ComponentConnectedParams`, `BucketEvent`, `ComponentsList`, `RuleCompleted`, `I18nMessages`, `I18nLocaleDict`, `I18nLocaleView`, `I18nPluralForms`, `I18nPluralCategory`.
 
 </details>
 
