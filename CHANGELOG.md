@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1
+
+- `lang$` resolves from `localStorage` → browser locale → `defaultLang`; `setLang` persists the choice
+- `setDefaultLang`; missing locale in a dictionary quietly falls back to `defaultLang`
+
 ## 1.2.0
 
 - `i18nService` — `lang$`, `setLang`, `connect(component, messages)` → `i18n$`, and `plural` via `Intl.PluralRules`

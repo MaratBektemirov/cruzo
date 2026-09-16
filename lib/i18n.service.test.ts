@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { AbstractComponent } from "./component";
 import { i18nService } from "./i18n.service";
 import type { I18nMessages } from "./types/i18n-types";
@@ -28,12 +28,37 @@ class I18nHostComponent extends AbstractComponent {
 }
 
 describe("i18nService", () => {
-  it("defaults to en and switches locale via setLang", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    i18nService.setDefaultLang("en");
     i18nService.setLang("en");
-    expect(i18nService.lang$.actual).toBe("en");
+  });
 
+  it("setLang persists to localStorage and detectLang reads it", () => {
     i18nService.setLang("ru");
-    expect(i18nService.lang$.actual).toBe("ru");
+
+    expect(localStorage.getItem("cruzo.i18n.lang")).toBe("ru");
+    expect(i18nService.detectLang()).toBe("ru");
+  });
+
+  it("detectLang falls back to defaultLang without storage or useful browser lang", () => {
+    localStorage.clear();
+    const original = navigator.language;
+    Object.defineProperty(navigator, "language", {
+      configurable: true,
+      get: () => "",
+    });
+    Object.defineProperty(navigator, "languages", {
+      configurable: true,
+      get: () => [],
+    });
+
+    expect(i18nService.detectLang()).toBe("en");
+
+    Object.defineProperty(navigator, "language", {
+      configurable: true,
+      get: () => original,
+    });
   });
 
   it("plural picks English forms", () => {
@@ -62,9 +87,19 @@ describe("i18nService", () => {
     expect(host.i18n$.actual.plural("files", 5)).toBe("5 файлов");
   });
 
-  it("throws on missing locale or key", () => {
-    expect(() => i18nService.plural(messages, "files", 1, "de")).toThrow(
-      /locale "de"/,
+  it("connect falls back to defaultLang when locale is missing", () => {
+    i18nService.setDefaultLang("en");
+    i18nService.setLang("de");
+    const host = new I18nHostComponent();
+
+    expect(host.i18n$.actual.title).toBe("Files");
+    expect(host.i18n$.actual.plural("files", 2)).toBe("2 files");
+  });
+
+  it("throws when both current and default locales are missing", () => {
+    i18nService.setDefaultLang("en");
+    expect(() => i18nService.plural({ ru: { title: "x" } }, "title", 1, "de")).toThrow(
+      /default locale "en"/,
     );
     expect(() => i18nService.plural(messages, "missing", 1, "en")).toThrow(
       /key "missing"/,

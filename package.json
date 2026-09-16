@@ -1,6 +1,6 @@
 {
   "name": "cruzo",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Zero-dependency reactive framework with an expression VM",
   "license": "MIT",
   "type": "module",

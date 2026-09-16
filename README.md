@@ -315,7 +315,7 @@ class DemoToastComponent extends AbstractComponent {
 i18nService.setLang("ru");
 ```
 
-`plural` uses `Intl.PluralRules` for the active locale. `{{n}}` in forms is replaced with the number.
+`plural` uses `Intl.PluralRules` for the active locale. `{{n}}` in forms is replaced with the number. On start, `lang$` is taken from `localStorage` (`cruzo.i18n.lang`), else browser locale (`ru-RU` → `ru`), else `defaultLang` (`setDefaultLang`, default `"en"`). `setLang` saves the choice. Missing locale in a dictionary also falls back to `defaultLang`.
 
 Built-in UI kit strings follow the same service: `select` (`noOptions`) and `toast` (`close` aria-label) ship with `en` / `ru` / `fr`. Switch via `i18nService.setLang("fr")`.
 

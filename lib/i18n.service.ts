@@ -7,6 +7,7 @@ import type {
 } from "./types/i18n-types";
 
 const N_TOKEN = /\{\{\s*n\s*\}\}/g;
+const STORAGE_KEY = "cruzo.i18n.lang";
 
 function isPluralForms(value: unknown): value is I18nPluralForms {
   return value != null && typeof value === "object" && !Array.isArray(value);
@@ -17,12 +18,26 @@ function substituteN(template: string, n: number) {
 }
 
 class I18nService extends AbstractService {
-  public lang$ = this.newRx<string>("en");
+  public defaultLang = "en";
+  public lang$ = this.newRx<string>(this.detectLang());
 
   private pluralRules = new Map<string, Intl.PluralRules>();
 
+  setDefaultLang(lang: string) {
+    this.defaultLang = lang;
+  }
+
   setLang(lang: string) {
+    this.persistLang(lang);
     this.lang$.update(lang);
+  }
+
+  detectLang() {
+    return this.readStoredLang() ?? this.readBrowserLang() ?? this.defaultLang;
+  }
+
+  applyDetectedLang() {
+    this.lang$.update(this.detectLang());
   }
 
   connect(component: AbstractComponent, messages: I18nMessages) {
@@ -65,28 +80,66 @@ class I18nService extends AbstractService {
     messages: I18nMessages,
     key: string,
     n: number,
-    lang = this.lang$.actual,
+    lang: string = this.lang$.actual,
   ) {
-    const dict = messages[lang];
+    const resolved = this.resolveLocale(messages, lang);
 
-    if (!dict) {
-      throw new Error(`i18n: locale "${lang}" not found in messages`);
+    return this.formatPlural(messages[resolved][key], n, resolved, key);
+  }
+
+  private readStoredLang() {
+    try {
+      if (typeof localStorage === "undefined") return null;
+
+      const lang = localStorage.getItem(STORAGE_KEY);
+
+      return lang || null;
+    } catch {
+      return null;
     }
+  }
 
-    return this.formatPlural(dict[key], n, lang, key);
+  private persistLang(lang: string) {
+    try {
+      if (typeof localStorage === "undefined") return;
+
+      localStorage.setItem(STORAGE_KEY, lang);
+    } catch {
+    }
+  }
+
+  private readBrowserLang() {
+    if (typeof navigator === "undefined") return null;
+
+    const raw = navigator.languages?.[0] || navigator.language;
+
+    if (!raw) return null;
+
+    const short = raw.toLowerCase().split("-")[0];
+
+    return short || null;
+  }
+
+  private resolveLocale(messages: I18nMessages, lang: string) {
+    if (messages[lang]) return lang;
+
+    if (messages[this.defaultLang]) return this.defaultLang;
+
+    throw new Error(
+      `i18n: locale "${lang}" not found in messages` +
+        (lang === this.defaultLang
+          ? ""
+          : `, and default locale "${this.defaultLang}" is missing too`),
+    );
   }
 
   private createLocaleView(messages: I18nMessages, lang: string): I18nLocaleView {
-    const dict = messages[lang];
-
-    if (!dict) {
-      throw new Error(`i18n: locale "${lang}" not found in messages`);
-    }
-
+    const resolved = this.resolveLocale(messages, lang);
+    const dict = messages[resolved];
     const view = { ...dict } as I18nLocaleView;
 
     view.plural = (key: string, n: number) =>
-      this.formatPlural(dict[key], n, lang, key);
+      this.formatPlural(dict[key], n, resolved, key);
 
     return view;
   }
