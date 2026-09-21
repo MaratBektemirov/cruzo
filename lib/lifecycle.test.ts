@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { AbstractComponent } from "./component";
 import { componentsRegistryService, clearRegistryInstancesForTests } from "./components-registry.service";
 import {
@@ -131,6 +131,38 @@ describe("lifecycle — components registry", () => {
 
     expect(instance.destroyed).toBe(true);
     expect(instance.rxList?.length).toBe(0);
+  });
+  it("unsubscribes every component RxFunc from an external Rx on disconnect", async () => {
+    const external = new Rx<number>([], (value: number) => value, 0);
+    const callbacks = Array.from({ length: 4 }, () => vi.fn((value: number) => value));
+
+    class ExternalRxComponent extends AbstractComponent {
+      static selector = "external-rx-component";
+      derived = callbacks.map(callback => this.newRxFunc(callback, external));
+
+      getHTML() {
+        return "<span>external subscriptions</span>";
+      }
+    }
+
+    const { instance, list } = mountLeakComponent(ExternalRxComponent);
+    await flushMicrotasks();
+    external.update(1);
+    await flushMicrotasks();
+    for (const callback of callbacks) {
+      expect(callback).toHaveBeenLastCalledWith(1);
+      callback.mockClear();
+    }
+    expect(countPostUpdateListeners(external)).toBe(4);
+
+    componentsRegistryService.removeComponents(list, true);
+    external.update(2);
+    await flushMicrotasks();
+
+    expect(instance.destroyed).toBe(true);
+    expect(instance.rxList).toHaveLength(0);
+    expect(countPostUpdateListeners(external)).toBe(0);
+    for (const callback of callbacks) expect(callback).not.toHaveBeenCalled();
   });
 });
 
