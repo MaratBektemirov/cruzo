@@ -57,7 +57,10 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
 
     if (this.connectedDependencies) componentsRegistryService.removeComponents(this.connectedDependencies)
 
-    if (this.rxList) while (this.rxList.length) this.rxList.pop().unsubscribe()
+    if (this.rxList) {
+      // unsubscribe removes the Rx from its group; do not remove it twice.
+      while (this.rxList.length) this.rxList[this.rxList.length - 1].unsubscribe()
+    }
 
     if (this.innerBucket) componentsRegistryService.disconnectBucket(this.innerBucket)
 
