@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0
+
+- Opt-in `repeat-key="{{ this.id }}"` — reuse repeat DOM/clones by key across new object identities; default remains reference identity ([#1](https://github.com/MaratBektemirov/cruzo/issues/1))
+- Duplicate or null/undefined `repeat-key` values throw (`duplicate repeat-key: …`)
+
 ## 1.2.1
 
 - `lang$` resolves from `localStorage` → browser locale → `defaultLang`; `setLang` persists the choice

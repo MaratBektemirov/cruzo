@@ -223,6 +223,196 @@ describe("Template + VM integration", () => {
     expect(nodesAfter[1]).not.toBe(nodesBefore[1]);
   });
 
+  it("preserves keyed repeat clones when items are replaced with new objects", async () => {
+    class ListComponent extends AbstractComponent {
+      static selector = "key-repeat-preserve-component";
+
+      items$ = this.newRx([
+        { id: 1, label: "A" },
+        { id: 2, label: "B" },
+      ]);
+
+      getHTML() {
+        return `
+          <ul repeat="{{root.items$::rx}}" repeat-key="{{this.id}}" let-label="{{this.label}}" let-id="{{this.id}}">
+            <li class="item" data-id="{{id}}">{{label}}</li>
+          </ul>
+        `;
+      }
+    }
+
+    const comp = mountComponent(ListComponent);
+    const nodesBefore = [...comp.node.querySelectorAll(".item")];
+
+    comp.items$.update([
+      { id: 1, label: "A updated" },
+      { id: 2, label: "B updated" },
+    ]);
+    await flushMicrotasks();
+
+    const nodesAfter = [...comp.node.querySelectorAll(".item")];
+    expect(nodesAfter).toHaveLength(2);
+    expect(nodesAfter[0]).toBe(nodesBefore[0]);
+    expect(nodesAfter[1]).toBe(nodesBefore[1]);
+    expect(nodesAfter[0].textContent).toBe("A updated");
+    expect(nodesAfter[1].textContent).toBe("B updated");
+  });
+
+  it("preserves nested component instances across keyed JSON refreshes", async () => {
+    const children: AbstractComponent[] = [];
+
+    class KeyedChildComponent extends AbstractComponent {
+      static selector = "keyed-repeat-child-component";
+
+      constructor() {
+        super();
+        children.push(this);
+      }
+
+      getHTML() {
+        return "<span>child</span>";
+      }
+    }
+
+    class ListComponent extends AbstractComponent {
+      static selector = "key-repeat-child-host-component";
+
+      dependencies = new Set([KeyedChildComponent.selector]);
+      items$ = this.newRx([{ id: 1 }, { id: 2 }]);
+
+      getHTML() {
+        return `
+          <keyed-repeat-child-component
+            repeat="{{root.items$::rx}}"
+            repeat-key="{{this.id}}"
+            data-id="{{this.id}}">
+          </keyed-repeat-child-component>
+        `;
+      }
+    }
+
+    componentsRegistryService.define(KeyedChildComponent);
+    const comp = mountComponent(ListComponent);
+    const instancesBefore = [...children];
+    const nodesBefore = instancesBefore.map((child) => child.node);
+
+    comp.items$.update([{ id: 1 }, { id: 2 }]);
+    await flushMicrotasks();
+
+    expect(children).toHaveLength(2);
+    expect(children[0]).toBe(instancesBefore[0]);
+    expect(children[1]).toBe(instancesBefore[1]);
+    expect(children[0].node).toBe(nodesBefore[0]);
+    expect(children[1].node).toBe(nodesBefore[1]);
+  });
+
+  it("reorders keyed repeat clones without remounting", async () => {
+    class ListComponent extends AbstractComponent {
+      static selector = "key-repeat-reorder-component";
+
+      items$ = this.newRx([
+        { id: "a", label: "a" },
+        { id: "b", label: "b" },
+      ]);
+
+      getHTML() {
+        return `
+          <ul repeat="{{root.items$::rx}}" repeat-key="{{this.id}}" let-label="{{this.label}}" let-id="{{this.id}}">
+            <li class="item" data-id="{{id}}">{{label}}</li>
+          </ul>
+        `;
+      }
+    }
+
+    const comp = mountComponent(ListComponent);
+    const nodeA = comp.node.querySelector('[data-id="a"]')!;
+    const nodeB = comp.node.querySelector('[data-id="b"]')!;
+
+    comp.items$.update([
+      { id: "b", label: "b" },
+      { id: "a", label: "a" },
+    ]);
+    await flushMicrotasks();
+
+    const items = [...comp.node.querySelectorAll(".item")];
+    expect(items).toHaveLength(2);
+    expect(items[0]).toBe(nodeB);
+    expect(items[1]).toBe(nodeA);
+  });
+
+  it("mounts and unmounts only affected keyed repeat clones", async () => {
+    class ListComponent extends AbstractComponent {
+      static selector = "key-repeat-patch-component";
+
+      items$ = this.newRx([
+        { id: "a", label: "a" },
+        { id: "b", label: "b" },
+      ]);
+
+      getHTML() {
+        return `
+          <ul repeat="{{root.items$::rx}}" repeat-key="{{this.id}}" let-label="{{this.label}}" let-id="{{this.id}}">
+            <li class="item" data-id="{{id}}">{{label}}</li>
+          </ul>
+        `;
+      }
+    }
+
+    const comp = mountComponent(ListComponent);
+    const nodeA = comp.node.querySelector('[data-id="a"]')!;
+
+    comp.items$.update([
+      { id: "a", label: "a" },
+      { id: "c", label: "c" },
+    ]);
+    await flushMicrotasks();
+
+    expect(comp.node.querySelector('[data-id="a"]')).toBe(nodeA);
+    expect(comp.node.querySelector('[data-id="b"]')).toBeNull();
+    expect(comp.node.querySelector('[data-id="c"]')?.textContent).toBe("c");
+  });
+
+  it("throws on duplicate repeat-key values", () => {
+    class ListComponent extends AbstractComponent {
+      static selector = "key-repeat-dup-component";
+
+      items$ = this.newRx([
+        { id: "x", label: "one" },
+        { id: "x", label: "two" },
+      ]);
+
+      getHTML() {
+        return `
+          <ul repeat="{{root.items$::rx}}" repeat-key="{{this.id}}" let-label="{{this.label}}">
+            <li class="item">{{label}}</li>
+          </ul>
+        `;
+      }
+    }
+
+    expect(() => mountComponent(ListComponent)).toThrow(/duplicate repeat-key: "x"/);
+  });
+
+  it("throws on null or undefined repeat-key values", () => {
+    class ListComponent extends AbstractComponent {
+      static selector = "key-repeat-missing-component";
+
+      items$ = this.newRx([{ id: null }, {}]);
+
+      getHTML() {
+        return `
+          <ul repeat="{{root.items$::rx}}" repeat-key="{{this.id}}">
+            <li class="item"></li>
+          </ul>
+        `;
+      }
+    }
+
+    expect(() => mountComponent(ListComponent)).toThrow(
+      /repeat-key must not be null or undefined/,
+    );
+  });
+
   it("updates repeat clone content when item object is mutated in place", async () => {
     const a = { label: "before" };
 

@@ -110,6 +110,7 @@ Plain `{{ root.title }}` (no `::rx`) reads the current value when the template u
 | Reactive read | `{{ root.field$::rx }}` |
 | One-time | `{{ once::root.version }}` |
 | Loop | `repeat="{{ root.items$::rx }}"` |
+| Loop key | `repeat-key="{{ this.id }}"` (opt-in; unique) |
 | Loop scope | `let-label="{{ this.label }}"` |
 | Conditional DOM | `attached="{{ root.open$::rx }}"` |
 | Raw HTML | `inner-html="{{ root.html$::rx }}"` |
@@ -117,7 +118,7 @@ Plain `{{ root.title }}` (no `::rx`) reads the current value when the template u
 **Context inside `{{ }}`:** `root` is the component instance (or `self` in standalone `Template`); `this` is the current `repeat` item.
 
 ```html
-<ul repeat="{{root.items$::rx}}" let-label="{{this.label}}" let-id="{{this.id}}">
+<ul repeat="{{root.items$::rx}}" repeat-key="{{this.id}}" let-label="{{this.label}}" let-id="{{this.id}}">
   <li onclick="{{root.pick(id)}}">{{label}}</li>
 </ul>
 
@@ -125,6 +126,8 @@ Plain `{{ root.title }}` (no `::rx`) reads the current value when the template u
   selected: {{root.selected$::rx ?? "none"}}
 </section>
 ```
+
+Default `repeat` matches items by **object reference**. With `repeat-key`, clones are reused by key across JSON refreshes (new objects, same id). Keys must be unique; duplicates throw `duplicate repeat-key: …`.
 
 #### Standalone `Template` (no component base)
 
