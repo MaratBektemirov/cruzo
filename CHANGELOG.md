@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.3.0
+## 1.3.1
 
 - Opt-in `repeat-key="{{ this.id }}"` — reuse repeat DOM/clones by key across new object identities; default remains reference identity ([#1](https://github.com/MaratBektemirov/cruzo/issues/1))
 - Duplicate or null/undefined `repeat-key` values throw (`duplicate repeat-key: …`)

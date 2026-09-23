@@ -8,6 +8,7 @@ import {
 } from "./router.service";
 import type { ComponentsList } from "./types/interfaces";
 import { Rx } from "./rx";
+import { RxBucket } from "./rx-bucket";
 import type { Template } from "./template";
 
 async function flushMicrotasks() {
@@ -132,6 +133,43 @@ describe("lifecycle — components registry", () => {
     expect(instance.destroyed).toBe(true);
     expect(instance.rxList?.length).toBe(0);
   });
+
+  it("unsubscribes bucket-backed rxList entries on disconnect", () => {
+    const bucket = new RxBucket({
+      link: { config: { activeCls: "" } },
+    });
+
+    class BucketLinkComponent extends AbstractComponent {
+      static selector = "bucket-link-component";
+      public hasOuterBucket = true;
+      public hasConfig = true;
+
+      getHTML() {
+        return `<span></span>`;
+      }
+    }
+
+    componentsRegistryService.define(BucketLinkComponent);
+    componentsRegistryService.connectBucket(bucket);
+
+    const node = document.createElement(BucketLinkComponent.selector);
+    node.setAttribute("component-id", "link");
+    node.setAttribute("component-index", "0");
+    node.setAttribute("bucket-id", String(bucket.id));
+    document.body.appendChild(node);
+
+    const list: ComponentsList = [];
+    componentsRegistryService.connectBySelector(BucketLinkComponent.selector, list);
+    const instance = list[0];
+
+    expect(instance.rxList?.length).toBeGreaterThan(0);
+
+    componentsRegistryService.removeComponents(list, true);
+
+    expect(instance.destroyed).toBe(true);
+    expect(instance.rxList?.length).toBe(0);
+  });
+
   it("unsubscribes every component RxFunc from an external Rx on disconnect", async () => {
     const external = new Rx<number>([], (value: number) => value, 0);
     const callbacks = Array.from({ length: 4 }, () => vi.fn((value: number) => value));

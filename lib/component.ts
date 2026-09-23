@@ -58,7 +58,11 @@ export abstract class AbstractComponent<Config = any, ValueType = any, StateType
     if (this.connectedDependencies) componentsRegistryService.removeComponents(this.connectedDependencies)
 
     if (this.rxList) {
-      while (this.rxList.length) this.rxList[this.rxList.length - 1].unsubscribe()
+      while (this.rxList.length) {
+        const rx = this.rxList[this.rxList.length - 1];
+        rx.unsubscribe();
+        if (this.rxList[this.rxList.length - 1] === rx) this.rxList.pop();
+      }
     }
 
     if (this.innerBucket) componentsRegistryService.disconnectBucket(this.innerBucket)
